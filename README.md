@@ -6,5 +6,5 @@ This project is inspired by books that I read: <br/>
 -"Tasks Manager" part: Pro MERN Stack by Vasan Subramanian. <br/>
 <br/>
 The technologies that I aim to use are: <br/>
--Backend: NestJS + MongoDB + the combination of (Typegoose & Typegraphql) <br/>
+-Backend: NestJS + MongoDB + GraphQL (thanks to @nest/graphql and @nest/mongoose, I don't need Typegoose and Type-graphql anymore) <br/>
 -Frontend: React + Redux <br/>
