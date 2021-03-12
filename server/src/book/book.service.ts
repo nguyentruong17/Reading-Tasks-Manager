@@ -16,19 +16,31 @@ export class BookService {
     try {
       result = await this.bookModel.find().exec();
     } catch (e) {
-      throw new Error(e)
+      throw new Error(e);
     }
-    return result
+    return result;
   }
 
   async addBook(book: Book): Promise<Book> {
+    /**
+     *const addedBook = new this.bookModel(book); // typeof addedBook is DocumentType<Book>
+     *const result = await addedBook.save() // typeof result is Document, not Book as expected!
+     *the product object in @param fn type is also Document
+     */
     const addedBook = new this.bookModel(book);
-    let result;
+    let result: Book;
     try {
-      const w = await addedBook.save() // this only return 'Document' type, not 'Book' type as expected!
-    } catch (e) {
-      throw new Error(e)
+      const d = await addedBook.save();
+      result = {
+        _id: d["_id"],
+        openLibId: d["openLibId"],
+        title: d["title"],
+        authors: d["authors"]
+      } as Book
+    } catch(e) {
+      console.log(e)
     }
-    return result
+
+    return result;
   }
 }
