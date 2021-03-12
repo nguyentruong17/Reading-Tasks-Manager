@@ -1,0 +1,25 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Book {
+  _id: String
+  authors: [String!]!
+  openLibId: String!
+  title: String!
+}
+
+input BookInput {
+  _id: String
+  authors: [String!]!
+  openLibId: String!
+  title: String!
+}
+
+type Mutation {
+  addBook(input: BookInput!): Book!
+}
+
+type Query {
+  books: [Book!]!
+}

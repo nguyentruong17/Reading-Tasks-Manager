@@ -1,16 +1,21 @@
 import { Module } from '@nestjs/common';
-import { TypegooseModule } from "nestjs-typegoose";
-import { TypeGraphQLModule } from 'typegraphql-nestjs';
+import { GraphQLModule } from '@nestjs/graphql';
+import { MongooseModule } from '@nestjs/mongoose';
+
+import { join } from 'path';
+
 import { BookModule } from './book/book.module';
 
 @Module({
   imports: [
-    TypegooseModule.forRoot("mongodb://admin:password@mongodb:27017", {
+    MongooseModule.forRoot("mongodb://admin:password@mongodb:27017", {
       useNewUrlParser: true,
     }),
-    TypeGraphQLModule.forRoot({
-      emitSchemaFile: true,
-      validate: false,
+    GraphQLModule.forRoot({
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
+      playground: true,
+      debug: false,
     }),
     BookModule,
   ],

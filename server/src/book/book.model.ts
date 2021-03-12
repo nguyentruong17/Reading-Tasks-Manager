@@ -1,20 +1,24 @@
 import { IsArray, IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { prop } from '@typegoose/typegoose';
-import { Field, InputType, Int, ObjectType } from 'type-graphql';
-import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
+
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Document, Schema as MongooseSchema } from 'mongoose';
+
+//import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 
 @ObjectType()
+@Schema()
 @InputType("BookInput")
 export class Book {
   
-  @Field((type) => ObjectIDScalar, {nullable: true})
-  readonly _id: string;
+  @Field((type) => String, {nullable: true})
+  readonly _id: MongooseSchema.Types.ObjectId;
 
   @IsString()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @prop({ required: true })
+  @Prop({ required: true })
   @Field()
   openLibId: string;
 
@@ -22,27 +26,31 @@ export class Book {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }) => value.trim())
-  @prop({ required: true })
+  @Prop({ required: true })
   @Field()
   title: string;
 
   @IsArray()
-  @prop({ type: () => [String] })
+  @Prop({ type: () => [String] })
   @Field((type) => [String])
   authors: Array<string>;
 
   // @IsArray()
-  // @prop({ type: () => [String] })
+  // @Prop({ type: () => [String] })
   // @Field((type) => [String])
   // subjects: Array<string>;
 
   // @IsNumber()
-  // @prop({ type: () => Number })
+  // @Prop({ type: () => Number })
   // @Field((type) => Int)
   // firstPublishYear: number;
 
   // @IsDateString()
-  // @prop({ required: true, type: () => Date })
+  // @Prop({ required: true, type: () => Date })
   // @Field()
   // firstAppearDate: Date;
 }
+
+export type BookDocument = Book & Document;
+
+export const BookSchema = SchemaFactory.createForClass(Book);

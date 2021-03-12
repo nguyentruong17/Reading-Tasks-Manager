@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Resolver, Query, Mutation, Arg } from 'type-graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Book } from './book.model';
 import { BookService } from './book.service';
 
@@ -14,7 +14,7 @@ export class BookResolver {
   }
 
   @Mutation((returns) => Book)
-  async addBook(@Arg('input') book: Book): Promise<Book> {
+  async addBook(@Args('input') book: Book): Promise<Book> {
     //console.log(book)
     return await this.bookService.addBook(book);
   }

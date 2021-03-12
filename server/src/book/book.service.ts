@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
-import { InjectModel } from 'nestjs-typegoose';
+//mongoose
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Schema as MongooseSchema } from 'mongoose';
 
-import { Book } from './book.model';
+import { Book, BookDocument } from './book.model';
 
 @Injectable()
 export class BookService {
   constructor(
-    @InjectModel(Book) private readonly bookModel: ReturnModelType<typeof Book>,
+    @InjectModel(Book.name) private readonly bookModel: Model<BookDocument>,
   ) {}
 
   async getBooks(): Promise<Book[] | null> {
@@ -22,25 +23,13 @@ export class BookService {
   }
 
   async addBook(book: Book): Promise<Book> {
-    /**
-     *const addedBook = new this.bookModel(book); // typeof addedBook is DocumentType<Book>
-     *const result = await addedBook.save() // typeof result is Document, not Book as expected!
-     *the product object in @param fn type is also Document
-     */
     const addedBook = new this.bookModel(book);
     let result: Book;
     try {
-      const d = await addedBook.save();
-      result = {
-        _id: d["_id"],
-        openLibId: d["openLibId"],
-        title: d["title"],
-        authors: d["authors"]
-      } as Book
-    } catch(e) {
-      console.log(e)
+      result = await addedBook.save();
+    } catch (e) {
+      throw new Error(e);
     }
-
     return result;
   }
 }
