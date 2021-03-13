@@ -2,19 +2,16 @@ import { IsArray, IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-val
 import { Transform } from 'class-transformer';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, Int, GraphQLISODateTime, InputType } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
 //import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 
+@Schema({ discriminatorKey: 'openLibId' }) //could be anything, just because I want to extends this class
 @ObjectType()
-@Schema()
-@InputType("BookInput")
-export class Book {
+@InputType('CreateBookInput')
+export class Book { //base class
   
-  @Field((type) => String, {nullable: true})
-  readonly _id: MongooseSchema.Types.ObjectId;
-
   @IsString()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
@@ -35,22 +32,43 @@ export class Book {
   @Field((type) => [String])
   authors: Array<string>;
 
-  // @IsArray()
-  // @Prop({ type: () => [String] })
-  // @Field((type) => [String])
-  // subjects: Array<string>;
+  @IsArray()
+  @Prop({ type: () => [String] })
+  @Field((type) => [String])
+  subjects: Array<string>;
 
-  // @IsNumber()
-  // @Prop({ type: () => Number })
-  // @Field((type) => Int)
-  // firstPublishYear: number;
+  @IsNumber()
+  @Prop({ type: () => Number })
+  @Field((type) => Int)
+  firstPublishYear: number;
 
-  // @IsDateString()
-  // @Prop({ required: true, type: () => Date })
-  // @Field()
-  // firstAppearDate: Date;
+  @IsArray()
+  @Prop({ type: () => [String] })
+  @Field((type) => [String])
+  covers: Array<string>;
+
 }
 
-export type BookDocument = Book & Document;
+//export const BookSchema = SchemaFactory.createForClass(Book); //we're not going to use this schema
 
-export const BookSchema = SchemaFactory.createForClass(Book);
+@Schema()
+@ObjectType()
+export class AddedBook extends Book {
+
+  @Field((type) => String)
+  readonly _id?: MongooseSchema.Types.ObjectId;
+  
+  @IsDateString()
+  @Prop({ required: true, type: () => Date })
+  @Field((type) => GraphQLISODateTime)
+  firstAppearDate: string;
+
+  @IsNumber()
+  @Prop({ type: () => Number })
+  @Field((type) => Int)
+  timesAdded: number;
+}
+
+export type AddedBookDocument = AddedBook & Document;
+
+export const AddedBookSchema = SchemaFactory.createForClass(AddedBook);
