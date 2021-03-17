@@ -2,32 +2,29 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AddedBook {
-  _id: String!
+type BaseBook {
   authors: [String!]!
   covers: [String!]!
-  firstAppearDate: DateTime!
-  firstPublishYear: Int!
-  openLibId: String!
+  openLibraryId: String!
   subjects: [String!]!
-  timesAdded: Int!
   title: String!
 }
 
 type Book {
+  _id: String!
   authors: [String!]!
   covers: [String!]!
-  firstPublishYear: Int!
-  openLibId: String!
+  firstAppearDate: DateTime!
+  openLibraryId: String!
   subjects: [String!]!
+  timesAdded: Int!
   title: String!
 }
 
 input CreateBookInput {
   authors: [String!]!
   covers: [String!]!
-  firstPublishYear: Int!
-  openLibId: String!
+  openLibraryId: String!
   subjects: [String!]!
   title: String!
 }
@@ -38,12 +35,13 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Mutation {
-  addBook(input: CreateBookInput!): AddedBook!
+  addBook(input: CreateBookInput!): Book!
+  login(input: String!): String!
 }
 
 type Query {
-  getBooks: [AddedBook!]!
-  searchOnlineBooks(input: SearchBookInput!): [Book!]!
+  getBooks: [Book!]!
+  searchOnlineBooks(input: SearchBookInput!): [BaseBook!]!
 }
 
 input SearchBookInput {

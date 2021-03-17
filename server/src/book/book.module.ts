@@ -1,7 +1,7 @@
 import { HttpModule, Module } from '@nestjs/common';
 
 import { MongooseModule } from '@nestjs/mongoose';
-import { AddedBook, AddedBookSchema } from './book.model';
+import { Book, BookSchema } from './book.model';
 
 //typegraphql
 import { BookResolver } from './book.resolver';
@@ -11,10 +11,10 @@ import { BookService } from './book.service';
   imports: [
     MongooseModule.forFeature([
       {
-        name: AddedBook.name,
-        schema: AddedBookSchema,
+        name: Book.name,
+        schema: BookSchema,
         discriminators: [
-          { name: AddedBook.name, schema: AddedBookSchema }
+          { name: Book.name, schema: BookSchema }
         ],
       },
     ]),

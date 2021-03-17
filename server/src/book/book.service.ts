@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Schema as MongooseSchema } from 'mongoose';
 
 //models + inputs + dtos
-import { AddedBook, Book, AddedBookDocument } from './book.model';
+import { BaseBook, Book, BookDocument } from './book.model';
 import { SearchBookInput } from './book.inputs';
 import { IBookOpenLib, IBookSearchResultOpenLib } from './book-openlib-interface';
 
@@ -17,17 +17,17 @@ const COVERS_API_IMG_EXTN = '.jpg'
 @Injectable()
 export class BookService {
   private _currentSearchInput: SearchBookInput;
-  private _currentSearchInputBooks: Book[];
+  private _currentSearchInputBooks: BaseBook[];
 
   constructor(
-    @InjectModel(AddedBook.name) private readonly _addedBookModel: Model<AddedBookDocument>,
+    @InjectModel(Book.name) private readonly _bookModel: Model<BookDocument>,
     private readonly _httpService: HttpService,
   ) {
     this._currentSearchInput = new SearchBookInput('', '', '');
     this._currentSearchInputBooks = [];
   }
 
-  async searchOnlineBooks(searchInput: SearchBookInput, offset = 0, limit = 5): Promise<Book[]> {
+  async searchOnlineBooks(searchInput: SearchBookInput, offset = 0, limit = 5): Promise<BaseBook[]> {
     const { title, author, subject } = searchInput
     try { 
       const result = await this._httpService.get(SEARCH_API_URL, {
@@ -47,7 +47,7 @@ export class BookService {
       const books = searchedBooks.map(b => {
         console.log(b)
         const book = {
-          openLibId: b.key.split('/')[2],
+          openLibraryId: b.key.split('/')[2],
           title: b.title,
           authors: b.author_name ? b.author_name : [],
           subjects: b.subject ? b.subject : [],
@@ -55,7 +55,7 @@ export class BookService {
           covers: b.cover_i ?
             COVERS_API_SIZES.map(size =>  `${COVERS_API_URL}id/${b.cover_i}-${size}${COVERS_API_IMG_EXTN}`)
             : []
-        } as Book
+        } as BaseBook
         return book
       })
 
@@ -78,9 +78,9 @@ export class BookService {
     
   }
 
-  async getBooks(skip = 0, limit = 50): Promise<AddedBook[]> {
+  async getBooks(skip = 0, limit = 50): Promise<Book[]> {
     try {
-      return await this._addedBookModel.find()
+      return await this._bookModel.find()
                       .skip(skip)
                       .limit(limit)
                       .exec();
@@ -89,11 +89,11 @@ export class BookService {
     }
   }
 
-  async addBook(input: Book): Promise<AddedBook> {
+  async addBook(input: BaseBook): Promise<Book> {
 
     try {
-      const openLibId = input.openLibId;
-      const found = await this._addedBookModel.findOne({openLibId})
+      const openLibraryId = input.openLibraryId;
+      const found = await this._bookModel.findOne({openLibraryId})
 
       if (found) {
         found.timesAdded += 1;
@@ -108,7 +108,7 @@ export class BookService {
 
         console.log(newBook)
 
-        const addedBook = new this._addedBookModel(newBook);
+        const addedBook = new this._bookModel(newBook);
         return await addedBook.save()
       }
 

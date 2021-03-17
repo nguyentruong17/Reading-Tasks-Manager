@@ -3,7 +3,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 //models + inputs + dtos
 import { SearchBookInput } from './book.inputs';
-import { AddedBook, Book } from './book.model';
+import { BaseBook, Book } from './book.model';
 
 //services
 import { BookService } from './book.service';
@@ -11,20 +11,23 @@ import { BookService } from './book.service';
 @Injectable()
 @Resolver()
 export class BookResolver {
-  constructor(private readonly bookService: BookService) {}
+  constructor(private readonly _bookService: BookService) {}
+
+  @Query((returns) => [BaseBook])
+  async searchOnlineBooks(@Args('input') searchInput: SearchBookInput): Promise<BaseBook[]> {
+    return await this._bookService.searchOnlineBooks(searchInput);
+  }
 
   @Query((returns) => [Book])
-  async searchOnlineBooks(@Args('input') searchInput: SearchBookInput): Promise<Book[]> {
-    return await this.bookService.searchOnlineBooks(searchInput);
+  async getBooks(): Promise<Book[]> {
+    return await this._bookService.getBooks();
   }
 
-  @Query((returns) => [AddedBook])
-  async getBooks(): Promise<AddedBook[]> {
-    return await this.bookService.getBooks();
-  }
-
-  @Mutation((returns) => AddedBook)
-  async addBook(@Args('input') book: Book): Promise<AddedBook> {
-    return await this.bookService.addBook(book);
+  //i think the addBook method should accept only the book's openlib id
+  //then the service is going to connect to openlib's book api and fill in the information
+  //TO-DO
+  @Mutation((returns) => Book)
+  async addBook(@Args('input') book: BaseBook): Promise<Book> {
+    return await this._bookService.addBook(book);
   }
 }

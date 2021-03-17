@@ -7,17 +7,17 @@ import { Document, Schema as MongooseSchema } from 'mongoose';
 
 //import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 
-@Schema({ discriminatorKey: 'openLibId' }) //could be anything, just because I want to extends this class
+@Schema({ discriminatorKey: 'openLibraryId' }) //could be anything, just because I want to extends this class
 @ObjectType()
 @InputType('CreateBookInput')
-export class Book { //base class
+export class BaseBook { //base class
   
   @IsString()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   @Field()
-  openLibId: string;
+  openLibraryId: string;
 
 
   @IsString()
@@ -37,10 +37,10 @@ export class Book { //base class
   @Field((type) => [String])
   subjects: Array<string>;
 
-  @IsNumber()
-  @Prop({ type: () => Number })
-  @Field((type) => Int)
-  firstPublishYear: number;
+  // @IsNumber()
+  // @Prop({ type: () => Number })
+  // @Field((type) => Int)
+  // firstPublishYear: number;
 
   @IsArray()
   @Prop({ type: () => [String] })
@@ -53,7 +53,9 @@ export class Book { //base class
 
 @Schema()
 @ObjectType()
-export class AddedBook extends Book {
+export class Book extends BaseBook {
+
+  readonly name = 'BOOK';
 
   @Field((type) => String)
   readonly _id?: MongooseSchema.Types.ObjectId;
@@ -69,6 +71,6 @@ export class AddedBook extends Book {
   timesAdded: number;
 }
 
-export type AddedBookDocument = AddedBook & Document;
+export type BookDocument = Book & Document;
 
-export const AddedBookSchema = SchemaFactory.createForClass(AddedBook);
+export const BookSchema = SchemaFactory.createForClass(Book);
