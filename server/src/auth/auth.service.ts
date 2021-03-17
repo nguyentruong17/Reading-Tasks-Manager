@@ -65,23 +65,24 @@ export class AuthService {
       const { data, info } = await this._authenticateWithGoogle(req, res);
 
       if (data) {
-        let user: any = await this._userModel.findOne({ gmail: data.email }).exec();
+        let user: any = await this._userModel.findOne({ gmail: data.email });
 
         if (!user) {
-          user = await this._userService.createuser({
+          user = await this._userService.createUser({
             googleId: data.id,
             gmail: data.email,
             firstName: data.firstName,
             lastName: data.lastName,
           } as BaseUser);
+          user.accessToken = data.accessToken;         
         } else {
-          console.log('Found user!')
+          //console.log('Found user!')
         }
 
         console.log(user)
 
         const payload: JwtPayload = {
-          email: user.gmail,
+          user,
         }
 
         const jwtToken = await this._jwtService.sign(payload);

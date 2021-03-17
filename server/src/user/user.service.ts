@@ -13,7 +13,7 @@ export class UserService {
     @InjectModel(User.name) private readonly _userModel: Model<UserDocument>,
   ) {}
 
-  async createuser(input: BaseUser): Promise<User> {
+  async createUser(input: BaseUser): Promise<User> {
     try {
       const email = input.gmail;
       const found = await this._userModel.findOne({ gmail: email });

@@ -1,3 +1,5 @@
+import { User } from "src/user/user.model";
+
 export interface JwtPayload {
-    email: string,
+    user: User,
 }

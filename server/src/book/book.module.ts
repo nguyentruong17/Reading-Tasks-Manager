@@ -3,7 +3,6 @@ import { HttpModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Book, BookSchema } from './book.model';
 
-//typegraphql
 import { BookResolver } from './book.resolver';
 import { BookService } from './book.service';
 
