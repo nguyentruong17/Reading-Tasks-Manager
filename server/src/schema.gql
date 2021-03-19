@@ -11,21 +11,20 @@ type BaseBook {
 }
 
 type Book {
-  _id: String!
+  _id: ID!
   authors: [String!]!
   covers: [String!]!
-  firstAppearDate: DateTime!
   openLibraryId: String!
+  owners: [String!]!
   subjects: [String!]!
   timesAdded: Int!
   title: String!
 }
 
-input CreateBookInput {
-  authors: [String!]!
-  covers: [String!]!
-  openLibraryId: String!
-  subjects: [String!]!
+input CreateTaskInput {
+  bookId: ID
+  description: String!
+  openLibraryBookId: String
   title: String!
 }
 
@@ -35,7 +34,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Mutation {
-  addBook(input: CreateBookInput!): Book!
+  createTask(input: CreateTaskInput!): Task!
   login(input: String!): String!
 }
 
@@ -48,4 +47,19 @@ input SearchBookInput {
   author: String
   subject: String
   title: String
+}
+
+type Task {
+  _id: String!
+  attachItem: BaseBook!
+  description: String!
+  history: [TaskHistory!]!
+  owner: String!
+  status: String!
+  title: String!
+}
+
+type TaskHistory {
+  createdAt: DateTime!
+  description: String!
 }

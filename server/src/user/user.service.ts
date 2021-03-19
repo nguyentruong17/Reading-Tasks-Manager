@@ -23,14 +23,12 @@ export class UserService {
           `User with email ${email} already existed`,
         );
       } else {
+
         const newUser = {
           ...input,
-          firstAppearDate: new Date().toISOString(),
-          tasks: 0,
-          books: 0,
-        } as User;
-
-        console.log(newUser);
+          tasks: [], //initalizing,
+          books: [], //initalizing
+        } as User
         const createdUser = new this._userModel(newUser);
         return await createdUser.save();
       }

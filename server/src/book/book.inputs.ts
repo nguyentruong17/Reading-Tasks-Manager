@@ -1,5 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsString } from 'class-validator';
+
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { Book } from './book.model';
 
 @InputType('SearchBookInput')
@@ -32,9 +34,11 @@ export class SearchBookInput {
   }
 }
 
-// @InputType('CreateBookInput') 
-// export class CreateBookInput extends Book { 
-  //the reason for not using this is graphql seems to recognizes this as empty
-  //athough it supports inheritance...
-
-// }
+@InputType('CreateBookInput') 
+export class CreateBookInput  { 
+  @IsString()
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
+  @Field(() => String)
+  openLibraryBookId: string;
+}

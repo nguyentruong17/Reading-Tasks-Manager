@@ -9,12 +9,15 @@ import { BookModule } from './book/book.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { TaskModule } from './task/task.module';
 
 
 @Module({
   imports: [
     MongooseModule.forRoot("mongodb://admin:password@mongodb:27017", {
       useNewUrlParser: true,
+      useFindAndModify: true,
+      useCreateIndex: true,
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
@@ -30,6 +33,7 @@ import { ConfigModule } from '@nestjs/config';
     BookModule,
     UserModule,
     AuthModule,
+    TaskModule,
   ],
   controllers: [],
   providers: [],

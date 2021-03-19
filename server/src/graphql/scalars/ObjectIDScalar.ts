@@ -1,13 +1,15 @@
 //https://github.com/Urigo/graphql-scalars/blob/master/src/scalars/ObjectID.ts
-import { Kind, GraphQLError, ValueNode, GraphQLScalarType } from 'graphql';
+import { Kind, GraphQLError, ValueNode } from 'graphql';
 import { Scalar, CustomScalar } from '@nestjs/graphql';
+//import { T} from '@nestjs/mongoose';
+
+import { Schema as MongooseSchema } from 'mongoose';
 
 const MONGODB_OBJECTID_REGEX = /*#__PURE__*/ /^[A-Fa-f0-9]{24}$/;
 
 // @Scalar('ObjectID', (type) => String)
 // export class ObjectIDScalar implements CustomScalar<String, String> {
-//   description:
-//     'NestJS Custom Scalar for MongoDB ObjectId'
+//   description: 'NestJS Custom Scalar for MongoDB ObjectId';
 
 //   serialize(value: string) {
 //     if (!MONGODB_OBJECTID_REGEX.test(value)) {
@@ -27,6 +29,8 @@ const MONGODB_OBJECTID_REGEX = /*#__PURE__*/ /^[A-Fa-f0-9]{24}$/;
 //     }
 
 //     return value;
+
+//     //return value;
 //   }
 
 //   parseLiteral(ast: ValueNode) {
@@ -45,6 +49,7 @@ const MONGODB_OBJECTID_REGEX = /*#__PURE__*/ /^[A-Fa-f0-9]{24}$/;
 //     return ast.value;
 //   }
 // }
+
 // const MONGODB_OBJECTID_REGEX = /*#__PURE__*/ /^[A-Fa-f0-9]{24}$/;
 
 // export const ObjectIDScalar = /*#__PURE__*/ new GraphQLScalarType({

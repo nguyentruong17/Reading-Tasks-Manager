@@ -16,6 +16,6 @@ import { UserService } from './user.service';
     ]),
   ],
   providers: [UserService],
-  exports: [UserService],
+  exports: [MongooseModule],
 })
 export class UserModule {}

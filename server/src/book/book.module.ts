@@ -6,19 +6,24 @@ import { Book, BookSchema } from './book.model';
 import { BookResolver } from './book.resolver';
 import { BookService } from './book.service';
 
+//import { ObjectIDScalar } from 'src/graphql/scalars/ObjectIDScalar';
+
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
         name: Book.name,
         schema: BookSchema,
-        discriminators: [
-          { name: Book.name, schema: BookSchema }
-        ],
+        discriminators: [{ name: Book.name, schema: BookSchema }],
       },
     ]),
     HttpModule,
   ],
-  providers: [BookResolver, BookService],
+  providers: [
+    BookResolver,
+    BookService,
+    // ObjectIDScalar,
+  ],
+  exports: [MongooseModule],
 })
 export class BookModule {}

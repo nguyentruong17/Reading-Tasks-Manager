@@ -38,6 +38,6 @@ import { UserService } from 'src/user/user.service';
     ]),
   ],
   providers: [AuthResolver, AuthService, GoogleStrategy, JwtStrategy, UserService],
-  exports: [AuthService, PassportModule, GoogleStrategy],
+  exports: [PassportModule, PassportModule],
 })
 export class AuthModule { }
