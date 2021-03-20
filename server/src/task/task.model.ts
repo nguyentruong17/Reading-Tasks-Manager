@@ -4,9 +4,10 @@ import { Transform } from 'class-transformer';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
+import { ObjectIdScalar } from 'src/graphql/scalars/ObjectIdScalar';
 
-//import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 import { TaskStatus } from './task-status.enum';
 import { TaskHistory, TaskHistorySchema } from './task-history.model';
 import { BaseBookMongo, BaseBookMongoSchema } from 'src/book/book.model';
@@ -53,8 +54,8 @@ Object.defineProperty(BaseTask, 'name', {
 @Schema({ discriminatorKey: '_id' })
 @ObjectType()
 export class BaseTaskMongo extends BaseTask { 
-  @Field((type) => ID) // how to use the objectid scalar?
-  readonly _id: MongooseSchema.Types.ObjectId;
+  @Field()
+  readonly _id: ObjectId;
 }
 Object.defineProperty(BaseTaskMongo, 'name', {
   value: BASE_TASK_MONGO_MODEL_NAME,
@@ -70,8 +71,8 @@ export class Task extends BaseTaskMongo {
   @IsString()
   @IsNotEmpty()
   @Prop({ type: MongooseSchema.Types.ObjectId })
-  @Field((type) => String)
-  owner: MongooseSchema.Types.ObjectId;
+  @Field()
+  owner: ObjectId;
 
   @IsNotEmpty()
   @Prop({ type: BaseBookMongoSchema })

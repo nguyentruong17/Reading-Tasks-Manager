@@ -11,7 +11,8 @@ import {
 
 //mongoose
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema as MongooseSchema } from 'mongoose';
+import { Model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 //models + inputs + dtos
 import { BaseBook, Book, BookDocument } from './book.model';
@@ -234,7 +235,7 @@ export class BookService {
 
   async addExistingBook(
     user: User,
-    bookId: MongooseSchema.Types.ObjectId,
+    bookId: ObjectId,
   ): Promise<Book> {
     const userId = user._id;
     try {
@@ -255,7 +256,7 @@ export class BookService {
         throw new NotFoundException(`Book with ObjectId ${bookId} not found.`);
       }
     } catch (e) {
-      //console.log('In Catch:', e);
+      console.log('In Catch:', e);
       throw new InternalServerErrorException(e);
     }
   }

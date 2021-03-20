@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TaskModule } from 'src/task/task.module';
 import { BookModule } from 'src/book/book.module';
 
+import { ObjectIdScalar } from 'src/graphql/scalars/ObjectIdScalar';
+
 import { User, UserSchema } from './user.model';
 
 import { UserResolver } from './user.resolver';
@@ -20,7 +22,7 @@ import { UserService } from './user.service';
     BookModule,
     TaskModule,
   ],
-  providers: [UserResolver, UserService],
+  providers: [ObjectIdScalar, UserResolver, UserService],
   exports: [MongooseModule, UserService],
 })
 export class UserModule {}

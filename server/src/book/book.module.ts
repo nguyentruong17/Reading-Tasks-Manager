@@ -6,7 +6,7 @@ import { Book, BookSchema } from './book.model';
 import { BookResolver } from './book.resolver';
 import { BookService } from './book.service';
 
-//import { ObjectIDScalar } from 'src/graphql/scalars/ObjectIDScalar';
+import { ObjectIdScalar } from 'src/graphql/scalars/ObjectIdScalar';
 
 @Module({
   imports: [
@@ -20,9 +20,9 @@ import { BookService } from './book.service';
     HttpModule,
   ],
   providers: [
+    ObjectIdScalar,
     BookResolver,
     BookService,
-    // ObjectIDScalar,
   ],
   exports: [MongooseModule, BookService],
 })

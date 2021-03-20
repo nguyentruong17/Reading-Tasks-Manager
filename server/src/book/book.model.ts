@@ -4,8 +4,9 @@ import { Transform } from 'class-transformer';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Field, ObjectType, Int, ID } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
-//import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
+import { ObjectIdScalar } from 'src/graphql/scalars/ObjectIdScalar';
 
 export const BASE_BOOK_MODEL_NAME = 'BaseBook';
 export const BASE_BOOK_MONGO_MODEL_NAME = 'BaseBookMongo';
@@ -53,8 +54,8 @@ Object.defineProperty(BaseBook, 'name', {
 @Schema({ discriminatorKey: '_id' })
 @ObjectType()
 export class BaseBookMongo extends BaseBook { 
-  @Field((type) => ID) // how to use the objectid scalar?
-  readonly _id: MongooseSchema.Types.ObjectId;
+  @Field()
+  readonly _id: ObjectId;
 }
 Object.defineProperty(BaseBookMongo, 'name', {
   value: BASE_BOOK_MONGO_MODEL_NAME,
@@ -68,8 +69,8 @@ export const BaseBookMongoSchema = SchemaFactory.createForClass(BaseBookMongo);
 export class Book extends BaseBookMongo {
 
   @Prop({ type: [MongooseSchema.Types.ObjectId] })
-  @Field((type) => [String])
-  owners: MongooseSchema.Types.ObjectId[];
+  @Field((type) => [ID]) //@Field((type) => [ObjectId]) doesnt work
+  owners: Array<ObjectId>;
 
   @IsNumber()
   @Prop({ type: () => Number })

@@ -13,15 +13,12 @@ import {
   ObjectType,
   Int,
   InputType,
-  ID,
 } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 import { BaseBookMongoSchema, BaseBookMongo } from 'src/book/book.model';
 import { TaskSchema, Task } from 'src/task/task.model';
-
-
-//import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 
 export const BASE_USER_MODEL_NAME = 'BaseUser';
 export const BASE_USER_MONGO_MODEL_NAME = 'BaseUserMongo';
@@ -64,8 +61,8 @@ Object.defineProperty(BaseUser, 'name', {
 @Schema({ discriminatorKey: '_id' })
 @ObjectType()
 export class BaseUserMongo extends BaseUser { 
-  @Field((type) => ID) // how to use the objectid scalar?
-  readonly _id: MongooseSchema.Types.ObjectId;
+  @Field()
+  readonly _id: ObjectId;
 }
 Object.defineProperty(BaseUserMongo, 'name', {
   value: BASE_USER_MONGO_MODEL_NAME,
@@ -86,12 +83,12 @@ export class User extends BaseUserMongo {
   @IsArray()
   @Prop({ type:() => [TaskSchema] })
   @Field((type) => [Task])
-  tasks: Task[];
+  tasks: Array<Task>;
 
   @IsArray()
   @Prop({ type: [BaseBookMongoSchema] })
   @Field((type) => [BaseBookMongoSchema])
-  books: BaseBookMongo[];
+  books: Array<BaseBookMongo>;
 }
 Object.defineProperty(User, 'name', {
   value: USER_NAME,

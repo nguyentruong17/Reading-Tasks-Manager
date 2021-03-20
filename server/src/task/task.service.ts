@@ -1,14 +1,18 @@
 import {
   BadRequestException,
-  forwardRef,
+  // forwardRef,
+  // HttpException,
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 //mongoose
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 //models + inputs + dtos
 import { CreateTaskInput } from './task.inputs';
@@ -25,13 +29,15 @@ export class TaskService {
   constructor(
     @InjectModel(Task.name) private readonly _taskModel: Model<TaskDocument>,
 
-    @Inject(forwardRef(() => BookService))
+    //@Inject(forwardRef(() => BookService))
     private readonly _bookService: BookService,
   ) {}
   async createTask(user: User, input: CreateTaskInput): Promise<Task> {
     try {
       const bookId = input.bookId ? input.bookId : '';
-      const openLibraryBookId = input.openLibraryBookId ? input.openLibraryBookId.trim() : '';
+      const openLibraryBookId = input.openLibraryBookId
+        ? input.openLibraryBookId.trim()
+        : '';
 
       if (!bookId && !openLibraryBookId) {
         throw new BadRequestException(
@@ -60,7 +66,7 @@ export class TaskService {
           title: book.title,
           authors: book.authors,
           subjects: book.subjects,
-          covers: book.covers
+          covers: book.covers,
         } as BaseBookMongo,
       };
 
@@ -69,6 +75,30 @@ export class TaskService {
     } catch (e) {
       console.log(e);
       throw new InternalServerErrorException(e);
+    }
+  }
+
+  async deleteTask(
+    currentUser: User,
+    taskId: ObjectId,
+  ): Promise<ObjectId> {
+    const userId = currentUser._id;
+    try {
+      const found = await this._taskModel.findById(taskId);
+
+      if (found) {
+        if (found.owner === userId) {
+          await found.deleteOne();
+          return taskId;
+        } else {
+          throw new UnauthorizedException();
+        }
+      } else {
+        throw new NotFoundException(`Task with ObjectId ${taskId} not found.`);
+      }
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException();
     }
   }
 }

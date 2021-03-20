@@ -1,5 +1,5 @@
 import { InputType, Field, ID } from '@nestjs/graphql';
-import { Schema as MongooseSchema } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
@@ -22,8 +22,8 @@ export class CreateTaskInput {
   description: string;
 
   @IsOptional()
-  @Field((type) => ID, { nullable: true }) //how to use ObjectIdScalar?
-  bookId: MongooseSchema.Types.ObjectId;
+  @Field({ nullable: true })
+  bookId: ObjectId;
 
   @IsOptional()
   @Field((type) => String, { nullable: true })

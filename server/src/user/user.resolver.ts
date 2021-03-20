@@ -1,5 +1,6 @@
-import { Injectable, UseGuards } from '@nestjs/common';
+import { BadRequestException, Injectable, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { ObjectId } from 'mongodb';
 
 //models + inputs + dtos
 import { CreateTaskInput } from 'src/task/task.inputs';
@@ -25,5 +26,19 @@ export class UserResolver {
     @Args('input') input: CreateTaskInput,
   ): Promise<Task> {
     return await this._userService.createTask(currentUser, input);
+  }
+
+  @Mutation((returns) => Task)
+  @UseGuards(GqlAuthGuard)
+  async deleteTask(
+    @CurrentUser() currentUser: User,
+    @Args('taskId') taskId: string,
+  ): Promise<ObjectId> {
+    const isValid = ObjectId.isValid(taskId);
+    if (isValid) {
+      return await this._userService.deleteTask(currentUser, new ObjectId(taskId));
+    } else {
+      throw new BadRequestException('taskId must be an ObjectId')
+    }
   }
 }

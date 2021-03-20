@@ -6,7 +6,8 @@ import {
 
 //mongoose
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema as MongooseSchema } from 'mongoose';
+import { Model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 import { CreateTaskInput } from 'src/task/task.inputs';
 
 //models + inputs + dtos
@@ -51,10 +52,6 @@ export class UserService {
         currentUser,
         input,
       );
-      // const tasks = [
-      //   ...currentUser.tasks,
-      //   createdTask
-      // ]
       const found = await this._userModel.findByIdAndUpdate(
         currentUser._id,
         {
@@ -62,7 +59,9 @@ export class UserService {
             tasks: createdTask,
           },
 
-          'books.openLibraryBookId': { '$ne': `${createdTask.attachItem.openLibraryId}` },
+          'books.openLibraryBookId': {
+            $ne: `${createdTask.attachItem.openLibraryId}`,
+          },
           $addToSet: {
             books: createdTask.attachItem,
           },
@@ -81,6 +80,32 @@ export class UserService {
         throw new InternalServerErrorException('Error');
       }
     } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException(e);
+    }
+  }
+
+  async deleteTask(
+    currentUser: User,
+    taskId: ObjectId,
+  ): Promise<ObjectId> {
+    const userId = currentUser._id;
+    try {
+      await this._taskService.deleteTask(currentUser, taskId);
+      const found = await this._userModel.findByIdAndUpdate(userId, {
+        $pull: {
+          tasks: { _id: taskId },
+        },
+      });
+
+      if (found) {
+        return taskId;
+      } else {
+        //shouldnt happen, becauser the currentUser is retrieved from the db at authentication
+        throw new InternalServerErrorException('Error');
+      }
+    } catch (e) {
+      console.log(e);
       throw new InternalServerErrorException(e);
     }
   }
