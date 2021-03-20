@@ -20,7 +20,7 @@ export class AuthResolver {
   
   @Mutation((returns) => String)
   public async login(
-    @Args('input') accessToken: string,
+    @Args('idToken') accessToken: string,
     @Context() { req, res },
   ): Promise<string> {
     return this._authService.authenticate(accessToken, req, res)

@@ -44,8 +44,8 @@ scalar DateTime
 
 type Mutation {
   createTask(input: CreateTaskInput!): Task!
-  deleteTask(taskId: String!): Task!
-  login(input: String!): String!
+  deleteTask(taskId: ObjectId!): ObjectId!
+  login(idToken: String!): String!
 }
 
 """ObjectId custom scalar type"""

@@ -28,11 +28,11 @@ export class UserResolver {
     return await this._userService.createTask(currentUser, input);
   }
 
-  @Mutation((returns) => Task)
+  @Mutation((returns) => ObjectId)
   @UseGuards(GqlAuthGuard)
   async deleteTask(
     @CurrentUser() currentUser: User,
-    @Args('taskId') taskId: string,
+    @Args('taskId') taskId: ObjectId,
   ): Promise<ObjectId> {
     const isValid = ObjectId.isValid(taskId);
     if (isValid) {

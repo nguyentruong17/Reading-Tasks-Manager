@@ -87,7 +87,7 @@ export class TaskService {
       const found = await this._taskModel.findById(taskId);
 
       if (found) {
-        if (found.owner === userId) {
+        if (found.owner.equals(userId)) {
           await found.deleteOne();
           return taskId;
         } else {
