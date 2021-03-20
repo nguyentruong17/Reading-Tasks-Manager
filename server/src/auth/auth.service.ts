@@ -74,10 +74,12 @@ export class AuthService {
             firstName: data.firstName,
             lastName: data.lastName,
           } as BaseUser);
-          user.accessToken = data.accessToken;         
+                   
         } else {
           //console.log('Found user!')
         }
+
+        user.accessToken = data.accessToken;
 
         console.log(user)
 

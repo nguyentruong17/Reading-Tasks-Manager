@@ -10,6 +10,15 @@ type BaseBook {
   title: String!
 }
 
+type BaseBookMongo {
+  _id: ID!
+  authors: [String!]!
+  covers: [String!]!
+  openLibraryId: String!
+  subjects: [String!]!
+  title: String!
+}
+
 type Book {
   _id: ID!
   authors: [String!]!
@@ -50,8 +59,8 @@ input SearchBookInput {
 }
 
 type Task {
-  _id: String!
-  attachItem: BaseBook!
+  _id: ID!
+  attachItem: BaseBookMongo!
   description: String!
   history: [TaskHistory!]!
   owner: String!

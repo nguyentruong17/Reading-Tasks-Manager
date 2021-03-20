@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
 import { User } from 'src/user/user.model';
@@ -7,6 +7,11 @@ import { User } from 'src/user/user.model';
 export const CurrentUser = createParamDecorator<User>(
   (data: unknown, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
-    return ctx.getContext().req.user as User;
+    const user = ctx.getContext().req.user as User;
+    // console.log(user)
+    // if (!user) {
+    //   throw new UnauthorizedException()
+    // }
+    return user;
   },
 );

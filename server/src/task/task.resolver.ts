@@ -16,14 +16,14 @@ import { CurrentUser } from 'src/auth/auth-gql.decorators';
 @Injectable()
 @Resolver()
 export class TaskResolver {
-  constructor(private readonly _taskService: TaskService) {}
+  // constructor(private readonly _taskService: TaskService) {}
 
-  @Mutation((returns) => Task)
-  @UseGuards(GqlAuthGuard)
-  async createTask(
-    @CurrentUser() currentUser: User,
-    @Args('input') input: CreateTaskInput,
-  ): Promise<Task> {
-    return await this._taskService.createTask(currentUser, input);
-  }
+  // @Mutation((returns) => Task)
+  // @UseGuards(GqlAuthGuard)
+  // async createTask(
+  //   @CurrentUser() currentUser: User,
+  //   @Args('input') input: CreateTaskInput,
+  // ): Promise<Task> {
+  //   return await this._taskService.createTask(currentUser, input);
+  // }
 }

@@ -11,7 +11,7 @@ import {
 
 //mongoose
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema as MongooseSchema, Schema } from 'mongoose';
+import { Model, Schema as MongooseSchema } from 'mongoose';
 
 //models + inputs + dtos
 import { BaseBook, Book, BookDocument } from './book.model';
@@ -141,7 +141,7 @@ export class BookService {
 
   //this method is for creating a book.
   //the method does not check if a book has created or not.
-  async createBook(
+  private async _createBook(
     user: User,
     createBookInput: CreateBookInput,
   ): Promise<Book> {
@@ -189,7 +189,7 @@ export class BookService {
           }),
         );
       }
-      const newBook = {
+      const createdBook = new this._bookModel({
         openLibraryId: b.key.split('/')[2],
         title: b.title,
         subjects: b.subjects ? b.subjects : [],
@@ -197,8 +197,7 @@ export class BookService {
         authors,
         timesAdded: 1, //initalizing
         owners: [userId], //initalizing
-      } as Book;
-      const createdBook = new this._bookModel(newBook);
+      });
       return await createdBook.save();
     } catch (e) {
       throw new InternalServerErrorException(e);
@@ -209,7 +208,7 @@ export class BookService {
     const userId = user._id;
     try {
       const found = await this._bookModel.findOneAndUpdate(
-        { openLibraryBookId },
+        { openLibraryId: openLibraryBookId },
         {
           $inc: { timesAdded: 1 },
           $addToSet: { owners: userId },
@@ -223,8 +222,9 @@ export class BookService {
       if (found) {
         return found;
       } else {
+        console.log('Not found');
         const input = { openLibraryBookId };
-        return await this.createBook(user, input);
+        return await this._createBook(user, input);
       }
     } catch (e) {
       console.log(e);
@@ -234,7 +234,7 @@ export class BookService {
 
   async addExistingBook(
     user: User,
-    bookId: Schema.Types.ObjectId,
+    bookId: MongooseSchema.Types.ObjectId,
   ): Promise<Book> {
     const userId = user._id;
     try {

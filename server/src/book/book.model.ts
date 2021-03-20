@@ -4,14 +4,14 @@ import { Transform } from 'class-transformer';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Field, ObjectType, Int, ID } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { User } from 'src/user/user.model';
 
 //import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 
-export const BASE_BOOK_NAME = 'BaseBook';
-export const BOOK_NAME = 'Book';
+export const BASE_BOOK_MODEL_NAME = 'BaseBook';
+export const BASE_BOOK_MONGO_MODEL_NAME = 'BaseBookMongo';
+export const BOOK_MODEL_NAME = 'Book';
 
-@Schema({ discriminatorKey: 'openLibraryId' }) //could be anything, just because I want to extends this class
+@Schema({ discriminatorKey: 'openLibraryId', _id: false }) //could be anything, just because I want to extends this class
 @ObjectType()
 export class BaseBook { //base class
   
@@ -45,22 +45,29 @@ export class BaseBook { //base class
   covers: Array<string>;
 
 }
-
 Object.defineProperty(BaseBook, 'name', {
-  value: BASE_BOOK_NAME,
+  value: BASE_BOOK_MODEL_NAME,
   writable: false
 });
 
-//export const BookSchema = SchemaFactory.createForClass(Book); //we're not going to use this schema
+@Schema({ discriminatorKey: '_id' })
+@ObjectType()
+export class BaseBookMongo extends BaseBook { 
+  @Field((type) => ID) // how to use the objectid scalar?
+  readonly _id: MongooseSchema.Types.ObjectId;
+}
+Object.defineProperty(BaseBookMongo, 'name', {
+  value: BASE_BOOK_MONGO_MODEL_NAME,
+  writable: false
+});
+export const BaseBookMongoSchema = SchemaFactory.createForClass(BaseBookMongo);
+
 
 @Schema()
 @ObjectType()
-export class Book extends BaseBook {
+export class Book extends BaseBookMongo {
 
-  @Field((type) => ID) // how to use the objectid scalar?
-  readonly _id?: MongooseSchema.Types.ObjectId;
-
-  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: `${User.name}` })
+  @Prop({ type: [MongooseSchema.Types.ObjectId] })
   @Field((type) => [String])
   owners: MongooseSchema.Types.ObjectId[];
 
@@ -69,9 +76,8 @@ export class Book extends BaseBook {
   @Field((type) => Int)
   timesAdded: number;
 }
-
 Object.defineProperty(Book, 'name', {
-  value: BOOK_NAME,
+  value: BOOK_MODEL_NAME,
   writable: false
 });
 

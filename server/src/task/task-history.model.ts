@@ -1,5 +1,5 @@
 import { IsDateString, IsString } from "class-validator"
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Field, ObjectType, GraphQLISODateTime } from "@nestjs/graphql";
 
 @Schema()
@@ -16,3 +16,5 @@ export class TaskHistory {
     @Field((type) => String)
     description: string
 }
+
+export const TaskHistorySchema = SchemaFactory.createForClass(TaskHistory);

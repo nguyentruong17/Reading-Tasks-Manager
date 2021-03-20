@@ -12,9 +12,9 @@ import { Model } from 'mongoose';
 
 //models + inputs + dtos
 import { CreateTaskInput } from './task.inputs';
-import { BaseTask, Task, TaskDocument } from './task.model';
+import { Task, TaskDocument } from './task.model';
 import { User } from 'src/user/user.model';
-import { BaseBook, Book } from 'src/book/book.model';
+import { BaseBookMongo, Book } from 'src/book/book.model';
 import { TaskStatus } from './task-status.enum';
 
 //services
@@ -55,13 +55,14 @@ export class TaskService {
         history: [],
         owner: user._id,
         attachItem: {
+          _id: book._id,
           openLibraryId: book.openLibraryId,
           title: book.title,
           authors: book.authors,
           subjects: book.subjects,
-          covers: book.covers,
-        } as BaseBook,
-      } as Task;
+          covers: book.covers
+        } as BaseBookMongo,
+      };
 
       const createdTask = new this._taskModel(newTask);
       return await createdTask.save();

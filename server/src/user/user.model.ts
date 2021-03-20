@@ -13,19 +13,21 @@ import {
   ObjectType,
   Int,
   InputType,
+  ID,
 } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
-import { BASE_BOOK_NAME, BaseBook } from 'src/book/book.model';
-import { TASK_NAME, Task } from 'src/task/task.model';
+import { BaseBookMongoSchema, BaseBookMongo } from 'src/book/book.model';
+import { TaskSchema, Task } from 'src/task/task.model';
 
 
 //import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 
-export const BASE_USER_NAME = 'BaseUser'
+export const BASE_USER_MODEL_NAME = 'BaseUser';
+export const BASE_USER_MONGO_MODEL_NAME = 'BaseUserMongo';
 export const USER_NAME = 'User'
 
-@Schema({ discriminatorKey: 'googleId' }) //could be anything, just because I want to extends this class
+@Schema({ discriminatorKey: 'googleId', _id: false }) //could be anything, just because I want to extends this class
 @ObjectType()
 @InputType('CreateUserInput')
 export class BaseUser {
@@ -54,18 +56,26 @@ export class BaseUser {
   @Field((type) => String)
   lastName: string;
 }
-
 Object.defineProperty(BaseUser, 'name', {
-  value: BASE_USER_NAME,
+  value: BASE_USER_MODEL_NAME,
   writable: false
 });
 
+@Schema({ discriminatorKey: '_id' })
+@ObjectType()
+export class BaseUserMongo extends BaseUser { 
+  @Field((type) => ID) // how to use the objectid scalar?
+  readonly _id: MongooseSchema.Types.ObjectId;
+}
+Object.defineProperty(BaseUserMongo, 'name', {
+  value: BASE_USER_MONGO_MODEL_NAME,
+  writable: false
+});
+export const BaseUserMongoSchema = SchemaFactory.createForClass(BaseUserMongo);
+
 @Schema()
 @ObjectType()
-export class User extends BaseUser {
-  
-  @Field((type) => String)
-  readonly _id?: MongooseSchema.Types.ObjectId;
+export class User extends BaseUserMongo {
 
 // to-be-implemented
 //   @IsString()
@@ -73,19 +83,16 @@ export class User extends BaseUser {
 //   @Field((type) => String)
 //   username: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: `${TASK_NAME}` }]  })
+  @IsArray()
+  @Prop({ type:() => [TaskSchema] })
   @Field((type) => [Task])
   tasks: Task[];
 
-  @IsNotEmpty()
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: `${BASE_BOOK_NAME}` }] })
-  @Field((type) => [BaseBook])
-  books: BaseBook[];
+  @IsArray()
+  @Prop({ type: [BaseBookMongoSchema] })
+  @Field((type) => [BaseBookMongoSchema])
+  books: BaseBookMongo[];
 }
-
 Object.defineProperty(User, 'name', {
   value: USER_NAME,
   writable: false

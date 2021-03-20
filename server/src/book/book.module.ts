@@ -24,6 +24,6 @@ import { BookService } from './book.service';
     BookService,
     // ObjectIDScalar,
   ],
-  exports: [MongooseModule],
+  exports: [MongooseModule, BookService],
 })
 export class BookModule {}

@@ -2,19 +2,20 @@ import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
 
 //import { ObjectIDScalar } from '../graphql/scalars/ObjectIDScalar';
 import { TaskStatus } from './task-status.enum';
-import { TaskHistory } from './task-history.model';
-import { BaseBook, BASE_BOOK_NAME } from 'src/book/book.model';
+import { TaskHistory, TaskHistorySchema } from './task-history.model';
+import { BaseBookMongo, BaseBookMongoSchema } from 'src/book/book.model';
 
-export const BASE_TASK_NAME = 'BaseTask';
-export const TASK_NAME = 'Task';
+export const BASE_TASK_MODEL_NAME = 'BaseTask';
+export const BASE_TASK_MONGO_MODEL_NAME = 'BaseTask';
+export const TASK_MODEL_NAME = 'Task';
 
-@Schema({ discriminatorKey: 'title' }) //could be anything, just because I want to extends this class
+@Schema({ discriminatorKey: 'title', _id: false }) //could be anything, just because I want to extends this class
 @ObjectType()
 export class BaseTask { //base class
   
@@ -40,23 +41,31 @@ export class BaseTask { //base class
 
   @IsArray()
   @IsNotEmpty()
-  @Prop({ type: () => [TaskHistory], required: true })
+  @Prop({ type: [TaskHistorySchema], required: true })
   @Field((types) => [TaskHistory])
   history: TaskHistory[]
 }
-
 Object.defineProperty(BaseTask, 'name', {
-  value: BASE_TASK_NAME,
+  value: BASE_TASK_MODEL_NAME,
   writable: false
 });
+
+@Schema({ discriminatorKey: '_id' })
+@ObjectType()
+export class BaseTaskMongo extends BaseTask { 
+  @Field((type) => ID) // how to use the objectid scalar?
+  readonly _id: MongooseSchema.Types.ObjectId;
+}
+Object.defineProperty(BaseTaskMongo, 'name', {
+  value: BASE_TASK_MONGO_MODEL_NAME,
+  writable: false
+});
+export const BaseTaskMongoSchema = SchemaFactory.createForClass(BaseTaskMongo);
 
 
 @Schema()
 @ObjectType()
-export class Task extends BaseTask {
-
-  @Field((type) => String) //how to use ObjectIdScalar?
-  readonly _id: MongooseSchema.Types.ObjectId;
+export class Task extends BaseTaskMongo {
 
   @IsString()
   @IsNotEmpty()
@@ -65,13 +74,12 @@ export class Task extends BaseTask {
   owner: MongooseSchema.Types.ObjectId;
 
   @IsNotEmpty()
-  @Prop({ type: () => MongooseSchema.Types.ObjectId, ref: `${BASE_BOOK_NAME}` })
-  @Field((type) => BaseBook)
-  attachItem: BaseBook;
+  @Prop({ type: BaseBookMongoSchema })
+  @Field((type) => BaseBookMongo)
+  attachItem: BaseBookMongo;
 }
-
 Object.defineProperty(Task, 'name', {
-  value: TASK_NAME,
+  value: TASK_MODEL_NAME,
   writable: false
 });
 

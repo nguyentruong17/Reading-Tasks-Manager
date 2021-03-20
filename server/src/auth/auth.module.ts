@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UserModule } from 'src/user/user.module';
 
 //express + passport + jwt
 import { JwtModule } from '@nestjs/jwt';
@@ -16,7 +17,6 @@ import { AuthResolver } from './auth.resolver';
 import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
 
-import { UserService } from 'src/user/user.service';
 
 @Module({
   imports: [
@@ -36,8 +36,9 @@ import { UserService } from 'src/user/user.service';
         schema: UserSchema,
       },
     ]),
+    UserModule
   ],
-  providers: [AuthResolver, AuthService, GoogleStrategy, JwtStrategy, UserService],
+  providers: [AuthResolver, AuthService, GoogleStrategy, JwtStrategy],
   exports: [PassportModule, PassportModule],
 })
 export class AuthModule { }
