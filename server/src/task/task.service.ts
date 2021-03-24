@@ -17,7 +17,7 @@ import { ObjectId } from 'mongodb';
 //models + inputs + dtos
 import { CreateTaskInput } from './task.inputs';
 import { Task, TaskDocument } from './task.model';
-import { User } from 'src/user/user.model';
+import { BaseUserMongo } from 'src/user/user.model';
 import { BaseBookMongo, Book } from 'src/book/book.model';
 import { TaskStatus } from './task-status.enum';
 
@@ -32,7 +32,7 @@ export class TaskService {
     //@Inject(forwardRef(() => BookService))
     private readonly _bookService: BookService,
   ) {}
-  async createTask(user: User, input: CreateTaskInput): Promise<Task> {
+  async createTask(user: BaseUserMongo, input: CreateTaskInput): Promise<Task> {
     try {
       const bookId = input.bookId ? input.bookId : '';
       const openLibraryBookId = input.openLibraryBookId
@@ -79,7 +79,7 @@ export class TaskService {
   }
 
   async deleteTask(
-    currentUser: User,
+    currentUser: BaseUserMongo,
     taskId: ObjectId,
   ): Promise<ObjectId> {
     const userId = currentUser._id;

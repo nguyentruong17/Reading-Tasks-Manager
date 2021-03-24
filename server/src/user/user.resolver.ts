@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 //models + inputs + dtos
 import { CreateTaskInput } from 'src/task/task.inputs';
 import { Task } from 'src/task/task.model';
-import { User } from 'src/user/user.model';
+import { BaseUserMongo } from 'src/user/user.model';
 
 //services
 import { UserService } from './user.service';
@@ -22,7 +22,7 @@ export class UserResolver {
   @Mutation((returns) => Task)
   @UseGuards(GqlAuthGuard)
   async createTask(
-    @CurrentUser() currentUser: User,
+    @CurrentUser() currentUser: BaseUserMongo,
     @Args('input') input: CreateTaskInput,
   ): Promise<Task> {
     return await this._userService.createTask(currentUser, input);
@@ -31,7 +31,7 @@ export class UserResolver {
   @Mutation((returns) => ObjectId)
   @UseGuards(GqlAuthGuard)
   async deleteTask(
-    @CurrentUser() currentUser: User,
+    @CurrentUser() currentUser: BaseUserMongo,
     @Args('taskId') taskId: ObjectId,
   ): Promise<ObjectId> {
     const isValid = ObjectId.isValid(taskId);

@@ -3,9 +3,6 @@ import {
 } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 
-//models + inputs + dtos
-import { User } from '../user/user.model';
-
 //services
 import { AuthService } from './auth.service';
 

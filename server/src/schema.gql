@@ -52,7 +52,7 @@ type Mutation {
 scalar ObjectId
 
 type Query {
-  getBooks: [Book!]!
+  getAllBooks: [Book!]!
   searchOnlineBooks(input: SearchBookInput!): [BaseBook!]!
 }
 

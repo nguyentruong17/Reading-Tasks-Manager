@@ -25,6 +25,10 @@ import { TaskModule } from './task/task.module';
       sortSchema: true,
       playground: true,
       debug: false,
+      cors: {
+        origin: 'http://localhost:4200',
+        credentials: true,
+      }
     }),
     ConfigModule.forRoot({
       isGlobal: true,

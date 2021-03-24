@@ -4,14 +4,13 @@ import { ServiceUnavailableException, Injectable, InternalServerErrorException }
 import { authenticate } from 'passport';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { } from 'passport-jwt';
 
 //mongoose
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 //models + inputs + dtos
-import { BaseUser, User, UserDocument } from 'src/user/user.model';
+import { BaseUserMongo, User, UserDocument } from 'src/user/user.model';
 import { JwtPayload } from './jwt-payload.interface';
 
 //services
@@ -65,7 +64,7 @@ export class AuthService {
       const { data, info } = await this._authenticateWithGoogle(req, res);
 
       if (data) {
-        let user: any = await this._userModel.findOne({ gmail: data.email });
+        let user: User = await this._userModel.findOne({ gmail: data.email });
 
         if (!user) {
           user = await this._userService.createUser({
@@ -73,21 +72,26 @@ export class AuthService {
             gmail: data.email,
             firstName: data.firstName,
             lastName: data.lastName,
-          } as BaseUser);
+          });
                    
         } else {
           //console.log('Found user!')
         }
 
-        user.accessToken = data.accessToken;
-
-        console.log(user)
-
+        const userPayload = {
+          _id: user._id,
+          gmail: user.gmail,
+          googleId: user.googleId,
+          firstName: user.firstName,
+          lastName: user.lastName
+        } as BaseUserMongo
+        
         const payload: JwtPayload = {
-          user,
+          user: userPayload,
+          accessToken: data.accessToken
         }
 
-        const jwtToken = await this._jwtService.sign(payload);
+        const jwtToken = await this._jwtService.sign(payload, { expiresIn: 3600 * 24 *3 });
 
         return jwtToken;
 

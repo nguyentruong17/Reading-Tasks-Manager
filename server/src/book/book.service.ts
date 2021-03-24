@@ -18,7 +18,7 @@ import { ObjectId } from 'mongodb';
 import { BaseBook, Book, BookDocument } from './book.model';
 import { CreateBookInput, SearchBookInput } from './book.inputs';
 import * as OpenLibInterfaces from './book-openlib.interface';
-import { User } from 'src/user/user.model';
+import { BaseUserMongo } from 'src/user/user.model';
 
 const WORKS_API_URL = 'https://openlibrary.org/works/';
 
@@ -132,7 +132,7 @@ export class BookService {
     }
   }
 
-  async getBooks(skip = 0, limit = 50): Promise<Book[]> {
+  async getAllBooks(skip = 0, limit = 50): Promise<Book[]> {
     try {
       return await this._bookModel.find().skip(skip).limit(limit).exec();
     } catch (e) {
@@ -143,7 +143,7 @@ export class BookService {
   //this method is for creating a book.
   //the method does not check if a book has created or not.
   private async _createBook(
-    user: User,
+    user: BaseUserMongo,
     createBookInput: CreateBookInput,
   ): Promise<Book> {
     const openLibraryId = createBookInput.openLibraryBookId;
@@ -205,7 +205,7 @@ export class BookService {
     }
   }
 
-  async addBook(user: User, openLibraryBookId: string): Promise<Book> {
+  async addBook(user: BaseUserMongo, openLibraryBookId: string): Promise<Book> {
     const userId = user._id;
     try {
       const found = await this._bookModel.findOneAndUpdate(
@@ -234,7 +234,7 @@ export class BookService {
   }
 
   async addExistingBook(
-    user: User,
+    user: BaseUserMongo,
     bookId: ObjectId,
   ): Promise<Book> {
     const userId = user._id;

@@ -11,7 +11,7 @@ import { ObjectId } from 'mongodb';
 import { CreateTaskInput } from 'src/task/task.inputs';
 
 //models + inputs + dtos
-import { BaseUser, User, UserDocument } from './user.model';
+import { BaseUser, BaseUserMongo, User, UserDocument } from './user.model';
 import { Task } from 'src/task/task.model';
 
 //services
@@ -46,7 +46,7 @@ export class UserService {
     }
   }
 
-  async createTask(currentUser: User, input: CreateTaskInput): Promise<Task> {
+  async createTask(currentUser: BaseUserMongo, input: CreateTaskInput): Promise<Task> {
     try {
       const createdTask = await this._taskService.createTask(
         currentUser,
@@ -86,7 +86,7 @@ export class UserService {
   }
 
   async deleteTask(
-    currentUser: User,
+    currentUser: BaseUserMongo,
     taskId: ObjectId,
   ): Promise<ObjectId> {
     const userId = currentUser._id;

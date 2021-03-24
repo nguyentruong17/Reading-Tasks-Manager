@@ -30,8 +30,8 @@ export class BookResolver {
 
   @Query((returns) => [Book])
   @UseGuards(GqlAuthGuard)
-  async getBooks(): Promise<Book[]> {
-    return await this._bookService.getBooks();
+  async getAllBooks(): Promise<Book[]> {
+    return await this._bookService.getAllBooks();
   }
 
   //to-be removed

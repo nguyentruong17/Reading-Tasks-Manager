@@ -1,5 +1,6 @@
-import { User } from "src/user/user.model";
+import { BaseUserMongo } from "src/user/user.model";
 
 export interface JwtPayload {
-    user: User,
+    user: BaseUserMongo,
+    accessToken: string,
 }

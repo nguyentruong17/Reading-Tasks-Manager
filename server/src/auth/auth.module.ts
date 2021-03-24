@@ -7,7 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 //mongoose
-import { MongooseModule } from '@nestjs/mongoose';//mongoose
+import { MongooseModule } from '@nestjs/mongoose'; //mongoose
 
 //models + inputs + dtos
 import { User, UserSchema } from 'src/user/user.model';
@@ -17,18 +17,20 @@ import { AuthResolver } from './auth.resolver';
 import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
 
-
 @Module({
   imports: [
     JwtModule.registerAsync({
       //imports:[ConfigModule], //the ConfigModule is global
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET') || 'secret123'
+        secret: configService.get('JWT_SECRET') || 'secret123',
+        signOptions: {
+          expiresIn: 3600 * 24 * 3, //3 days
+        },
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
     PassportModule.register({
-      defaultStrategy: 'jwt'
+      defaultStrategy: 'jwt',
     }),
     MongooseModule.forFeature([
       {
@@ -36,9 +38,9 @@ import { JwtStrategy } from './jwt.strategy';
         schema: UserSchema,
       },
     ]),
-    UserModule
+    UserModule,
   ],
   providers: [AuthResolver, AuthService, GoogleStrategy, JwtStrategy],
   exports: [PassportModule, PassportModule],
 })
-export class AuthModule { }
+export class AuthModule {}
