@@ -6,7 +6,7 @@ import {
   ServiceUnavailableException,
   InternalServerErrorException,
   NotFoundException,
-  NotImplementedException,
+  BadRequestException,
 } from '@nestjs/common';
 
 //mongoose
@@ -69,6 +69,10 @@ export class BookService {
       return book;
     } catch (e) {
       console.log(e);
+      if (e.response.status === 404) {
+        throw new BadRequestException(`Not found any book with id ${openLibraryId} on OpenLibrary.`)
+      }
+      
       throw new ServiceUnavailableException(
         'Cannot connect to OpenLibrary. Please check your internet connection.',
       );
@@ -140,6 +144,20 @@ export class BookService {
     }
   }
 
+  async getBook(bookId: ObjectId): Promise<Book> {
+    try {
+      const found = await this._bookModel.findById(bookId);
+      if (found) {
+        return found;
+      } else {
+        throw new NotFoundException(`Book with ObjectId ${bookId} not found.`);
+      }
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
   //this method is for creating a book.
   //the method does not check if a book has created or not.
   private async _createBook(
@@ -152,23 +170,23 @@ export class BookService {
     try {
       const b = await this._getOpenLibraryBook(openLibraryId);
 
-      //console.log(b)
-
       let authors: string[] = [];
       if (b.contributors) {
         authors = b.contributors.map((c) => {
-          if (c.role.toLowerCase() == 'author') {
+          if (c.role.toLowerCase() === 'author') {
             return c.name;
           }
         });
-      } else if (b.authors) {
+      }
+      if (authors.length === 0 && b.authors) {
         authors = await Promise.all(
           b.authors.map(async (obj) => {
             let authorId: string;
+            //console.log('BookService, _createBook, b.authors: ', obj)
             if (obj.author) {
               authorId = obj.author.key.split('/')[2];
             } else if (obj.key) {
-              authors = obj.key.split('/')[2];
+              authorId = obj.key.split('/')[2];
             } else {
               console.log(b.authors);
             }
@@ -233,10 +251,7 @@ export class BookService {
     }
   }
 
-  async addExistingBook(
-    user: BaseUserMongo,
-    bookId: ObjectId,
-  ): Promise<Book> {
+  async addExistingBook(user: BaseUserMongo, bookId: ObjectId): Promise<Book> {
     const userId = user._id;
     try {
       const found = await this._bookModel.findByIdAndUpdate(

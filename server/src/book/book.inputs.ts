@@ -1,20 +1,24 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { Book } from './book.model';
 
 @InputType('SearchBookInput')
 export class SearchBookInput {
+  @IsOptional()
   @IsString()
-  @Field(() => String, { nullable: true })
+  @Field({ nullable: true })
   title?: string;
 
+  @IsOptional()
   @IsString()
-  @Field(() => String, { nullable: true })
+  @Transform(({ value }) => value.trim())
+  @Field({ nullable: true })
   author?: string;
 
+  @IsOptional()
   @IsString()
+  @Transform(({ value }) => value.trim())
   @Field(() => String, { nullable: true })
   subject?: string;
 
@@ -39,6 +43,6 @@ export class CreateBookInput  {
   @IsString()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @Field(() => String)
+  @Field()
   openLibraryBookId: string;
 }

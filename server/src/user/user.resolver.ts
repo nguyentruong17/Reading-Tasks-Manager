@@ -3,9 +3,9 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ObjectId } from 'mongodb';
 
 //models + inputs + dtos
-import { CreateTaskInput } from 'src/task/task.inputs';
+import { CreateTaskInput, UpdateTaskInput } from 'src/task/task.inputs';
 import { Task } from 'src/task/task.model';
-import { BaseUserMongo } from 'src/user/user.model';
+import { BaseUserMongo, User } from 'src/user/user.model';
 
 //services
 import { UserService } from './user.service';
@@ -19,6 +19,14 @@ import { CurrentUser } from 'src/auth/auth-gql.decorators';
 export class UserResolver {
   constructor(private readonly _userService: UserService) {}
 
+  //USERS
+  @Mutation((returns) => User)
+  @UseGuards(GqlAuthGuard)
+  async getUser(@CurrentUser() currentUser: BaseUserMongo): Promise<User> {
+    return await this._userService.getUser(currentUser, currentUser._id);
+  }
+
+  //TASKS
   @Mutation((returns) => Task)
   @UseGuards(GqlAuthGuard)
   async createTask(
@@ -28,17 +36,30 @@ export class UserResolver {
     return await this._userService.createTask(currentUser, input);
   }
 
+  @Mutation((returns) => Task)
+  @UseGuards(GqlAuthGuard)
+  async getTask(
+    @CurrentUser() currentUser: BaseUserMongo,
+    @Args('taskId') taskId: ObjectId,
+  ): Promise<Task> {
+    return await this._userService.getTask(currentUser, taskId);
+  }
+
+  @Mutation((returns) => Task)
+  @UseGuards(GqlAuthGuard)
+  async updateTask(
+    @CurrentUser() currentUser: BaseUserMongo,
+    @Args('input') input: UpdateTaskInput,
+  ): Promise<Task> {
+    return await this._userService.updateTask(currentUser, input);
+  }
+
   @Mutation((returns) => ObjectId)
   @UseGuards(GqlAuthGuard)
   async deleteTask(
     @CurrentUser() currentUser: BaseUserMongo,
     @Args('taskId') taskId: ObjectId,
   ): Promise<ObjectId> {
-    const isValid = ObjectId.isValid(taskId);
-    if (isValid) {
-      return await this._userService.deleteTask(currentUser, new ObjectId(taskId));
-    } else {
-      throw new BadRequestException('taskId must be an ObjectId')
-    }
+    return await this._userService.deleteTask(currentUser, taskId);
   }
 }

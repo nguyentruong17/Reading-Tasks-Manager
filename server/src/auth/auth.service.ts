@@ -88,7 +88,7 @@ export class AuthService {
         
         const payload: JwtPayload = {
           user: userPayload,
-          accessToken: data.accessToken
+          //accessToken: data.accessToken
         }
 
         const jwtToken = await this._jwtService.sign(payload, { expiresIn: 3600 * 24 *3 });

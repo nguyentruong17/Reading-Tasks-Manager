@@ -5,6 +5,7 @@ import { BookModule } from 'src/book/book.module';
 import { ObjectIdScalar } from 'src/graphql/scalars/ObjectIdScalar';
 
 import { Task, TaskSchema } from './task.model';
+import { TaskHistory } from './task-history.model';
 import { TaskService } from './task.service';
 import { TaskResolver } from './task.resolver';
 

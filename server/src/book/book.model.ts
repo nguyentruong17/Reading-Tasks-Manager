@@ -1,12 +1,7 @@
-import { IsArray, IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { Transform } from 'class-transformer';
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Field, ObjectType, Int, ID } from '@nestjs/graphql';
+import { Field, ObjectType, ID } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { ObjectId } from 'mongodb';
-
-import { ObjectIdScalar } from 'src/graphql/scalars/ObjectIdScalar';
 
 export const BASE_BOOK_MODEL_NAME = 'BaseBook';
 export const BASE_BOOK_MONGO_MODEL_NAME = 'BaseBookMongo';
@@ -15,32 +10,23 @@ export const BOOK_MODEL_NAME = 'Book';
 @Schema({ discriminatorKey: 'openLibraryId', _id: false }) //could be anything, just because I want to extends this class
 @ObjectType()
 export class BaseBook { //base class
-  
-  @IsString()
-  @Transform(({ value }) => value.trim())
-  @IsNotEmpty()
+
   @Prop({ required: true, unique: true })
   @Field()
   openLibraryId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
   @Prop({ required: true })
   @Field()
   title: string;
 
-  @IsArray()
   @Prop({ type: () => [String] })
   @Field((type) => [String])
   authors: Array<string>;
 
-  @IsArray()
   @Prop({ type: () => [String] })
   @Field((type) => [String])
   subjects: Array<string>;
 
-  @IsArray()
   @Prop({ type: () => [String] })
   @Field((type) => [String])
   covers: Array<string>;
@@ -72,9 +58,8 @@ export class Book extends BaseBookMongo {
   @Field((type) => [ID]) //@Field((type) => [ObjectId]) doesnt work
   owners: Array<ObjectId>;
 
-  @IsNumber()
   @Prop({ type: () => Number })
-  @Field((type) => Int)
+  @Field()
   timesAdded: number;
 }
 Object.defineProperty(Book, 'name', {

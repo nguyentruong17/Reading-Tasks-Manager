@@ -1,24 +1,14 @@
-import {
-  IsArray,
-  IsDateString,
-  IsEmail,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from 'class-validator';
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {
   Field,
   ObjectType,
-  Int,
   InputType,
 } from '@nestjs/graphql';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
 import { BaseBookMongoSchema, BaseBookMongo } from 'src/book/book.model';
-import { TaskSchema, Task } from 'src/task/task.model';
+import { BaseTaskMongoSchema, BaseTaskMongo } from 'src/task/task.model';
 
 export const BASE_USER_MODEL_NAME = 'BaseUser';
 export const BASE_USER_MONGO_MODEL_NAME = 'BaseUserMongo';
@@ -29,28 +19,20 @@ export const USER_NAME = 'User'
 @InputType('CreateUserInput')
 export class BaseUser {
 
-  @IsString()
-  @IsNotEmpty()
   @Prop({ required: true, unique: true, type: () => String })
-  @Field((type) => String)
+  @Field()
   googleId: string;
 
-  @IsEmail()
-  @IsNotEmpty()
   @Prop({ required: true, unique: true, type: () => String })
-  @Field((type) => String)
+  @Field()
   gmail: string;
 
-  @IsString()
-  @IsNotEmpty()
   @Prop({ required: true, type: () => String })
-  @Field((type) => String)
+  @Field()
   firstName: string;
 
-  @IsString()
-  @IsNotEmpty()
   @Prop({ required: true, type: () => String })
-  @Field((type) => String)
+  @Field()
   lastName: string;
 }
 Object.defineProperty(BaseUser, 'name', {
@@ -80,14 +62,12 @@ export class User extends BaseUserMongo {
 //   @Field((type) => String)
 //   username: string;
 
-  @IsArray()
-  @Prop({ type:() => [TaskSchema] })
-  @Field((type) => [Task])
-  tasks: Array<Task>;
+  @Prop({ type: [BaseTaskMongoSchema] })
+  @Field((type) => [BaseTaskMongo])
+  tasks: Array<BaseTaskMongo>;
 
-  @IsArray()
   @Prop({ type: [BaseBookMongoSchema] })
-  @Field((type) => [BaseBookMongoSchema])
+  @Field((type) => [BaseBookMongo])
   books: Array<BaseBookMongo>;
 }
 Object.defineProperty(User, 'name', {
