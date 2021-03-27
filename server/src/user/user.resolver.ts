@@ -4,8 +4,8 @@ import { ObjectId } from 'mongodb';
 
 //models + inputs + dtos
 import { CreateTaskInput, UpdateTaskInput } from 'src/task/task.inputs';
-import { Task } from 'src/task/task.model';
-import { BaseUserMongo, User } from 'src/user/user.model';
+import { Task, BaseTaskMongo } from 'src/task/task.model';
+import { BaseUserMongo, User, UserTask } from 'src/user/user.model';
 
 //services
 import { UserService } from './user.service';
@@ -20,7 +20,7 @@ export class UserResolver {
   constructor(private readonly _userService: UserService) {}
 
   //USERS
-  @Mutation((returns) => User)
+  @Query((returns) => User)
   @UseGuards(GqlAuthGuard)
   async getUser(@CurrentUser() currentUser: BaseUserMongo): Promise<User> {
     return await this._userService.getUser(currentUser, currentUser._id);
@@ -36,13 +36,21 @@ export class UserResolver {
     return await this._userService.createTask(currentUser, input);
   }
 
-  @Mutation((returns) => Task)
+  @Query((returns) => Task)
   @UseGuards(GqlAuthGuard)
   async getTask(
     @CurrentUser() currentUser: BaseUserMongo,
     @Args('taskId') taskId: ObjectId,
   ): Promise<Task> {
     return await this._userService.getTask(currentUser, taskId);
+  }
+
+  @Query((returns) => [UserTask])
+  @UseGuards(GqlAuthGuard)
+  async getTasks(
+    @CurrentUser() currentUser: BaseUserMongo
+  ): Promise<UserTask[]> {
+    return await this._userService.getTasks(currentUser);
   }
 
   @Mutation((returns) => Task)

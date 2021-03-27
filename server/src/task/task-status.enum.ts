@@ -1,7 +1,7 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum TaskStatus {
-  OPEN = 'OPEN',
+  NEW = 'NEW',
   IN_PROGRESS = 'IN_PROGRESS',
   DONE = 'DONE',
   POSTPONE = 'POSTPONE',
@@ -10,7 +10,7 @@ export enum TaskStatus {
 registerEnumType(TaskStatus, {
   name: 'TaskStatus',
   valuesMap: {
-    OPEN: {
+    NEW: {
       description: 'The default status.',
     },
   },

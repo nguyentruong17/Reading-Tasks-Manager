@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 
 const MONGODB_OBJECTID_REGEX = /*#__PURE__*/ /^[A-Fa-f0-9]{24}$/;
 
-@Scalar('ObjectId', (type) => ObjectId)
+@Scalar('GraphQLObjectId', (type) => ObjectId)
 export class ObjectIdScalar implements CustomScalar<string, ObjectId> {
   description = 'ObjectId custom scalar type';
 

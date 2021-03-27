@@ -20,14 +20,16 @@ import { BaseTaskMongo, Task, TaskDocument } from './task.model';
 import { BaseUserMongo } from 'src/user/user.model';
 import { BaseBookMongo, Book } from 'src/book/book.model';
 import { TaskStatus } from './task-status.enum';
-
-//services
-import { BookService } from 'src/book/book.service';
+import { TaskPriority } from './task-priority.enum';
 import { TaskHistory } from './task-history.model';
 import {
   UpdateTaskHistoryInput,
   CreateTaskHistoryInput,
 } from './task-history.inputs';
+
+//services
+import { BookService } from 'src/book/book.service';
+
 
 @Injectable()
 export class TaskService {
@@ -72,7 +74,8 @@ export class TaskService {
         _id: new ObjectId(),
         title: input.title,
         description: input.description,
-        status: TaskStatus.OPEN,
+        status: TaskStatus.NEW,
+        priority: input.priority ? input.priority : TaskPriority.NONE,
         history: [],
         owner: currentUser._id,
         attachItem: {
@@ -141,6 +144,7 @@ export class TaskService {
             title,
             description,
             status,
+            priority,
             bookId,
             openLibraryBookId,
           } = input;
@@ -155,6 +159,10 @@ export class TaskService {
 
           if (status && found.status !== status) {
             found.status = status;
+          }
+
+          if (priority && found.priority !== priority) {
+            found.priority = priority;
           }
 
           let book: Book;

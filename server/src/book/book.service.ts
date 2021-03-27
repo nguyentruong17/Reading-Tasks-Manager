@@ -29,6 +29,7 @@ const SEARCH_API_URL = 'http://openlibrary.org/search.json?';
 const COVERS_API_URL = 'http://covers.openlibrary.org/b/';
 const COVERS_API_SIZES = ['S', 'M', 'L'];
 const COVERS_API_IMG_EXTN = '.jpg';
+const MAX_DIFFERENT_COVERS = 3;
 
 @Injectable()
 export class BookService {
@@ -70,9 +71,11 @@ export class BookService {
     } catch (e) {
       console.log(e);
       if (e.response.status === 404) {
-        throw new BadRequestException(`Not found any book with id ${openLibraryId} on OpenLibrary.`)
+        throw new BadRequestException(
+          `Not found any book with id ${openLibraryId} on OpenLibrary.`,
+        );
       }
-      
+
       throw new ServiceUnavailableException(
         'Cannot connect to OpenLibrary. Please check your internet connection.',
       );
@@ -109,10 +112,10 @@ export class BookService {
           authors: b.author_name ? b.author_name : [],
           subjects: b.subject ? b.subject : [],
           covers: b.cover_i
-            ? COVERS_API_SIZES.map(
+            ? [COVERS_API_SIZES.map(
                 (size) =>
                   `${COVERS_API_URL}id/${b.cover_i}-${size}${COVERS_API_IMG_EXTN}`,
-              )
+              )]
             : [],
         } as BaseBook;
         return book;
@@ -208,11 +211,20 @@ export class BookService {
           }),
         );
       }
+      let covers = [];
+      if (b.covers) {
+        covers = b.covers.slice(0, MAX_DIFFERENT_COVERS);
+        covers = covers.map((c) => {
+          return COVERS_API_SIZES.map(
+            (size) => `${COVERS_API_URL}id/${c}-${size}${COVERS_API_IMG_EXTN}`,
+          );
+        });
+      }
       const createdBook = new this._bookModel({
         openLibraryId: b.key.split('/')[2],
         title: b.title,
         subjects: b.subjects ? b.subjects : [],
-        covers: b.covers ? b.covers : [],
+        covers,
         authors,
         timesAdded: 1, //initalizing
         owners: [userId], //initalizing

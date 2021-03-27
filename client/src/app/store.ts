@@ -19,16 +19,18 @@ import history from '../utils/history';
 //reducers
 import counterReducer from '../features/counter/counterSlice';
 import authReducer from '../features/auth/authSlice';
-import { LocationState } from 'history';
+import taskReducer from '../features/tasks/taskSlice';
 
+import { LocationState } from 'history';
 const historyReducer = (history: History) => ({
   router: connectRouter(history) as any as Reducer<RouterState<LocationState>>
 })
 
 const rootReducer = combineReducers({
+  ...historyReducer(history),
   counter: counterReducer,
   auth: authReducer,
-  ...historyReducer(history)
+  task: taskReducer,
 })
 
 const persistConfig = {

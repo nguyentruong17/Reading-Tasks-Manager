@@ -12,7 +12,7 @@ import { ObjectId } from 'mongodb';
 import { CreateTaskInput, UpdateTaskInput } from 'src/task/task.inputs';
 
 //models + inputs + dtos
-import { BaseUser, BaseUserMongo, User, UserDocument } from './user.model';
+import { BaseUser, BaseUserMongo, UserTask, User, UserDocument } from './user.model';
 import { BaseTaskMongo, Task } from 'src/task/task.model';
 
 //services
@@ -77,7 +77,10 @@ export class UserService {
         currentUser._id,
         {
           $push: {
-            tasks: createdTask,
+            tasks: {
+              $each: [createdTask],
+              $position: 0
+            },
           },
 
           // 'books.openLibraryBookId': {
@@ -108,6 +111,22 @@ export class UserService {
     const userId = currentUser._id;
     try {
       return await this._taskService.getTask(currentUser, taskId);
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException(e);
+    }
+  }
+
+  async getTasks(currentUser: BaseUserMongo): Promise<UserTask[]> {
+    const userId = currentUser._id;
+    try {
+      const found = await this._userModel.findById(userId);
+      if (found) {
+        return found.tasks;
+      } else {
+        //shouldnt happen, becauser the currentUser is retrieved from the db at authentication
+        throw new InternalServerErrorException('Error');
+      }
     } catch (e) {
       console.log(e);
       throw new InternalServerErrorException(e);

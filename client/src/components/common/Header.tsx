@@ -84,7 +84,7 @@ interface IHeaderProps {
 const Header = (props: IHeaderProps) => {
   const dispatch = useDispatch();
   const jwtToken = useSelector(selectAuthJwtToken);
-  console.log(jwtToken);
+  //console.log(jwtToken);
 
   const { defaultRoute } = props;
   const [isOpen, setIsOpen] = useState(false);
