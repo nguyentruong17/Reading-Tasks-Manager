@@ -1,11 +1,11 @@
-import { BadRequestException, Injectable, UseGuards } from '@nestjs/common';
+import { Injectable, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ObjectId } from 'mongodb';
 
 //models + inputs + dtos
 import { CreateTaskInput, UpdateTaskInput } from 'src/task/task.inputs';
-import { Task, BaseTaskMongo } from 'src/task/task.model';
-import { BaseUserMongo, User, UserTask } from 'src/user/user.model';
+import { Task } from 'src/task/task.model';
+import { BaseUserMongo } from 'src/user/user.model';
 
 //services
 import { UserService } from './user.service';
@@ -14,17 +14,28 @@ import { UserService } from './user.service';
 import { GqlAuthGuard } from 'src/auth/auth-gql.guard';
 import { CurrentUser } from 'src/auth/auth-gql.decorators';
 
+//relay
+import { connectionFromArraySlice } from 'graphql-relay';
+import ConnectionArgs from 'src/graphql/relay/connection.args';
+import { UserTasksArgs, UserBooksArgs } from './user-connection.args';
+import { UserBooksResponse, UserTasksResponse } from './user.response';
+import { TaskRelay } from 'src/task/task.response';
+import { UserTaskFilter } from './user.filter';
+import {
+  DEFAULT_USER_TASKS_PER_QUERY,
+} from 'src/consts/defaults';
+
 @Injectable()
 @Resolver()
 export class UserResolver {
   constructor(private readonly _userService: UserService) {}
 
   //USERS
-  @Query((returns) => User)
-  @UseGuards(GqlAuthGuard)
-  async getUser(@CurrentUser() currentUser: BaseUserMongo): Promise<User> {
-    return await this._userService.getUser(currentUser, currentUser._id);
-  }
+  // @Query((returns) => User)
+  // @UseGuards(GqlAuthGuard)
+  // async getUser(@CurrentUser() currentUser: BaseUserMongo): Promise<User> {
+  //   return await this._userService.getUser(currentUser, currentUser._id);
+  // }
 
   //TASKS
   @Mutation((returns) => Task)
@@ -36,21 +47,49 @@ export class UserResolver {
     return await this._userService.createTask(currentUser, input);
   }
 
-  @Query((returns) => Task)
+  @Query((returns) => TaskRelay)
   @UseGuards(GqlAuthGuard)
   async getTask(
     @CurrentUser() currentUser: BaseUserMongo,
     @Args('taskId') taskId: ObjectId,
-  ): Promise<Task> {
-    return await this._userService.getTask(currentUser, taskId);
+    @Args() args: ConnectionArgs,
+  ): Promise<TaskRelay> {
+    return await this._userService.getTask(
+      currentUser,
+      taskId,
+      args
+    );
   }
 
-  @Query((returns) => [UserTask])
+  @Query(() => UserTasksResponse)
   @UseGuards(GqlAuthGuard)
-  async getTasks(
-    @CurrentUser() currentUser: BaseUserMongo
-  ): Promise<UserTask[]> {
-    return await this._userService.getTasks(currentUser);
+  public async getTasks(
+    @CurrentUser() currentUser: BaseUserMongo,
+    @Args() args: UserTasksArgs,
+  ): Promise<UserTasksResponse> {
+    let { limit, offset, filter } = args.pagingParams();
+
+    if (!limit) {
+      limit = DEFAULT_USER_TASKS_PER_QUERY;
+    }
+    if (!offset) {
+      offset = 0;
+    }
+    if (!filter) {
+      filter = new UserTaskFilter();
+    }
+    const [tasks, count] = await this._userService.getTasks(
+      currentUser,
+      limit,
+      offset,
+      filter,
+    );
+    const page = connectionFromArraySlice(tasks, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+
+    return { page, pageData: { count, limit, offset } };
   }
 
   @Mutation((returns) => Task)
@@ -69,5 +108,26 @@ export class UserResolver {
     @Args('taskId') taskId: ObjectId,
   ): Promise<ObjectId> {
     return await this._userService.deleteTask(currentUser, taskId);
+  }
+
+  @Query(() => UserBooksResponse)
+  @UseGuards(GqlAuthGuard)
+  public async getBooks(
+    @CurrentUser() currentUser: BaseUserMongo,
+    @Args() args: UserBooksArgs,
+  ): Promise<UserBooksResponse> {
+    const { limit, offset, filter } = args.pagingParams();
+    const [books, count] = await this._userService.getBooks(
+      currentUser,
+      limit,
+      offset,
+      filter,
+    );
+    const page = connectionFromArraySlice(books, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+
+    return { page, pageData: { count, limit, offset } };
   }
 }

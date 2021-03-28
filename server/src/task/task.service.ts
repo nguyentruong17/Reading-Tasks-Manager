@@ -30,6 +30,13 @@ import {
 //services
 import { BookService } from 'src/book/book.service';
 
+import { connectionFromArraySlice } from 'graphql-relay';
+import ConnectionArgs from 'src/graphql/relay/connection.args';
+import { TaskHistoryResponse, TaskRelay } from './task.response';
+import {
+  DEFAULT_TASK_HISTORY_PER_REQUEST,
+  MAX_TASK_HISTORY_PER_REQUEST,
+} from 'src/consts/defaults';
 
 @Injectable()
 export class TaskService {
@@ -109,15 +116,81 @@ export class TaskService {
     }
   }
 
+  //to-be-remove
   async getTask(currentUser: BaseUserMongo, taskId: ObjectId): Promise<Task> {
     const userId = currentUser._id;
     try {
       const found = await this._taskModel.findById(taskId);
-      this._taskModel.findByIdAndUpdate(taskId, {}, {});
-
       if (found) {
         if (found.owner.equals(userId)) {
           return found;
+        } else {
+          throw new UnauthorizedException("Cannot view other user's task.");
+        }
+      } else {
+        throw new NotFoundException(`Task with ObjectId ${taskId} not found.`);
+      }
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async getTaskRelay(
+    currentUser: BaseUserMongo,
+    taskId: ObjectId,
+    args: ConnectionArgs,
+  ): Promise<TaskRelay> {
+    const userId = currentUser._id;
+    let {
+      limit: taskHistoryLimit,
+      offset: taskHistoryOffset,
+    } = args.pagingParams();
+    
+    if (!taskHistoryOffset) {
+      taskHistoryOffset = 0;
+    }
+    if (!taskHistoryLimit) {
+      taskHistoryLimit = DEFAULT_TASK_HISTORY_PER_REQUEST;
+    }
+
+    try {
+      const found = await this._taskModel.findById(taskId);
+      if (found) {
+        if (found.owner.equals(userId)) {
+          const taskHistory = found.history.slice(
+            taskHistoryOffset,
+            taskHistoryOffset + taskHistoryLimit,
+          );
+          const count = found.history.length;
+
+          const page = connectionFromArraySlice(taskHistory, args, {
+            arrayLength: count,
+            sliceStart: taskHistoryOffset,
+          });
+
+          const taskHistoryRespose = {
+            page,
+            pageData: {
+              count,
+              limit: taskHistoryLimit,
+              offset: taskHistoryOffset,
+            },
+          } as TaskHistoryResponse;
+
+          //is there any better way to do this?
+          const relay = {
+            title: found.title,
+            description: found.description,
+            status: found.status,
+            priority: found.priority,
+            _id: found._id,
+            owner: found.owner,
+            attachItem: found.attachItem,
+            history: taskHistoryRespose,
+          } as TaskRelay;
+
+          return relay;
         } else {
           throw new UnauthorizedException("Cannot view other user's task.");
         }

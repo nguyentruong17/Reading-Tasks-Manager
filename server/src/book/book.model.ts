@@ -39,11 +39,11 @@ export const BaseBookIdentifiersSchema = SchemaFactory.createForClass(BaseBookId
 export class BaseBook extends BaseBookIdentifiers { //base class
   @Prop({ type: () => [String] })
   @Field((types) => [String])
-  subjects: Array<string>; //moving this from BaseBook is intentional
+  subjects: Array<string>;
 
   @Prop({ type: () => [[String]] })
   @Field((types) => [[String]])
-  covers: Array<Array<string>>; //moving this from BaseBook is intentional
+  covers: Array<Array<string>>;
 }
 Object.defineProperty(BaseBook, 'name', {
   value: BASE_BOOK_MODEL_NAME,

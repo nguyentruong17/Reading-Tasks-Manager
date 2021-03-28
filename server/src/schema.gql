@@ -25,6 +25,23 @@ type BaseBookMongo {
   title: String!
 }
 
+type BaseBookMongoConnection {
+  edges: [BaseBookMongoEdge!]
+  pageInfo: BaseBookMongoPageInfo
+}
+
+type BaseBookMongoEdge {
+  cursor: String
+  node: BaseBookMongo
+}
+
+type BaseBookMongoPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
 type Book {
   _id: GraphQLObjectId!
   authors: [String!]!
@@ -34,6 +51,35 @@ type Book {
   subjects: [String!]!
   timesAdded: Int!
   title: String!
+}
+
+type BookConnection {
+  edges: [BookEdge!]
+  pageInfo: BookPageInfo
+}
+
+type BookEdge {
+  cursor: String
+  node: Book
+}
+
+input BookFilter {
+  author: String
+  createdAfter: DateTime
+  createdBefore: DateTime
+  title: String
+}
+
+type BookPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type BookResponse {
+  page: BookConnection!
+  pageData: PageData
 }
 
 input CreateTaskHistoryInput {
@@ -50,6 +96,11 @@ input CreateTaskInput {
   title: String!
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 """ObjectId custom scalar type"""
 scalar GraphQLObjectId
 
@@ -62,12 +113,76 @@ type Mutation {
   updateTaskHistory(input: UpdateTaskHistoryInput!): TaskHistory!
 }
 
+type PageData {
+  count: Float!
+  limit: Float!
+  offset: Float!
+}
+
 type Query {
-  getAllBooks: [Book!]!
-  getTask(taskId: GraphQLObjectId!): Task!
-  getTasks: [UserTask!]!
-  getUser: User!
-  searchOnlineBooks(input: SearchBookInput!): [BaseBook!]!
+  getAllBooks(
+    """Paginate after opaque cursor"""
+    after: String
+
+    """Paginate before opaque cursor"""
+    before: String
+
+    """Filter books stored in the system"""
+    filter: BookFilter
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): BookResponse!
+  getBooks(
+    """Paginate after opaque cursor"""
+    after: String
+
+    """Paginate before opaque cursor"""
+    before: String
+
+    """Filter a user's books"""
+    filter: UserTaskFilter
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): UserBooksResponse!
+  getTask(
+    """Paginate after opaque cursor"""
+    after: String
+
+    """Paginate before opaque cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+    taskId: GraphQLObjectId!
+  ): TaskRelay!
+  getTasks(
+    """Paginate after opaque cursor"""
+    after: String
+
+    """Paginate before opaque cursor"""
+    before: String
+
+    """Filter a user's tasks"""
+    filter: UserTaskFilter
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): UserTasksResponse!
+  searchOnlineBooks(input: SearchBookInput!, limit: Float = 5, offset: Float = 0): [BaseBook!]!
 }
 
 input SearchBookInput {
@@ -96,6 +211,28 @@ type TaskHistory {
   title: String!
 }
 
+type TaskHistoryConnection {
+  edges: [TaskHistoryEdge!]
+  pageInfo: TaskHistoryPageInfo
+}
+
+type TaskHistoryEdge {
+  cursor: String
+  node: TaskHistory
+}
+
+type TaskHistoryPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type TaskHistoryResponse {
+  page: TaskHistoryConnection!
+  pageData: PageData
+}
+
 enum TaskPriority {
   CRITICAL
   HIGH
@@ -104,6 +241,20 @@ enum TaskPriority {
 
   """The default status."""
   NONE
+}
+
+"""
+A relay-style type for Task. The only difference is in the `history` field: [TaskHistory] -> TaskHistoryResponse.
+"""
+type TaskRelay {
+  _id: GraphQLObjectId!
+  attachItem: BaseBookMongo!
+  description: String!
+  history: TaskHistoryResponse!
+  owner: GraphQLObjectId!
+  priority: TaskPriority!
+  status: TaskStatus!
+  title: String!
 }
 
 enum TaskStatus {
@@ -132,14 +283,9 @@ input UpdateTaskInput {
   title: String
 }
 
-type User {
-  _id: GraphQLObjectId!
-  books: [BaseBookMongo!]!
-  firstName: String!
-  gmail: String!
-  googleId: String!
-  lastName: String!
-  tasks: [UserTask!]!
+type UserBooksResponse {
+  page: BaseBookMongoConnection!
+  pageData: PageData
 }
 
 type UserTask {
@@ -149,4 +295,39 @@ type UserTask {
   priority: TaskPriority!
   status: TaskStatus!
   title: String!
+}
+
+input UserTaskAttachItemFilter {
+  openLibraryBookId: String
+  title: String
+}
+
+type UserTaskConnection {
+  edges: [UserTaskEdge!]
+  pageInfo: UserTaskPageInfo
+}
+
+type UserTaskEdge {
+  cursor: String
+  node: UserTask
+}
+
+input UserTaskFilter {
+  attachItem: UserTaskAttachItemFilter
+  from: DateTime
+  priority: TaskPriority
+  status: TaskStatus
+  to: DateTime
+}
+
+type UserTaskPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type UserTasksResponse {
+  page: UserTaskConnection!
+  pageData: PageData
 }

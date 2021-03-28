@@ -12,11 +12,21 @@ import { ObjectId } from 'mongodb';
 import { CreateTaskInput, UpdateTaskInput } from 'src/task/task.inputs';
 
 //models + inputs + dtos
-import { BaseUser, BaseUserMongo, UserTask, User, UserDocument } from './user.model';
-import { BaseTaskMongo, Task } from 'src/task/task.model';
+import {
+  BaseUser,
+  BaseUserMongo,
+  UserTask,
+  User,
+  UserDocument,
+} from './user.model';
+import { Task } from 'src/task/task.model';
+import { UserBookFilter, UserTaskFilter } from './user.filter';
 
 //services
 import { TaskService } from 'src/task/task.service';
+import { BaseBookMongo } from 'src/book/book.model';
+import ConnectionArgs from 'src/graphql/relay/connection.args';
+import { TaskRelay } from 'src/task/task.response';
 
 @Injectable()
 export class UserService {
@@ -48,19 +58,19 @@ export class UserService {
     }
   }
 
-  async getUser(currentUser: BaseUserMongo, userId: ObjectId): Promise<User> {
-    try {
-      const found = await this._userModel.findById(userId);
-      if (found) {
-        return found;
-      } else {
-        throw new NotFoundException(`User with ObjectId ${userId} not found.`);
-      }
-    } catch (e) {
-      console.log(e);
-      throw new InternalServerErrorException(e);
-    }
-  }
+  // async getUser(currentUser: BaseUserMongo, userId: ObjectId): Promise<User> {
+  //   try {
+  //     const found = await this._userModel.findById(userId);
+  //     if (found) {
+  //       return found;
+  //     } else {
+  //       throw new NotFoundException(`User with ObjectId ${userId} not found.`);
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //     throw new InternalServerErrorException(e);
+  //   }
+  // }
 
   //TASKS:
   async createTask(
@@ -79,7 +89,7 @@ export class UserService {
           $push: {
             tasks: {
               $each: [createdTask],
-              $position: 0
+              $position: 0,
             },
           },
 
@@ -107,22 +117,45 @@ export class UserService {
     }
   }
 
-  async getTask(currentUser: BaseUserMongo, taskId: ObjectId): Promise<Task> {
+  // async getTask(currentUser: BaseUserMongo, taskId: ObjectId): Promise<Task> {
+  //   const userId = currentUser._id;
+  //   try {
+  //     return await this._taskService.getTask(currentUser, taskId);
+  //   } catch (e) {
+  //     console.log(e);
+  //     throw new InternalServerErrorException(e);
+  //   }
+  // }
+
+  async getTask(
+    currentUser: BaseUserMongo,
+    taskId: ObjectId,
+    args: ConnectionArgs,
+  ): Promise<TaskRelay> {
     const userId = currentUser._id;
     try {
-      return await this._taskService.getTask(currentUser, taskId);
+      return await this._taskService.getTaskRelay(currentUser, taskId, args);
     } catch (e) {
       console.log(e);
       throw new InternalServerErrorException(e);
     }
   }
 
-  async getTasks(currentUser: BaseUserMongo): Promise<UserTask[]> {
+  async getTasks(
+    currentUser: BaseUserMongo,
+    limit: number,
+    offset: number,
+    filter: UserTaskFilter | undefined,
+  ): Promise<[UserTask[], number]> {
     const userId = currentUser._id;
     try {
       const found = await this._userModel.findById(userId);
+
       if (found) {
-        return found.tasks;
+        const tasks = !!filter
+          ? found.tasks.filter((task) => filter.isMatch(task))
+          : found.tasks;
+        return [tasks.slice(offset, offset + limit), tasks.length];
       } else {
         //shouldnt happen, becauser the currentUser is retrieved from the db at authentication
         throw new InternalServerErrorException('Error');
@@ -183,6 +216,32 @@ export class UserService {
 
       if (found) {
         return taskId;
+      } else {
+        //shouldnt happen, becauser the currentUser is retrieved from the db at authentication
+        throw new InternalServerErrorException('Error');
+      }
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException(e);
+    }
+  }
+
+  //BOOKS
+  async getBooks(
+    currentUser: BaseUserMongo,
+    limit: number,
+    offset: number,
+    filter: UserBookFilter | undefined,
+  ): Promise<[BaseBookMongo[], number]> {
+    const userId = currentUser._id;
+    try {
+      const found = await this._userModel.findById(userId);
+
+      if (found) {
+        const books = !!filter
+          ? found.books.filter((book) => filter.isMatch(book))
+          : found.books;
+        return [books.slice(offset, offset + limit), books.length];
       } else {
         //shouldnt happen, becauser the currentUser is retrieved from the db at authentication
         throw new InternalServerErrorException('Error');

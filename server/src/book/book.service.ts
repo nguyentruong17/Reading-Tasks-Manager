@@ -19,17 +19,22 @@ import { BaseBook, Book, BookDocument } from './book.model';
 import { CreateBookInput, SearchBookInput } from './book.inputs';
 import * as OpenLibInterfaces from './book-openlib.interface';
 import { BaseUserMongo } from 'src/user/user.model';
+import { BookFilter } from './book.filter';
 
-const WORKS_API_URL = 'https://openlibrary.org/works/';
-
-const AUTHORS_API_URL = 'https://openlibrary.org/authors/';
-
-const SEARCH_API_URL = 'http://openlibrary.org/search.json?';
-
-const COVERS_API_URL = 'http://covers.openlibrary.org/b/';
-const COVERS_API_SIZES = ['S', 'M', 'L'];
-const COVERS_API_IMG_EXTN = '.jpg';
-const MAX_DIFFERENT_COVERS = 3;
+import {
+  DEFAULT_ONLINE_BOOKS_PER_QUERY,
+  MAX_ONLINE_BOOKS_PER_QUERY,
+  MAX_BOOKS_PER_QUERY,
+  MAX_DIFFERENT_COVERS,
+} from 'src/consts/defaults';
+import {
+  AUTHORS_API_URL,
+  WORKS_API_URL,
+  SEARCH_API_URL,
+  COVERS_API_SIZES,
+  COVERS_API_URL,
+  COVERS_API_IMG_EXTN,
+} from 'src/consts/openLibrary';
 
 @Injectable()
 export class BookService {
@@ -85,8 +90,11 @@ export class BookService {
   async searchOpenLibraryBooks(
     searchInput: SearchBookInput,
     offset = 0,
-    limit = 5,
+    limit = DEFAULT_ONLINE_BOOKS_PER_QUERY,
   ): Promise<BaseBook[]> {
+    if (limit > MAX_ONLINE_BOOKS_PER_QUERY) {
+      limit = MAX_ONLINE_BOOKS_PER_QUERY;
+    }
     const { title, author, subject } = searchInput;
     try {
       const result = await this._httpService
@@ -105,17 +113,19 @@ export class BookService {
       const searchedBooks = searchResult.docs;
 
       const books = searchedBooks.map((b) => {
-        console.log(b);
+        //console.log(b);
         const book = {
           openLibraryId: b.key.split('/')[2],
           title: b.title,
           authors: b.author_name ? b.author_name : [],
           subjects: b.subject ? b.subject : [],
           covers: b.cover_i
-            ? [COVERS_API_SIZES.map(
-                (size) =>
-                  `${COVERS_API_URL}id/${b.cover_i}-${size}${COVERS_API_IMG_EXTN}`,
-              )]
+            ? [
+                COVERS_API_SIZES.map(
+                  (size) =>
+                    `${COVERS_API_URL}id/${b.cover_i}-${size}${COVERS_API_IMG_EXTN}`,
+                ),
+              ]
             : [],
         } as BaseBook;
         return book;
@@ -139,9 +149,51 @@ export class BookService {
     }
   }
 
-  async getAllBooks(skip = 0, limit = 50): Promise<Book[]> {
+  async getAllBooks(
+    limit: number,
+    offset: number,
+    filter: BookFilter | undefined,
+  ): Promise<[Book[], number]> {
+    const queries = !!filter ? filter.createQueries() : {};
+    if (limit > MAX_BOOKS_PER_QUERY) {
+      limit = MAX_BOOKS_PER_QUERY;
+    }
     try {
-      return await this._bookModel.find().skip(skip).limit(limit).exec();
+      //aggregate way -- tested, but have to cast type
+      // const result = await this._bookModel.aggregate([
+      //   {
+      //     $match: queries,
+      //   },
+      //   {
+      //     $facet: {
+      //       data: [
+      //         {
+      //           $skip: offset,
+      //         },
+      //         {
+      //           $limit: limit,
+      //         },
+      //       ],
+      //       queryTotal: [
+      //         {
+      //           $count: 'count',
+      //         },
+      //       ],
+      //     },
+      //   },
+      // ]);
+      // console.log(result[0]); // {data: [], queryTotal: [{count}]}
+      // const books = result[0].data as Book[]
+      // const count = result[0].queryTotal.length > 0 ? result[0].queryTotal[0].count : 0;
+      // return [books, count as number]
+
+      //non-aggregate way
+      const length = await this._bookModel.countDocuments(queries);
+      const books = await this._bookModel
+        .find(queries)
+        .skip(offset)
+        .limit(limit);
+      return [books, length];
     } catch (e) {
       throw new Error(e);
     }
@@ -283,7 +335,7 @@ export class BookService {
         throw new NotFoundException(`Book with ObjectId ${bookId} not found.`);
       }
     } catch (e) {
-      console.log('In Catch:', e);
+      console.log(e);
       throw new InternalServerErrorException(e);
     }
   }

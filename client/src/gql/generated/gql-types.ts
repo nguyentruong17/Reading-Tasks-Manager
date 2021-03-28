@@ -19,9 +19,16 @@ export type Scalars = {
 export type BaseBook = {
   __typename?: 'BaseBook';
   authors: Array<Scalars['String']>;
-  covers: Array<Scalars['String']>;
+  covers: Array<Array<Scalars['String']>>;
   openLibraryId: Scalars['String'];
   subjects: Array<Scalars['String']>;
+  title: Scalars['String'];
+};
+
+export type BaseBookIdentifiers = {
+  __typename?: 'BaseBookIdentifiers';
+  authors: Array<Scalars['String']>;
+  openLibraryId: Scalars['String'];
   title: Scalars['String'];
 };
 
@@ -29,17 +36,9 @@ export type BaseBookMongo = {
   __typename?: 'BaseBookMongo';
   _id: Scalars['GraphQLObjectId'];
   authors: Array<Scalars['String']>;
-  covers: Array<Scalars['String']>;
+  covers: Array<Array<Scalars['String']>>;
   openLibraryId: Scalars['String'];
   subjects: Array<Scalars['String']>;
-  title: Scalars['String'];
-};
-
-export type BaseTaskMongo = {
-  __typename?: 'BaseTaskMongo';
-  _id: Scalars['GraphQLObjectId'];
-  description: Scalars['String'];
-  status: TaskStatus;
   title: Scalars['String'];
 };
 
@@ -47,11 +46,11 @@ export type Book = {
   __typename?: 'Book';
   _id: Scalars['GraphQLObjectId'];
   authors: Array<Scalars['String']>;
-  covers: Array<Scalars['String']>;
+  covers: Array<Array<Scalars['String']>>;
   openLibraryId: Scalars['String'];
   owners: Array<Scalars['ID']>;
   subjects: Array<Scalars['String']>;
-  timesAdded: Scalars['Float'];
+  timesAdded: Scalars['Int'];
   title: Scalars['String'];
 };
 
@@ -65,6 +64,7 @@ export type CreateTaskInput = {
   bookId?: Maybe<Scalars['GraphQLObjectId']>;
   description: Scalars['String'];
   openLibraryBookId?: Maybe<Scalars['String']>;
+  priority?: Maybe<TaskPriority>;
   title: Scalars['String'];
 };
 
@@ -109,11 +109,19 @@ export type MutationUpdateTaskHistoryArgs = {
   input: UpdateTaskHistoryInput;
 };
 
+export type PageData = {
+  __typename?: 'PageData';
+  count: Scalars['Float'];
+  limit: Scalars['Float'];
+  offset: Scalars['Float'];
+};
+
 export type Query = {
   __typename?: 'Query';
   getAllBooks: Array<Book>;
   getTask: Task;
-  getTasks: Array<BaseTaskMongo>;
+  getTasks: Array<UserTask>;
+  getTasksRelay: UserTaskResponse;
   getUser: User;
   searchOnlineBooks: Array<BaseBook>;
 };
@@ -121,6 +129,14 @@ export type Query = {
 
 export type QueryGetTaskArgs = {
   taskId: Scalars['GraphQLObjectId'];
+};
+
+
+export type QueryGetTasksRelayArgs = {
+  after?: Maybe<Scalars['String']>;
+  before?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Float']>;
+  last?: Maybe<Scalars['Float']>;
 };
 
 
@@ -141,6 +157,7 @@ export type Task = {
   description: Scalars['String'];
   history: Array<TaskHistory>;
   owner: Scalars['GraphQLObjectId'];
+  priority: TaskPriority;
   status: TaskStatus;
   title: Scalars['String'];
 };
@@ -155,11 +172,20 @@ export type TaskHistory = {
   title: Scalars['String'];
 };
 
+export enum TaskPriority {
+  Critical = 'CRITICAL',
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM',
+  /** The default status. */
+  None = 'NONE'
+}
+
 export enum TaskStatus {
   Done = 'DONE',
   InProgress = 'IN_PROGRESS',
   /** The default status. */
-  Open = 'OPEN',
+  New = 'NEW',
   Postpone = 'POSTPONE'
 }
 
@@ -174,6 +200,7 @@ export type UpdateTaskInput = {
   bookId?: Maybe<Scalars['GraphQLObjectId']>;
   description?: Maybe<Scalars['String']>;
   openLibraryBookId?: Maybe<Scalars['String']>;
+  priority?: Maybe<TaskPriority>;
   status?: Maybe<TaskStatus>;
   taskId: Scalars['GraphQLObjectId'];
   title?: Maybe<Scalars['String']>;
@@ -187,7 +214,43 @@ export type User = {
   gmail: Scalars['String'];
   googleId: Scalars['String'];
   lastName: Scalars['String'];
-  tasks: Array<BaseTaskMongo>;
+  tasks: Array<UserTask>;
+};
+
+export type UserTask = {
+  __typename?: 'UserTask';
+  _id: Scalars['GraphQLObjectId'];
+  attachItem: BaseBookIdentifiers;
+  description: Scalars['String'];
+  priority: TaskPriority;
+  status: TaskStatus;
+  title: Scalars['String'];
+};
+
+export type UserTaskConnection = {
+  __typename?: 'UserTaskConnection';
+  edges?: Maybe<Array<UserTaskEdge>>;
+  pageInfo?: Maybe<UserTaskPageInfo>;
+};
+
+export type UserTaskEdge = {
+  __typename?: 'UserTaskEdge';
+  cursor?: Maybe<Scalars['String']>;
+  node?: Maybe<UserTask>;
+};
+
+export type UserTaskPageInfo = {
+  __typename?: 'UserTaskPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  hasPreviousPage: Scalars['Boolean'];
+  startCursor?: Maybe<Scalars['String']>;
+};
+
+export type UserTaskResponse = {
+  __typename?: 'UserTaskResponse';
+  page: UserTaskConnection;
+  pageData?: Maybe<PageData>;
 };
 
 export type LoginMutationVariables = Exact<{
@@ -206,8 +269,8 @@ export type GetTasksQueryVariables = Exact<{ [key: string]: never; }>;
 export type GetTasksQuery = (
   { __typename?: 'Query' }
   & { getTasks: Array<(
-    { __typename?: 'BaseTaskMongo' }
-    & Pick<BaseTaskMongo, '_id' | 'title' | 'status' | 'description'>
+    { __typename?: 'UserTask' }
+    & Pick<UserTask, '_id' | 'title' | 'status' | 'description'>
   )> }
 );
 
