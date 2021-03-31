@@ -114,9 +114,9 @@ type Mutation {
 }
 
 type PageData {
-  count: Float!
-  limit: Float!
-  offset: Float!
+  count: Int!
+  limit: Int!
+  offset: Int!
 }
 
 type Query {
@@ -131,10 +131,10 @@ type Query {
     filter: BookFilter
 
     """Paginate first"""
-    first: Float
+    first: Int
 
     """Paginate last"""
-    last: Float
+    last: Int
   ): BookResponse!
   getBooks(
     """Paginate after opaque cursor"""
@@ -147,10 +147,10 @@ type Query {
     filter: UserTaskFilter
 
     """Paginate first"""
-    first: Float
+    first: Int
 
     """Paginate last"""
-    last: Float
+    last: Int
   ): UserBooksResponse!
   getTask(
     """Paginate after opaque cursor"""
@@ -160,10 +160,10 @@ type Query {
     before: String
 
     """Paginate first"""
-    first: Float
+    first: Int
 
     """Paginate last"""
-    last: Float
+    last: Int
     taskId: GraphQLObjectId!
   ): TaskRelay!
   getTasks(
@@ -177,10 +177,10 @@ type Query {
     filter: UserTaskFilter
 
     """Paginate first"""
-    first: Float
+    first: Int
 
     """Paginate last"""
-    last: Float
+    last: Int
   ): UserTasksResponse!
   searchOnlineBooks(input: SearchBookInput!, limit: Float = 5, offset: Float = 0): [BaseBook!]!
 }
@@ -317,6 +317,7 @@ input UserTaskFilter {
   from: DateTime
   priority: TaskPriority
   status: TaskStatus
+  title: String
   to: DateTime
 }
 

@@ -8,9 +8,9 @@ import {
   logOut,
   //selectors
   selectAuthJwtToken,
-} from "../../features/auth/authSlice";
+} from "features/auth/authSlice";
 //history
-import history from "../../utils/history";
+import history from "utils/history";
 
 //uis
 import { Box, Text, Button, Flex, Stack, BoxProps } from "@chakra-ui/react";
@@ -81,7 +81,7 @@ const NavBarContainer: FC<INavBarContainerProps> = ({ children, ...props }) => {
 interface IHeaderProps {
   defaultRoute: string;
 }
-const Header = (props: IHeaderProps) => {
+const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
   const dispatch = useDispatch();
   const jwtToken = useSelector(selectAuthJwtToken);
   //console.log(jwtToken);
@@ -122,7 +122,7 @@ const Header = (props: IHeaderProps) => {
           >
             <MenuItem onClickHandler={pushToNewTask}>
               <IoMdAdd className="mr-2" />
-              New Incident
+              New Task
             </MenuItem>
             <MenuItem onClickHandler={() => dispatch(logOut())}>
               <IoMdPower className="mr-2" />

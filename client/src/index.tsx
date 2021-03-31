@@ -14,11 +14,11 @@ ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <ChakraProvider>
-          <Router history={history}>
-            <App />
-          </Router>
-        </ChakraProvider>
+        <Router history={history}>
+          <ChakraProvider>
+              <App />
+          </ChakraProvider>
+        </Router>
       </PersistGate>
     </Provider>
   </React.StrictMode>,

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 //redux
 import { useDispatch, useSelector } from "react-redux";
@@ -15,8 +16,6 @@ import {
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-
-import { Button } from '@chakra-ui/react';
 
 export function Auth() {
   const justClickedLogin = useSelector(selectJustClickedLogin);

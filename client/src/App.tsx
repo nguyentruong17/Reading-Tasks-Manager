@@ -6,17 +6,17 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   //selectors
   selectAuthJwtToken,
-} from "./features/auth/authSlice";
+} from "features/auth/authSlice";
 
 //uis
 import { Container, Spinner } from "@chakra-ui/react";
-import Header from "./components/common/Header";
-import { Auth } from "./features/auth/Auth";
-import { Counter } from "./features/counter/Counter";
+import Header from "components/common/Header";
+import { Auth } from "features/auth/Auth";
+import ViewTasks from "features/tasks/Tasks";
 
 const routes = [
   {
-    component: Counter,
+    component: ViewTasks,
     path: "/tasks",
   },
   // {

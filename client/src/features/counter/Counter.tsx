@@ -7,7 +7,7 @@ import {
   incrementAsync,
   selectCount,
 } from "./counterSlice";
-import { selectTaskLoading, selectAllTasks, getTasks } from "../tasks/taskSlice";
+import { selectTasksLoading, selectTasks, selectTasksPagination ,getTasks } from "../tasks/tasksSlice";
 import styles from "./Counter.module.css";
 import {
   Table,
@@ -19,16 +19,20 @@ import {
   Tr,
   Button
 } from "@chakra-ui/react";
+import { DEFAULT_USER_TASKS_PER_QUERY } from "../../consts";
 
 export function Counter() {
   const count = useSelector(selectCount);
-  const isLoading = useSelector(selectTaskLoading);
-  const tasks = useSelector(selectAllTasks);
+  const isLoading = useSelector(selectTasksLoading);
+  const tasks = useSelector(selectTasks);
+  const pagination = useSelector(selectTasksPagination);
   const dispatch = useDispatch();
   const [incrementAmount, setIncrementAmount] = useState("2");
 
   useEffect(() => {
-    dispatch(getTasks())
+    dispatch(getTasks({
+      first: pagination.limit
+    }))
   }, [])
 
   return (
@@ -83,9 +87,11 @@ export function Counter() {
           <TableCaption>Tasks</TableCaption>
           <Thead>
             <Tr>
+              <Th>Priority</Th>
               <Th>Status</Th>
               <Th>Title</Th>
               <Th>Description</Th>
+              <Th>Book</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -94,9 +100,11 @@ export function Counter() {
                 <Tr
                   key={task._id}
                 >
+                  <Td>{task.priority}</Td>
                   <Td>{task.status}</Td>
                   <Td>{task.title}</Td>
                   <Td>{task.description}</Td>
+                  <Td>{task.attachItem.title}</Td>
                 </Tr>
               );
             })}

@@ -22,6 +22,9 @@ export class UserTaskFilter implements Filterable<UserTask> {
   @Field((types) => GraphQLISODateTime, { nullable: true })
   to?: Date;
 
+  @Field({ nullable: true })
+  title: string;
+
   @Field((types) => TaskStatus, { nullable: true })
   status?: TaskStatus;
 
@@ -42,6 +45,13 @@ export class UserTaskFilter implements Filterable<UserTask> {
 
     if (this.to) {
       match = this.to >= new ObjectId(userTask._id).getTimestamp();
+      if (!match) {
+        return false;
+      }
+    }
+
+    if (this.title) {
+      match = userTask.title.includes(this.title.trim());
       if (!match) {
         return false;
       }
