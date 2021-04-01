@@ -21,12 +21,16 @@ import {
 } from './user.model';
 import { Task } from 'src/task/task.model';
 import { UserBookFilter, UserTaskFilter } from './user.filter';
+import { PageDataConfig } from 'src/graphql/relay/page-data';
+import { MAX_USER_BOOKS_PER_QUERY, MAX_USER_TASKS_PER_QUERY } from 'src/consts/defaults';
 
 //services
 import { TaskService } from 'src/task/task.service';
 import { BaseBookMongo } from 'src/book/book.model';
-import ConnectionArgs from 'src/graphql/relay/connection.args';
-import { TaskRelay } from 'src/task/task.response';
+
+//relay
+// import ConnectionArgs from 'src/graphql/relay/connection.args';
+// import { TaskRelay } from 'src/task/task.response';
 
 @Injectable()
 export class UserService {
@@ -117,37 +121,28 @@ export class UserService {
     }
   }
 
-  // async getTask(currentUser: BaseUserMongo, taskId: ObjectId): Promise<Task> {
-  //   const userId = currentUser._id;
-  //   try {
-  //     return await this._taskService.getTask(currentUser, taskId);
-  //   } catch (e) {
-  //     console.log(e);
-  //     throw new InternalServerErrorException(e);
-  //   }
-  // }
-
   async getTask(
     currentUser: BaseUserMongo,
     taskId: ObjectId,
-    args: ConnectionArgs,
-  ): Promise<TaskRelay> {
+  ): Promise<Task> {
     const userId = currentUser._id;
     try {
-      return await this._taskService.getTaskRelay(currentUser, taskId, args);
+      return await this._taskService.getTask(currentUser, taskId);
     } catch (e) {
       console.log(e);
       throw new InternalServerErrorException(e);
     }
   }
 
-  async getTasks(
+  async getTasksRelay(
     currentUser: BaseUserMongo,
-    limit: number,
-    offset: number,
-    filter: UserTaskFilter | undefined,
+    pageDataConfig: PageDataConfig<UserTaskFilter>,
   ): Promise<[UserTask[], number]> {
     const userId = currentUser._id;
+    let { offset, limit, filter } = pageDataConfig;
+    if (limit > MAX_USER_TASKS_PER_QUERY) {
+      limit = MAX_USER_TASKS_PER_QUERY;
+    }
     try {
       const found = await this._userModel.findById(userId);
 
@@ -168,17 +163,19 @@ export class UserService {
 
   async updateTask(
     currentUser: BaseUserMongo,
+    taskId: ObjectId,
     input: UpdateTaskInput,
   ): Promise<Task> {
     const userId = currentUser._id;
     try {
       const updatedTask = await this._taskService.updateTask(
         currentUser,
+        taskId,
         input,
       );
 
       const found = await this._userModel.findOneAndUpdate(
-        { _id: userId, 'tasks._id': input.taskId },
+        { _id: userId, 'tasks._id': taskId },
         {
           $set: {
             'tasks.$': updatedTask,
@@ -227,13 +224,15 @@ export class UserService {
   }
 
   //BOOKS
-  async getBooks(
+  async getBooksRelay(
     currentUser: BaseUserMongo,
-    limit: number,
-    offset: number,
-    filter: UserBookFilter | undefined,
+    pageDataConfig: PageDataConfig<UserBookFilter>,
   ): Promise<[BaseBookMongo[], number]> {
     const userId = currentUser._id;
+    let { limit, offset, filter } = pageDataConfig;
+    if (limit > MAX_USER_BOOKS_PER_QUERY) {
+      limit = MAX_USER_BOOKS_PER_QUERY;
+    }
     try {
       const found = await this._userModel.findById(userId);
 

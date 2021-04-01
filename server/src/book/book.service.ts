@@ -149,7 +149,7 @@ export class BookService {
     }
   }
 
-  async getAllBooks(
+  async getBooksRelay(
     limit: number,
     offset: number,
     filter: BookFilter | undefined,

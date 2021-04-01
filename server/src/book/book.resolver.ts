@@ -43,7 +43,7 @@ export class BookResolver {
   async getAllBooks(@Args() args: BookArgs): Promise<BookResponse> {
     const { limit, offset, filter } = args.pagingParams();
 
-    const [books, count] = await this._bookService.getAllBooks(
+    const [books, count] = await this._bookService.getBooksRelay(
       limit,
       offset,
       filter,

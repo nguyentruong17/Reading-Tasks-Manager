@@ -1,11 +1,24 @@
 import { Injectable, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { ObjectId } from 'mongodb';
 
 //models + inputs + dtos
 import { CreateTaskInput, UpdateTaskInput } from 'src/task/task.inputs';
 import { Task } from 'src/task/task.model';
 import { BaseUserMongo } from 'src/user/user.model';
+import { UserBooksResponse, UserTasksResponse } from './user.response';
+import { UserBookFilter, UserTaskFilter } from './user.filter';
+import {
+  DEFAULT_USER_BOOKS_PER_QUERY,
+  DEFAULT_USER_TASKS_PER_QUERY,
+} from 'src/consts/defaults';
 
 //services
 import { UserService } from './user.service';
@@ -16,14 +29,7 @@ import { CurrentUser } from 'src/auth/auth-gql.decorators';
 
 //relay
 import { connectionFromArraySlice } from 'graphql-relay';
-import ConnectionArgs from 'src/graphql/relay/connection.args';
 import { UserTasksArgs, UserBooksArgs } from './user-connection.args';
-import { UserBooksResponse, UserTasksResponse } from './user.response';
-import { TaskRelay } from 'src/task/task.response';
-import { UserTaskFilter } from './user.filter';
-import {
-  DEFAULT_USER_TASKS_PER_QUERY,
-} from 'src/consts/defaults';
 
 @Injectable()
 @Resolver()
@@ -47,18 +53,13 @@ export class UserResolver {
     return await this._userService.createTask(currentUser, input);
   }
 
-  @Query((returns) => TaskRelay)
+  @Query((returns) => Task)
   @UseGuards(GqlAuthGuard)
   async getTask(
     @CurrentUser() currentUser: BaseUserMongo,
     @Args('taskId') taskId: ObjectId,
-    @Args() args: ConnectionArgs,
-  ): Promise<TaskRelay> {
-    return await this._userService.getTask(
-      currentUser,
-      taskId,
-      args
-    );
+  ) {
+    return await this._userService.getTask(currentUser, taskId);
   }
 
   @Query(() => UserTasksResponse)
@@ -78,12 +79,11 @@ export class UserResolver {
     if (!filter) {
       filter = new UserTaskFilter();
     }
-    const [tasks, count] = await this._userService.getTasks(
-      currentUser,
+    const [tasks, count] = await this._userService.getTasksRelay(currentUser, {
       limit,
       offset,
       filter,
-    );
+    });
     const page = connectionFromArraySlice(tasks, args, {
       arrayLength: count,
       sliceStart: offset || 0,
@@ -96,9 +96,10 @@ export class UserResolver {
   @UseGuards(GqlAuthGuard)
   async updateTask(
     @CurrentUser() currentUser: BaseUserMongo,
+    @Args('taskId') taskId: ObjectId,
     @Args('input') input: UpdateTaskInput,
   ): Promise<Task> {
-    return await this._userService.updateTask(currentUser, input);
+    return await this._userService.updateTask(currentUser, taskId, input);
   }
 
   @Mutation((returns) => ObjectId)
@@ -116,13 +117,21 @@ export class UserResolver {
     @CurrentUser() currentUser: BaseUserMongo,
     @Args() args: UserBooksArgs,
   ): Promise<UserBooksResponse> {
-    const { limit, offset, filter } = args.pagingParams();
-    const [books, count] = await this._userService.getBooks(
-      currentUser,
+    let { limit, offset, filter } = args.pagingParams();
+    if (!limit) {
+      limit = DEFAULT_USER_BOOKS_PER_QUERY;
+    }
+    if (!offset) {
+      offset = 0;
+    }
+    if (!filter) {
+      filter = new UserBookFilter();
+    }
+    const [books, count] = await this._userService.getBooksRelay(currentUser, {
       limit,
       offset,
       filter,
-    );
+    });
     const page = connectionFromArraySlice(books, args, {
       arrayLength: count,
       sliceStart: offset || 0,

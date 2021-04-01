@@ -10,20 +10,20 @@ import { BaseBookMongo } from 'src/book/book.model';
 export class TaskHistoryResponse extends relayTypes<TaskHistory>(TaskHistory) {}
 
 //tasks
-@ObjectType({
-  description:
-    'A relay-style type for Task. The only difference is in the `history` field: [TaskHistory] -> TaskHistoryResponse.',
-})
-export class TaskRelay extends BaseTaskMongo {
-  @Field((types) => TaskHistoryResponse)
-  history: TaskHistoryResponse;
+// @ObjectType({
+//   description:
+//     'A relay-style type for Task. The only difference is in the `history` field: [TaskHistory] -> TaskHistoryResponse.',
+// })
+// export class TaskRelay extends BaseTaskMongo {
+//   @Field((types) => TaskHistoryResponse)
+//   history: TaskHistoryResponse;
 
-  @Field()
-  owner: ObjectId;
+//   @Field()
+//   owner: ObjectId;
 
-  @Field((type) => BaseBookMongo)
-  attachItem: BaseBookMongo;
-}
+//   @Field((type) => BaseBookMongo)
+//   attachItem: BaseBookMongo;
+// }
 
 // @ObjectType({ description: 'A relay-style response type for Task.' })
 // export class TaskRelayResponse extends relayTypes<TaskRelay>(TaskRelay) {}

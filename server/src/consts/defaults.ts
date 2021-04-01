@@ -15,4 +15,7 @@ export const MAX_TASK_HISTORY_PER_REQUEST = 25;
 export const DEFAULT_USER_TASKS_PER_QUERY = 10;
 export const MAX_USER_TASKS_PER_QUERY = 25;
 
+export const DEFAULT_USER_BOOKS_PER_QUERY = 10;
+export const MAX_USER_BOOKS_PER_QUERY = 25;
+
 export const MAX_ALLOWED_TASKS = 1000;

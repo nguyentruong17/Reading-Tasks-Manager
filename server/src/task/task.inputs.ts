@@ -45,9 +45,6 @@ export class CreateTaskInput {
 
 @InputType('UpdateTaskInput')
 export class UpdateTaskInput {
-  @Field()
-  taskId: ObjectId;
-
   @IsOptional()
   @IsString()
   @Transform(({ value }) => value.trim())

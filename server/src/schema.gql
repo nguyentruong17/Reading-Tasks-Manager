@@ -84,7 +84,6 @@ type BookResponse {
 
 input CreateTaskHistoryInput {
   description: String!
-  taskId: GraphQLObjectId!
   title: String!
 }
 
@@ -105,12 +104,12 @@ scalar DateTime
 scalar GraphQLObjectId
 
 type Mutation {
-  addTaskHistory(input: CreateTaskHistoryInput!): TaskHistory!
+  addTaskHistory(input: CreateTaskHistoryInput!, taskId: GraphQLObjectId!): TaskHistory!
   createTask(input: CreateTaskInput!): Task!
   deleteTask(taskId: GraphQLObjectId!): GraphQLObjectId!
   login(idToken: String!): String!
-  updateTask(input: UpdateTaskInput!): Task!
-  updateTaskHistory(input: UpdateTaskHistoryInput!): TaskHistory!
+  updateTask(input: UpdateTaskInput!, taskId: GraphQLObjectId!): Task!
+  updateTaskHistory(input: UpdateTaskHistoryInput!, taskHistoryId: GraphQLObjectId!, taskId: GraphQLObjectId!): TaskHistory!
 }
 
 type PageData {
@@ -152,20 +151,7 @@ type Query {
     """Paginate last"""
     last: Int
   ): UserBooksResponse!
-  getTask(
-    """Paginate after opaque cursor"""
-    after: String
-
-    """Paginate before opaque cursor"""
-    before: String
-
-    """Paginate first"""
-    first: Int
-
-    """Paginate last"""
-    last: Int
-    taskId: GraphQLObjectId!
-  ): TaskRelay!
+  getTask(taskId: GraphQLObjectId!): Task!
   getTasks(
     """Paginate after opaque cursor"""
     after: String
@@ -195,7 +181,19 @@ type Task {
   _id: GraphQLObjectId!
   attachItem: BaseBookMongo!
   description: String!
-  history: [TaskHistory!]!
+  history(
+    """Paginate after opaque cursor"""
+    after: String
+
+    """Paginate before opaque cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Int
+
+    """Paginate last"""
+    last: Int
+  ): TaskHistoryResponse!
   owner: GraphQLObjectId!
   priority: TaskPriority!
   status: TaskStatus!
@@ -243,20 +241,6 @@ enum TaskPriority {
   NONE
 }
 
-"""
-A relay-style type for Task. The only difference is in the `history` field: [TaskHistory] -> TaskHistoryResponse.
-"""
-type TaskRelay {
-  _id: GraphQLObjectId!
-  attachItem: BaseBookMongo!
-  description: String!
-  history: TaskHistoryResponse!
-  owner: GraphQLObjectId!
-  priority: TaskPriority!
-  status: TaskStatus!
-  title: String!
-}
-
 enum TaskStatus {
   DONE
   IN_PROGRESS
@@ -268,8 +252,6 @@ enum TaskStatus {
 
 input UpdateTaskHistoryInput {
   description: String
-  taskHistoryId: GraphQLObjectId!
-  taskId: GraphQLObjectId!
   title: String
 }
 
@@ -279,7 +261,6 @@ input UpdateTaskInput {
   openLibraryBookId: String
   priority: TaskPriority
   status: TaskStatus
-  taskId: GraphQLObjectId!
   title: String
 }
 
