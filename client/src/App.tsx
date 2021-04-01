@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Route, Redirect, Switch } from "react-router-dom";
 
 //redux
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   //selectors
   selectAuthJwtToken,
@@ -42,7 +42,6 @@ const routes = [
 ];
 
 const App = () => {
-  const dispatch = useDispatch();
   const jwtToken = useSelector(selectAuthJwtToken);
 
   const [appLoading, setAppLoading] = useState(false);

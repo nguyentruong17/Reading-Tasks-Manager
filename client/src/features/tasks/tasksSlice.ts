@@ -1,18 +1,19 @@
 //redux
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
+import { RootState } from "app/store";
 
 //graphql
 import { GraphQLClient } from "graphql-request";
 import {
   getSdk,
   GetTasksQueryVariables,
+  UserTaskFilter,
   ViewTasks_UserTask_All_Fragment,
-} from "../../gql/generated/gql-types";
+} from "gql/generated/gql-types";
 
-import { GQL_ENDPOINT, DEFAULT_USER_TASKS_PER_QUERY } from "../../consts";
+import { GQL_ENDPOINT, DEFAULT_USER_TASKS_PER_QUERY } from "consts";
 
-interface AuthState {
+interface TasksState {
   tasks: ViewTasks_UserTask_All_Fragment[];
   loading: boolean;
   error: {
@@ -24,10 +25,11 @@ interface AuthState {
     limit: number;
     startCursor: string;
     endCursor: string;
+    filter: UserTaskFilter;
   };
 }
 
-const initialState: AuthState = {
+const initialState: TasksState = {
   tasks: [],
   loading: false,
   error: {
@@ -39,34 +41,56 @@ const initialState: AuthState = {
     limit: DEFAULT_USER_TASKS_PER_QUERY,
     startCursor: "",
     endCursor: "",
+    filter: {}
   },
 };
 
-export const getTasks = createAsyncThunk(
-  "tasks/getTasks",
+const fetchTasks = async (args: GetTasksQueryVariables, jwtToken: string) => {
+  const client = new GraphQLClient(GQL_ENDPOINT, {
+    headers: {
+      authorization: `Bearer ${jwtToken}`,
+    },
+  });
+  const sdk = getSdk(client);
+  let { first, last, ...rest } = args;
+  if (!first && !last) {
+    first = DEFAULT_USER_TASKS_PER_QUERY;
+  }
+  const { getTasks } = await sdk.getTasks({
+    first,
+    ...rest,
+  });
+  return getTasks;
+};
+
+
+let TEMP_FILTER: UserTaskFilter = { }
+export const initializeTasks = createAsyncThunk(
+  "tasks/initializeTasks",
   async (args: GetTasksQueryVariables, { getState }) => {
     const { auth } = getState() as { auth: { jwtToken: string } };
-    //console.log(auth.jwtToken);
-    const client = new GraphQLClient(GQL_ENDPOINT, {
-      headers: {
-        authorization: `Bearer ${auth.jwtToken}`,
-      },
-    });
-    const sdk = getSdk(client);
-    let { first, last, ...rest } = args;
-    if (!first && !last) {
-      first = DEFAULT_USER_TASKS_PER_QUERY;
+    if(args.filter) {
+      TEMP_FILTER = args.filter;
     }
-    const { getTasks } = await sdk.getTasks({
-      first,
-      ...rest,
-    });
-    return getTasks;
+    return await fetchTasks(args, auth.jwtToken)
   }
 );
 
-export const taskSlice = createSlice({
-  name: "task",
+export const loadNextTasks = createAsyncThunk(
+  "tasks/loadMoreTasks",
+  async (args: Omit<GetTasksQueryVariables, 'after' |'last' | 'before'>, { getState }) => {
+    const { auth } = getState() as { auth: { jwtToken: string } };
+    const { tasks } = getState() as { tasks: { pagination : { endCursor: string, filter: UserTaskFilter }} };
+    return await fetchTasks({
+      ...args,
+      after: tasks.pagination.endCursor,
+      filter: tasks.pagination.filter
+    }, auth.jwtToken);
+  }
+);
+
+export const tasksSlice = createSlice({
+  name: "tasks",
   initialState,
   reducers: {
     setPaginationCount: (state, action: PayloadAction<number>) => {
@@ -75,14 +99,78 @@ export const taskSlice = createSlice({
     setPaginationLimit: (state, action: PayloadAction<number>) => {
       state.pagination.limit = action.payload;
     },
+    setPaginationFilter: (state, action: PayloadAction<UserTaskFilter>) => {
+      state.pagination.filter = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getTasks.pending, (state, action) => {
+
+      //load initial
+      .addCase(initializeTasks.pending, (state, action) => {
+        state.loading = true;
+        state.pagination = {
+          ...state.pagination,
+          filter: TEMP_FILTER
+        }
+      })
+      .addCase(initializeTasks.fulfilled, (state, action) => {
+        const tasks: ViewTasks_UserTask_All_Fragment[] = [];
+        if (action.payload.page.edges) {
+          action.payload.page.edges.forEach((e) => {
+            if (e && e.node) {
+              tasks.push(e.node);
+            }
+          });
+        }
+
+        state.tasks = tasks;
+        state.loading = false;
+
+        if (action.payload.page.pageInfo) {
+          const { endCursor, startCursor } = action.payload.page.pageInfo
+          if (startCursor) {
+            state.pagination = {
+              ...state.pagination,
+              startCursor,
+            };
+          }
+
+          if (endCursor) {
+            state.pagination = {
+              ...state.pagination,
+              endCursor
+            };
+          }
+        }
+
+        if (action.payload.pageData) {
+          const { count } = action.payload.pageData;
+          state.pagination = {
+            ...state.pagination,
+            count
+          };
+        }
+
+      })
+      .addCase(initializeTasks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = {
+          message:
+            `${action.error.name || "Error: "}: ${action.error.message}` ||
+            `${
+              action.error.name || "Error: "
+            }: Failed to login with graphql server`,
+          code: action.error.code || "500",
+        };
+      })
+
+      // load next 
+      .addCase(loadNextTasks.pending, (state, action) => {
         state.loading = true;
       })
-      .addCase(getTasks.fulfilled, (state, action) => {
-        const tasks: ViewTasks_UserTask_All_Fragment[] = [];
+      .addCase(loadNextTasks.fulfilled, (state, action) => {
+        const tasks: ViewTasks_UserTask_All_Fragment[] = [...state.tasks];
         if (action.payload.page.edges) {
           action.payload.page.edges.forEach((e) => {
             if (e && e.node) {
@@ -110,7 +198,7 @@ export const taskSlice = createSlice({
           }
         }
       })
-      .addCase(getTasks.rejected, (state, action) => {
+      .addCase(loadNextTasks.rejected, (state, action) => {
         state.loading = false;
         state.error = {
           message:
@@ -124,11 +212,12 @@ export const taskSlice = createSlice({
   },
 });
 
-export const {} = taskSlice.actions;
+export const {} = tasksSlice.actions;
 
 export const selectTasks = (state: RootState) => state.tasks.tasks;
 export const selectTasksLoading = (state: RootState) => state.tasks.loading;
 export const selectTasksError = (state: RootState) => state.tasks.error;
-export const selectTasksPagination = (state: RootState) => state.tasks.pagination; 
+export const selectTasksPagination = (state: RootState) =>
+  state.tasks.pagination;
 
-export default taskSlice.reducer;
+export default tasksSlice.reducer;

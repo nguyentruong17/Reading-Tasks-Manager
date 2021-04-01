@@ -1,5 +1,5 @@
-import React, { useState, useEffect, FC } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { FC } from "react";
+import { useSelector } from "react-redux";
 
 import { selectTasksLoading, selectTasks } from "features/tasks/tasksSlice";
 import {

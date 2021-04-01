@@ -5,11 +5,10 @@ import { Form } from "react-final-form";
 import { useSelector, useDispatch } from "react-redux";
 import {
   //actions
-  getTasks,
+  initializeTasks,
 
   //selectors
   selectTasksLoading,
-  selectTasksPagination,
 } from "features/tasks/tasksSlice";
 
 //uis
@@ -44,18 +43,18 @@ import {
 
 import CustomInputControl from "components/common/CustomInputControl";
 import CustomSelectControl from "components/common/CustomSelectControl";
-// import CustomDatePicker from "../Common/CustomDatePicker";
+import CustomDatePickerControl from "components/common/CustomDatePickerControl";
 
-const STATUS_EMPTY_CASE = {
-  name: "(All Staus)",
-  value: "",
-  color: "rgb(255, 255, 255)",
-};
+// const STATUS_EMPTY_CASE = {
+//   name: "(All Staus)",
+//   value: "",
+//   color: "rgb(255, 255, 255)",
+// };
 
-const PRIORITY_EMPTY_CASE = {
-  name: "(All Priorities)",
-  value: "",
-};
+// const PRIORITY_EMPTY_CASE = {
+//   name: "(All Priorities)",
+//   value: "",
+// };
 
 interface IFields {
   fromDate: string;
@@ -139,12 +138,6 @@ const FetchTasksForm: FC = () => {
     return errors;
   };
 
-  // Set all states to default values
-  const clearAll = () => {
-    //setFields(defaultState);
-    setCheckboxSelected([]);
-  };
-
   const doFetchTasks = (values: IFields) => {
     const filter: UserTaskFilter = {};
 
@@ -165,17 +158,11 @@ const FetchTasksForm: FC = () => {
       filter.to = toDate;
     }
 
-    if (
-      checkboxSelected.includes(CheckBoxNames.STATUS) &&
-      !!status
-    ) {
+    if (checkboxSelected.includes(CheckBoxNames.STATUS) && !!status) {
       filter.status = status;
     }
 
-    if (
-      checkboxSelected.includes(CheckBoxNames.PRIORITY) &&
-      !!priority
-    ) {
+    if (checkboxSelected.includes(CheckBoxNames.PRIORITY) && !!priority) {
       filter.priority = priority;
     }
 
@@ -192,26 +179,14 @@ const FetchTasksForm: FC = () => {
       filter.title = title.trim();
     }
 
-    dispatch(getTasks({ filter }));
+    dispatch(initializeTasks({ filter }));
   };
 
-  //   const setSpecificField = (key: string) => (
-  //     value: string | TaskStatus | TaskPriority
-  //   ) => {
-  //     setFields({ ...fields, [key]: value });
-  //   };
-
-  const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-
   const onSubmit = async (values: IFields) => {
-    await sleep(300);
-    window.alert(JSON.stringify(values));
     doFetchTasks(values);
   };
 
   const inputError = getInputErrors();
-
   return (
     <Form
       onSubmit={onSubmit}
@@ -236,7 +211,14 @@ const FetchTasksForm: FC = () => {
                           {checkbox.name}
                         </Button>
                       ))}
-                      <Button color="primary" onClick={clearAll}>
+                      <Button
+                        color="primary"
+                        isLoading={loading}
+                        onClick={() => {
+                          form.reset(defaultFields);
+                          setCheckboxSelected([]);
+                        }}
+                      >
                         <IoMdClose style={{ marginRight: 5 }} />
                         Clear All
                       </Button>
@@ -245,28 +227,23 @@ const FetchTasksForm: FC = () => {
                 </Td>
               </Tr>
               <Tr>
-                {/* {checkboxSelected.includes("Date Range") && (
-          <>
-            <Td md={3}>
-              <CustomDatePicker
-                title="From"
-                value={fromDate}
-                maxDate={toDate}
-                placeholderText="From..."
-                handleChange={setSpecificField("fromDate")}
-              />
-            </Td>
-            <Td md={3}>
-              <CustomDatePicker
-                title="To"
-                value={toDate}
-                minDate={fromDate}
-                placeholderText="To..."
-                handleChange={setSpecificField("toDate")}
-              />
-            </Td>
-          </>
-        )} */}
+                <Td>
+                  {checkboxSelected.includes(CheckBoxNames.DATE_RANGE) && (
+                    <>
+                      <CustomDatePickerControl
+                        name={"fromDate"}
+                        label={"From"}
+                        placeholder={"from..."}
+                      />
+
+                      <CustomDatePickerControl
+                        name={"toDate"}
+                        label={"To"}
+                        placeholder={"to..."}
+                      />
+                    </>
+                  )}
+                </Td>
               </Tr>
               <Tr>
                 <Td>
@@ -299,22 +276,26 @@ const FetchTasksForm: FC = () => {
                 </Td>
               </Tr>
               <Tr>
-                {checkboxSelected.includes(CheckBoxNames.TITLE) && (
-                  <>
-                    <CustomInputControl
-                      name={"title"}
-                      label={CheckBoxNames.TITLE}
-                    />
-                  </>
-                )}
-                {checkboxSelected.includes(CheckBoxNames.ATTACH_ITEM_TITLE) && (
-                  <>
-                    <CustomInputControl
-                      name={"attachItemTitle"}
-                      label={CheckBoxNames.ATTACH_ITEM_TITLE}
-                    />
-                  </>
-                )}
+                <Td>
+                  {checkboxSelected.includes(CheckBoxNames.TITLE) && (
+                    <>
+                      <CustomInputControl
+                        name={"title"}
+                        label={CheckBoxNames.TITLE}
+                      />
+                    </>
+                  )}
+                  {checkboxSelected.includes(
+                    CheckBoxNames.ATTACH_ITEM_TITLE
+                  ) && (
+                    <>
+                      <CustomInputControl
+                        name={"attachItemTitle"}
+                        label={CheckBoxNames.ATTACH_ITEM_TITLE}
+                      />
+                    </>
+                  )}
+                </Td>
               </Tr>
               <Tr>
                 <Td>

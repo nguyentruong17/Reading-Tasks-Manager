@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, FC } from "react";
+import React, { FC } from "react";
 import { FormLabel, Select } from "@chakra-ui/react";
 import CustomFormControl, { ICustomFormControl } from "./CustomFormControl";
 import CustomFormError from "./CustomFormError";
@@ -12,8 +12,8 @@ export interface IOptionObject {
 export interface ICustomSelectControl extends ICustomFormControl {
   label: string;
   options: any[] | IOptionObject[];
-  //handleChange?: ChangeEventHandler<HTMLSelectElement>;
   emptyCase?: any | IOptionObject;
+  placeholder?: string;
 }
 const CustomSelectControl: FC<ICustomSelectControl> = ({
   name,
@@ -21,6 +21,7 @@ const CustomSelectControl: FC<ICustomSelectControl> = ({
   options, 
   emptyCase,
   //handleChange,
+  placeholder,
 }) => {
   const { input, meta } = useField(name);
   return (
@@ -30,7 +31,7 @@ const CustomSelectControl: FC<ICustomSelectControl> = ({
         {...input}
         isInvalid={meta.error && meta.touched}
         id={name}
-        placeholder={label}
+        placeholder={placeholder? placeholder : label}
         //onChange={handleChange}
       >
         {emptyCase && typeof emptyCase === "object" && (
@@ -53,6 +54,8 @@ const CustomSelectControl: FC<ICustomSelectControl> = ({
                 {option}
               </option>
             );
+          } else {
+            return null
           }
         })}
       </Select>
