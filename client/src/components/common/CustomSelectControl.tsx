@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { FormLabel, Select } from "@chakra-ui/react";
+import { FormLabel, Select, SelectProps } from "@chakra-ui/react";
 import CustomFormControl, { ICustomFormControl } from "./CustomFormControl";
 import CustomFormError from "./CustomFormError";
 import { useField } from "react-final-form";
@@ -9,7 +9,7 @@ export interface IOptionObject {
   value: string;
 }
 
-export interface ICustomSelectControl extends ICustomFormControl {
+export interface ICustomSelectControl extends ICustomFormControl, Omit<SelectProps, 'name'> {
   label: string;
   options: any[] | IOptionObject[];
   emptyCase?: any | IOptionObject;
@@ -22,6 +22,7 @@ const CustomSelectControl: FC<ICustomSelectControl> = ({
   emptyCase,
   //handleChange,
   placeholder,
+  ...rest
 }) => {
   const { input, meta } = useField(name);
   return (
@@ -33,6 +34,7 @@ const CustomSelectControl: FC<ICustomSelectControl> = ({
         id={name}
         placeholder={placeholder? placeholder : label}
         //onChange={handleChange}
+        {...rest}
       >
         {emptyCase && typeof emptyCase === "object" && (
           <option key={emptyCase.name} value={emptyCase.value}>{emptyCase.name}</option>

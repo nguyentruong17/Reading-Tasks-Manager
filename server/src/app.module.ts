@@ -16,7 +16,7 @@ import { TaskModule } from './task/task.module';
   imports: [
     MongooseModule.forRoot("mongodb://admin:password@mongodb:27017", {
       useNewUrlParser: true,
-      useFindAndModify: true,
+      useFindAndModify: false,
       useCreateIndex: true,
     }),
     GraphQLModule.forRoot({

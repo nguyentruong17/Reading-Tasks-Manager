@@ -193,7 +193,7 @@ const FetchTasksForm: FC = () => {
       initialValues={defaultFields}
       render={({ handleSubmit, form }) => (
         <form onSubmit={handleSubmit}>
-          <Table>
+          <Table variant="unstyled">
             <Tbody>
               <Tr>
                 <Td>

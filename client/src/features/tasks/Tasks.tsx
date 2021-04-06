@@ -27,7 +27,8 @@ const ViewTasks: FC = () => {
       <Button
         isLoading={loading}
         isDisabled={numTasksLeft === 0}
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
           dispatch(loadNextTasks({}));
         }}
       >

@@ -99,6 +99,12 @@ export const tasksSlice = createSlice({
     setPaginationLimit: (state, action: PayloadAction<number>) => {
       state.pagination.limit = action.payload;
     },
+    setPaginationStartCursor: (state, action: PayloadAction<string>) => {
+      state.pagination.startCursor = action.payload;
+    },
+    setPaginationEndCursor: (state, action: PayloadAction<string>) => {
+      state.pagination.endCursor = action.payload;
+    },
     setPaginationFilter: (state, action: PayloadAction<UserTaskFilter>) => {
       state.pagination.filter = action.payload;
     },
@@ -124,9 +130,10 @@ export const tasksSlice = createSlice({
           });
         }
 
+        //tasks
         state.tasks = tasks;
-        state.loading = false;
-
+        
+        //pagination
         if (action.payload.page.pageInfo) {
           const { endCursor, startCursor } = action.payload.page.pageInfo
           if (startCursor) {
@@ -151,6 +158,9 @@ export const tasksSlice = createSlice({
             count
           };
         }
+
+        //stop loading
+        state.loading = false;
 
       })
       .addCase(initializeTasks.rejected, (state, action) => {
@@ -179,9 +189,10 @@ export const tasksSlice = createSlice({
           });
         }
 
+        //tasks
         state.tasks = tasks;
-        state.loading = false;
 
+        //pagination
         if (action.payload.page.pageInfo) {
           if (action.payload.page.pageInfo.startCursor) {
             state.pagination = {
@@ -197,6 +208,9 @@ export const tasksSlice = createSlice({
             };
           }
         }
+
+        //stop loading
+        state.loading = false;
       })
       .addCase(loadNextTasks.rejected, (state, action) => {
         state.loading = false;
@@ -212,7 +226,13 @@ export const tasksSlice = createSlice({
   },
 });
 
-export const {} = tasksSlice.actions;
+export const { 
+  setPaginationCount,
+  setPaginationLimit,
+  setPaginationStartCursor,
+  setPaginationEndCursor,
+  setPaginationFilter,
+} = tasksSlice.actions;
 
 export const selectTasks = (state: RootState) => state.tasks.tasks;
 export const selectTasksLoading = (state: RootState) => state.tasks.loading;

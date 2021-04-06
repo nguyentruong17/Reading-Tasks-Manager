@@ -9,7 +9,7 @@ export const DEFAULT_BOOKS_PER_REQUEST = 10;
 export const DEFAULT_ONLINE_BOOKS_PER_QUERY = 5;
 
 ////task.service
-export const DEFAULT_TASK_HISTORY_PER_REQUEST = 10;
+export const DEFAULT_TASK_HISTORY_PER_REQUEST = 5;
 
 ////user module
 export const DEFAULT_USER_TASKS_PER_QUERY = 5;

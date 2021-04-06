@@ -20,6 +20,7 @@ import history from '../utils/history';
 import counterReducer from '../features/counter/counterSlice';
 import authReducer from '../features/auth/authSlice';
 import tasksReducer from '../features/tasks/tasksSlice';
+import taskReducer from '../features/task/taskSlice';
 
 import { LocationState } from 'history';
 const historyReducer = (history: History) => ({
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
   counter: counterReducer,
   auth: authReducer,
   tasks: tasksReducer,
+  task: taskReducer,
 })
 
 const persistConfig = {

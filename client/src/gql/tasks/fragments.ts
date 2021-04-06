@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export const AttachItemFragment = gql`
-  fragment ViewTask_AttachItem_Title_ on BaseBookIdentifiers {
+  fragment ViewTasks_AttachItem_Title_ on BaseBookIdentifiers {
     title
   }
 `;
@@ -14,7 +14,7 @@ export const UserTaskFragment = gql`
     priority
     description
     attachItem {
-      ...ViewTask_AttachItem_Title_
+      ...ViewTasks_AttachItem_Title_
     }
   }
 `;

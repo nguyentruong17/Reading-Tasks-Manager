@@ -5,6 +5,7 @@ import { Route, Redirect, Switch } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
   //selectors
+  selectAuthLoading,
   selectAuthJwtToken,
 } from "features/auth/authSlice";
 
@@ -13,20 +14,21 @@ import { Container, Spinner } from "@chakra-ui/react";
 import Header from "components/common/Header";
 import { Auth } from "features/auth/Auth";
 import ViewTasks from "features/tasks/Tasks";
+import ViewTask from "features/task/Task";
 
 const routes = [
+  {
+    component: ViewTask,
+    path: "/tasks/:taskId",
+  },
   {
     component: ViewTasks,
     path: "/tasks",
   },
-  // {
-  //   component: null,
-  //   path: '/tasks/:taskId',
-  // },
-  // {
-  //   component: null,
-  //   path: '/newTask',
-  // },
+  {
+    component: ViewTask,
+    path: "/newTask",
+  },
   // {
   //   component: null,
   //   path: '/books',
@@ -43,26 +45,28 @@ const routes = [
 
 const App = () => {
   const jwtToken = useSelector(selectAuthJwtToken);
-
-  const [appLoading, setAppLoading] = useState(false);
+  const authorizing = useSelector(selectAuthLoading);
   const defaultRoute = jwtToken ? "/tasks" : "/";
 
-  useEffect(() => {
-    const initializeAsync = async () => {
-      setAppLoading(true);
+  //const [appLoading, setAppLoading] = useState(false);
+  
 
-      //fetch Misc
-      //await dispatch(fetchTasks());
+  // useEffect(() => {
+  //   const initializeAsync = async () => {
+  //     setAppLoading(true);
 
-      setAppLoading(false);
-    };
+  //     //fetch Misc
+  //     //await dispatch(fetchTasks());
 
-    if (jwtToken) {
-      initializeAsync();
-    }
-  }, [jwtToken]);
+  //     setAppLoading(false);
+  //   };
 
-  if (appLoading) {
+  //   if (jwtToken) {
+  //     initializeAsync();
+  //   }
+  // }, [jwtToken]);
+
+  if (authorizing) {
     return (
       <Container className="mh-100">
         <div className="mh-100 justify-content-center align-items-center text-center">

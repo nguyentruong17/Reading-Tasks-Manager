@@ -224,17 +224,20 @@ export class BookService {
 
     try {
       const b = await this._getOpenLibraryBook(openLibraryId);
-
+      //console.log('BookService, _createBook, b: ', b)
       let authors: string[] = [];
       if (b.contributors) {
-        authors = b.contributors.map((c) => {
+        b.contributors.forEach((c) => {
           if (c.role.toLowerCase() === 'author') {
-            return c.name;
+            if (c.name) {
+              authors.push(c.name);
+            }
           }
         });
       }
+      //console.log('BookService, _createBook, authors: ', authors)
       if (authors.length === 0 && b.authors) {
-        authors = await Promise.all(
+        await Promise.all(
           b.authors.map(async (obj) => {
             let authorId: string;
             //console.log('BookService, _createBook, b.authors: ', obj)
@@ -249,6 +252,7 @@ export class BookService {
             let authorName: string;
             if (authorId) {
               const authorResult = await this._getOpenLibraryAuthor(authorId);
+              //console.log('BookService, _createBook, authorResult: ', authorResult)
               if (authorResult.name) {
                 authorName = authorResult.name;
               } else if (authorResult.fuller_name) {
@@ -259,9 +263,14 @@ export class BookService {
                 console.log(authorResult);
               }
             }
-            return authorName;
+            if (authorName) {
+              authors.push(authorName);
+            }
           }),
         );
+      }
+      if (authors.length === 0) {
+        authors.push('Anonymous');
       }
       let covers = [];
       if (b.covers) {
