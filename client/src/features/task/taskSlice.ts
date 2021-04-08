@@ -7,6 +7,7 @@ import { GraphQLClient } from "graphql-request";
 import {
   getSdk,
   GetTaskQueryVariables,
+  UpdateTaskMutationVariables,
   ViewTask_Task_Parts_Fragment,
   ViewTask_TaskHistory_All_Fragment,
 } from "gql/generated/gql-types";
@@ -114,6 +115,22 @@ export const loadNextHistory = createAsyncThunk(
       },
       auth.jwtToken
     );
+  }
+);
+
+export const updateTask = createAsyncThunk(
+  "task/updateTask",
+  async (args: UpdateTaskMutationVariables, { getState }) => {
+    const { auth } = getState() as { auth: { jwtToken: string } };
+
+    const client = new GraphQLClient(GQL_ENDPOINT, {
+      headers: {
+        authorization: `Bearer ${auth.jwtToken}`,
+      },
+    });
+    const sdk = getSdk(client);
+    const { updateTask } = await sdk.updateTask(args)
+    return updateTask;
   }
 );
 
@@ -252,7 +269,30 @@ export const taskSlice = createSlice({
             }: Failed to login with graphql server`,
           code: action.error.code || "500",
         };
-      });
+      })
+
+      //update task
+      .addCase(updateTask.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(updateTask.fulfilled, (state, action) => {
+        const { ...task } = action.payload;
+        state.task = task;
+
+        //stop loading
+        state.loading = false;
+      })
+      .addCase(updateTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error = {
+          message:
+            `${action.error.name || "Error: "}: ${action.error.message}` ||
+            `${
+              action.error.name || "Error: "
+            }: Failed to login with graphql server`,
+          code: action.error.code || "500",
+        };
+      })
   },
 });
 

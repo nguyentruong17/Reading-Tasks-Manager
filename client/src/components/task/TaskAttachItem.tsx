@@ -1,9 +1,18 @@
 import React, { FC } from "react";
 import { useSelector } from "react-redux";
 import { selectTask } from "features/task/taskSlice";
-import { Button, Container, Text, Image, AspectRatio } from "@chakra-ui/react";
+import {
+  Box,
+  BoxProps,
+  Button,
+  Container,
+  Text,
+  Image,
+  AspectRatio,
+  Flex,
+} from "@chakra-ui/react";
 
-export interface ITaskAttachItemProps {
+export interface ITaskAttachItemProps extends BoxProps {
   id?: string;
   changeBookMode: boolean;
   name: string;
@@ -16,36 +25,77 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({
 }) => {
   const task = useSelector(selectTask);
   return (
-    <Container>
+    <Box>
       {(!id || (id && changeBookMode)) && (
-        <>
+        <Box>
           <Text>To be implemented...</Text>
-        </>
+        </Box>
       )}
-      {id && !changeBookMode && (
-        <>
-          <Text>Attach Item: </Text>
-          <Container>
-            <AspectRatio ratio={2 / 3}>
+      {id && task && !changeBookMode && (
+        <Box>
+          <Text fontSize={["xs", "sm"]} fontWeight="bold">
+            Attach Item:{" "}
+          </Text>
+          <Flex direction="row" flexGrow={1}>
+            <AspectRatio ratio={2 / 3} minW={[120, 180, 180]} mr={[2, 4, 4]}>
               <Image
-                src={task?.attachItem.covers[0][1]}
-                fallbackSrc={`https://via.placeholder.com/200x300?text=${task?.attachItem.title}`}
+                src={task.attachItem.covers[0][1]}
+                fallbackSrc={`https://via.placeholder.com/200x300?text=${task.attachItem.title}`}
               />
             </AspectRatio>
-            <Text>{task?.attachItem.title}</Text>
-            <Text>{task?.attachItem.authors}</Text>
-            <Button
-              onClick={(e) => {
-                handleClickChangeBook(!changeBookMode);
-              }}
-            >
-              Change Book
-            </Button>
-            <Container>{task?.attachItem.subjects}</Container>
-          </Container>
-        </>
+            <Flex direction="column" flexGrow={1}>
+              <Flex direction="row" flexGrow={3}>
+                <Flex direction="column" flexGrow={1}>
+                  <Text
+                    fontSize={["md", "lg", "xl"]}
+                    color="green.700"
+                    mr={[1, 2]}
+                    mb={[1, 2]}
+                  >
+                    {task.attachItem.title}
+                  </Text>
+                  <Text
+                    fontSize={["xs", "sm", "md"]}
+                    color="yellow.600"
+                    mr={[1, 2]}
+                  >
+                    by {task.attachItem.authors.slice(0, 2).join(', ')}
+                  </Text>
+                </Flex>
+                <Flex justifyContent="flex-end" flexGrow={1}>
+                  <Button
+                    //styling
+                    size="sm"
+                    //func
+                    onClick={(e) => {
+                      handleClickChangeBook(!changeBookMode);
+                    }}
+                  >
+                    Change Book
+                  </Button>
+                </Flex>
+              </Flex>
+              <Flex
+                justifyItems="flex-start"
+                alignItems="flex-end"
+                flexGrow={1}
+                alignSelf="flex-end"
+              >
+                <Container
+                  fontSize={["xs", "sm"]}
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  px={0}
+                >
+                  Subjects:{" "} 
+                  {task.attachItem.subjects.slice(0, 10).join(', ')}
+                </Container>
+              </Flex>
+            </Flex>
+          </Flex>
+        </Box>
       )}
-    </Container>
+    </Box>
   );
 };
 

@@ -14,22 +14,20 @@ import history from "utils/history";
 
 //uis
 import { Box, Text, Button, Flex, Stack, BoxProps } from "@chakra-ui/react";
-import {
-  IoMdAdd,
-  IoMdPower,
-  IoMdClose,
-  IoMdMenu,
-} from "react-icons/io";
+import { IoMdAdd, IoMdPower, IoMdClose, IoMdMenu } from "react-icons/io";
 
 //the FC Logo, MenuToggle, NavbarContainer are used from this tutorial:
 //https://raptis.wtf/blog/create-a-navbar-with-chakra-ui-react/
 interface ILogoProps {
   onClickHandler: MouseEventHandler<HTMLDivElement>;
 }
-const Logo: FC<ILogoProps & BoxProps> = ({ onClickHandler, ...props }): JSX.Element => {
+const Logo: FC<ILogoProps & BoxProps> = ({
+  onClickHandler,
+  ...props
+}): JSX.Element => {
   return (
     <Box {...props} onClick={onClickHandler}>
-      <Text fontSize="lg" fontWeight="bold" color="black">
+      <Text fontSize={["md", "lg"]} fontWeight="semibold" color="teal.600">
         Reading Task Manager
       </Text>
     </Box>
@@ -53,7 +51,11 @@ interface IMenuItemProps {
   onClickHandler: MouseEventHandler<HTMLButtonElement>;
 }
 const MenuItem: FC<IMenuItemProps> = ({ children, onClickHandler }) => {
-  return <Button onClick={onClickHandler}>{children}</Button>;
+  return (
+    <Button colorScheme="teal" variant="outline" onClick={onClickHandler}>
+      {children}
+    </Button>
+  );
 };
 
 interface INavBarContainerProps {
@@ -67,10 +69,11 @@ const NavBarContainer: FC<INavBarContainerProps> = ({ children, ...props }) => {
       justify="space-between"
       wrap="wrap"
       w="100%"
-      mb={8}
-      p={8}
-      //bg={["primary.500", "primary.500", "transparent", "transparent"]}
-      //color={["white", "white", "primary.700", "primary.700"]}
+      p={3}
+      mb={2}
+      bg="whiteAlpha.300"
+      color="teal.600"
+      boxShadow="sm"
       {...props}
     >
       {children}
@@ -84,7 +87,6 @@ interface IHeaderProps {
 const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
   const dispatch = useDispatch();
   const jwtToken = useSelector(selectAuthJwtToken);
-  //console.log(jwtToken);
 
   const { defaultRoute } = props;
   const [isOpen, setIsOpen] = useState(false);
@@ -100,11 +102,8 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
   return (
     <NavBarContainer {...props}>
       <Logo
-        color={["white", "white", "primary.500", "primary.500"]}
         style={{ cursor: "pointer" }}
-
         onClickHandler={pushToDefaultRoute}
-        
       />
       <MenuToggle toggle={toggle} isOpen={isOpen} />
 
@@ -121,12 +120,10 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
             pt={[4, 4, 0, 0]}
           >
             <MenuItem onClickHandler={pushToNewTask}>
-              <IoMdAdd className="mr-2" />
-              New Task
+              <IoMdAdd /> New Task
             </MenuItem>
             <MenuItem onClickHandler={() => dispatch(logOut())}>
-              <IoMdPower className="mr-2" />
-              Log Out
+              <IoMdPower /> Log Out
             </MenuItem>
           </Stack>
         </Box>

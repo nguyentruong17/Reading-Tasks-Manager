@@ -16,39 +16,56 @@ export const DEFAULT_USER_TASKS_PER_QUERY = 5;
 
 export const Priorities: {
   [key: string]: {
-    name: string,
-    value: TaskPriority
-  }
+    name: string;
+    value: TaskPriority;
+    color: string;
+  };
 } = {
-  None: { name: "None", value: TaskPriority.None },
-  Low: { name: "Low", value: TaskPriority.Low },
-  Medium: { name: "Medium", value: TaskPriority.Medium },
-  High: { name: "High", value: TaskPriority.High },
-  Critical: { name: "Critical", value: TaskPriority.Critical },
+  [TaskPriority.None]: {
+    name: "None",
+    value: TaskPriority.None,
+    color: "blue",
+  },
+  [TaskPriority.Low]: { name: "Low", value: TaskPriority.Low, color: "green" },
+  [TaskPriority.Medium]: {
+    name: "Medium",
+    value: TaskPriority.Medium,
+    color: "yellow",
+  },
+  [TaskPriority.High]: {
+    name: "High",
+    value: TaskPriority.High,
+    color: "orange",
+  },
+  [TaskPriority.Critical]: {
+    name: "Critical",
+    value: TaskPriority.Critical,
+    color: "red",
+  },
 };
 export const Status: {
   [key: string]: {
-    name: string,
-    value: TaskStatus,
-    color: string
-  }
+    name: string;
+    value: TaskStatus;
+    color: string;
+  };
 } = {
-  New: {
+  [TaskStatus.New]: {
     name: "New",
     value: TaskStatus.New,
     color: "rgb(222, 231, 235)",
   },
-  "In Progress": {
+  [TaskStatus.InProgress]: {
     name: "In Progress",
     value: TaskStatus.InProgress,
     color: "rgb(243, 238, 180)",
   },
-  Done: {
+  [TaskStatus.Done]: {
     name: "Done",
     value: TaskStatus.Done,
     color: "rgb(219, 203, 240)",
   },
-  Postpone: {
+  [TaskStatus.Postpone]: {
     name: "Postpone",
     value: TaskStatus.Postpone,
     color: "rgb(210, 238, 214)",

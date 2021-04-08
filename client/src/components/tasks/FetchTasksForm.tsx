@@ -13,15 +13,15 @@ import {
 
 //uis
 import {
+  Box,
+  BoxProps,
   ButtonGroup,
   Button,
   Spinner,
   FormControl,
   FormLabel,
-  Tr,
-  Td,
-  Table,
-  Tbody,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { IconType } from "react-icons";
 import {
@@ -64,7 +64,7 @@ interface IFields {
   priority: TaskPriority | null;
   attachItemTitle: string;
 }
-const FetchTasksForm: FC = () => {
+const FetchTasksForm: FC<BoxProps> = (props) => {
   const dispatch = useDispatch();
   const loading = useSelector(selectTasksLoading);
 
@@ -188,140 +188,143 @@ const FetchTasksForm: FC = () => {
 
   const inputError = getInputErrors();
   return (
-    <Form
-      onSubmit={onSubmit}
-      initialValues={defaultFields}
-      render={({ handleSubmit, form }) => (
-        <form onSubmit={handleSubmit}>
-          <Table variant="unstyled">
-            <Tbody>
-              <Tr>
-                <Td>
-                  <FormControl>
-                    <FormLabel>Custom Search Criterias</FormLabel>
-                    <ButtonGroup>
-                      {checkboxButtons.map((checkbox) => (
-                        <Button
-                          key={checkbox.name}
-                          color="primary"
-                          onClick={setSelected(checkbox.name)}
-                          isActive={checkboxSelected.includes(checkbox.name)}
-                        >
-                          <checkbox.icon style={{ marginRight: 5 }} />
-                          {checkbox.name}
-                        </Button>
-                      ))}
-                      <Button
-                        color="primary"
-                        isLoading={loading}
-                        onClick={() => {
-                          form.reset(defaultFields);
-                          setCheckboxSelected([]);
-                        }}
-                      >
-                        <IoMdClose style={{ marginRight: 5 }} />
-                        Clear All
-                      </Button>
-                    </ButtonGroup>
-                  </FormControl>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  {checkboxSelected.includes(CheckBoxNames.DATE_RANGE) && (
-                    <>
-                      <CustomDatePickerControl
-                        name={"fromDate"}
-                        label={"From"}
-                        placeholder={"from..."}
-                      />
-
-                      <CustomDatePickerControl
-                        name={"toDate"}
-                        label={"To"}
-                        placeholder={"to..."}
-                      />
-                    </>
-                  )}
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  {checkboxSelected.includes(CheckBoxNames.STATUS) && (
-                    <>
-                      <CustomSelectControl
-                        name={"status"}
-                        label={CheckBoxNames.STATUS}
-                        options={Object.values(Status)}
-                        // emptyCase={STATUS_EMPTY_CASE}
-                        // handleChange={(e) => {
-                        //     console.log(e.target.value)
-                        // }}
-                      />
-                    </>
-                  )}
-                  {checkboxSelected.includes(CheckBoxNames.PRIORITY) && (
-                    <>
-                      <CustomSelectControl
-                        name={"priority"}
-                        label={CheckBoxNames.PRIORITY}
-                        options={Object.values(Priorities)}
-                        // emptyCase={PRIORITY_EMPTY_CASE}
-                        // handleChange={(e) => {
-                        //     console.log(e.target.value)
-                        // }}
-                      />
-                    </>
-                  )}
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  {checkboxSelected.includes(CheckBoxNames.TITLE) && (
-                    <>
-                      <CustomInputControl
-                        name={"title"}
-                        label={CheckBoxNames.TITLE}
-                      />
-                    </>
-                  )}
-                  {checkboxSelected.includes(
-                    CheckBoxNames.ATTACH_ITEM_TITLE
-                  ) && (
-                    <>
-                      <CustomInputControl
-                        name={"attachItemTitle"}
-                        label={CheckBoxNames.ATTACH_ITEM_TITLE}
-                      />
-                    </>
-                  )}
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  <Button
-                    type="submit"
-                    // sets to the first page to trigger fetchIncidents effect
-                    color="primary"
-                    isActive={Object.keys(inputError).length !== 0}
-                    isLoading={loading}
+    <Box {...props}>
+      <Form
+        onSubmit={onSubmit}
+        initialValues={defaultFields}
+        render={({ handleSubmit, form }) => (
+          <form onSubmit={handleSubmit}>
+            <Grid>
+              <GridItem>
+                <FormControl>
+                  <FormLabel>Custom Search Criterias</FormLabel>
+                  <ButtonGroup
+                    display="flex"
+                    flexDirection="row"
+                    flexWrap="wrap"
                   >
-                    {loading ? (
-                      <Spinner size="sm" color="light" />
-                    ) : (
-                      <>
-                        <IoMdRefresh style={{ marginRight: 5 }} />
-                        Refresh
-                      </>
-                    )}
-                  </Button>
-                </Td>
-              </Tr>
-            </Tbody>
-          </Table>
-        </form>
-      )}
-    />
+                    {checkboxButtons.map((checkbox) => (
+                      <Button
+                        //stylings
+                        my={[1, 1, 2]}
+                        // boxSize={{ base: "sm", md: "sm", lg: "sm" }}
+                        //funcs
+                        key={checkbox.name}
+                        color="primary"
+                        onClick={setSelected(checkbox.name)}
+                        isActive={checkboxSelected.includes(checkbox.name)}
+                      >
+                        <checkbox.icon style={{ marginRight: 5 }} />
+                        {checkbox.name}
+                      </Button>
+                    ))}
+                    <Button
+                      //stylings
+                      my={[1, 1, 2]}
+                      //funcs
+                      color="primary"
+                      isLoading={loading}
+                      onClick={() => {
+                        form.reset(defaultFields);
+                        setCheckboxSelected([]);
+                      }}
+                    >
+                      <IoMdClose style={{ marginRight: 5 }} />
+                      Clear All
+                    </Button>
+                  </ButtonGroup>
+                </FormControl>
+              </GridItem>
+              <GridItem>
+                {checkboxSelected.includes(CheckBoxNames.DATE_RANGE) && (
+                  <>
+                    <CustomDatePickerControl
+                      name={"fromDate"}
+                      label={"From"}
+                      placeholder={"from..."}
+                    />
+
+                    <CustomDatePickerControl
+                      name={"toDate"}
+                      label={"To"}
+                      placeholder={"to..."}
+                    />
+                  </>
+                )}
+              </GridItem>
+              <GridItem>
+                {checkboxSelected.includes(CheckBoxNames.STATUS) && (
+                  <>
+                    <CustomSelectControl
+                      name={"status"}
+                      label={CheckBoxNames.STATUS}
+                      options={Object.values(Status)}
+                      // emptyCase={STATUS_EMPTY_CASE}
+                      // handleChange={(e) => {
+                      //     console.log(e.target.value)
+                      // }}
+                    />
+                  </>
+                )}
+                {checkboxSelected.includes(CheckBoxNames.PRIORITY) && (
+                  <>
+                    <CustomSelectControl
+                      name={"priority"}
+                      label={CheckBoxNames.PRIORITY}
+                      options={Object.values(Priorities)}
+                      // emptyCase={PRIORITY_EMPTY_CASE}
+                      // handleChange={(e) => {
+                      //     console.log(e.target.value)
+                      // }}
+                    />
+                  </>
+                )}
+              </GridItem>
+              <GridItem>
+                {checkboxSelected.includes(CheckBoxNames.TITLE) && (
+                  <>
+                    <CustomInputControl
+                      name={"title"}
+                      label={CheckBoxNames.TITLE}
+                    />
+                  </>
+                )}
+                {checkboxSelected.includes(CheckBoxNames.ATTACH_ITEM_TITLE) && (
+                  <>
+                    <CustomInputControl
+                      name={"attachItemTitle"}
+                      label={CheckBoxNames.ATTACH_ITEM_TITLE}
+                    />
+                  </>
+                )}
+              </GridItem>
+
+              <GridItem>
+                <Button
+                  //stylings
+                  my={[1, 1, 2]}
+                  //funcs
+                  type="submit"
+                  // sets to the first page to trigger fetchIncidents effect
+                  color="primary"
+                  isActive={Object.keys(inputError).length !== 0}
+                  isLoading={loading}
+                >
+                  {loading ? (
+                    <Spinner size="sm" color="light" />
+                  ) : (
+                    <>
+                      <IoMdRefresh style={{ marginRight: 5 }} />
+                      Refresh
+                    </>
+                  )}
+                </Button>
+              </GridItem>
+            </Grid>
+          </form>
+        )}
+      />
+    </Box>
   );
 };
 

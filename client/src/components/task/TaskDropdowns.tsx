@@ -1,11 +1,11 @@
 import React, { FC } from "react";
 import { useSelector } from "react-redux";
 import { selectTask } from "features/task/taskSlice";
-import { Container, Text, Badge } from "@chakra-ui/react";
+import { Container, Box, BoxProps, Text, Badge, Flex } from "@chakra-ui/react";
 import CustomSelectControl from "components/common/CustomSelectControl";
 import { Priorities, Status } from "consts";
 
-export interface TaskDropdownsProps {
+export interface TaskDropdownsProps extends BoxProps {
   id?: string;
   editMode: boolean;
   statusSelectName: string;
@@ -16,38 +16,45 @@ const TaskDropdowns: FC<TaskDropdownsProps> = ({
   editMode,
   statusSelectName,
   prioritySelectName,
+  ...rest
 }) => {
   const task = useSelector(selectTask);
   return (
-    <Container>
+    <Box {...rest}>
       {(!id || (id && editMode)) && (
-        <>
-          <CustomSelectControl
-            name={prioritySelectName}
-            label={"Priority: "}
-            options={Object.values(Priorities)}
-          />
+        <Flex direction="row">
           <CustomSelectControl
             name={statusSelectName}
             label={"Status: "}
             options={Object.values(Status)}
             isDisabled={id ? false : true}
           />
-        </>
+          <CustomSelectControl
+            name={prioritySelectName}
+            label={"Priority: "}
+            options={Object.values(Priorities)}
+          />
+        </Flex>
       )}
-      {id && !editMode && (
-        <>
-          <Container>
-            <Text>Priority:</Text>
-            <Badge>{task?.priority}</Badge>
+      {id && task && !editMode && (
+        <Flex direction="row">
+          <Container pl={0}>
+            <Text fontSize={["xs", "sm"]} color="gray.500">
+              Status:
+            </Text>
+            <Text>{ Status[task.status].name }</Text>
           </Container>
-          <Container>
-            <Text>Status:</Text>
-            <Badge>{task?.status}</Badge>
+          <Container pl={0}>
+            <Text fontSize={["xs", "sm"]} color="gray.500">
+              Priority:
+            </Text>
+            <Badge
+              colorScheme={Priorities[task.priority].color}
+            >{task.priority}</Badge>
           </Container>
-        </>
+        </Flex>
       )}
-    </Container>
+    </Box>
   );
 };
 

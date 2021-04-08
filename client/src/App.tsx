@@ -10,7 +10,7 @@ import {
 } from "features/auth/authSlice";
 
 //uis
-import { Container, Spinner } from "@chakra-ui/react";
+import { Flex, Spinner, Container } from "@chakra-ui/react";
 import Header from "components/common/Header";
 import { Auth } from "features/auth/Auth";
 import ViewTasks from "features/tasks/Tasks";
@@ -49,7 +49,6 @@ const App = () => {
   const defaultRoute = jwtToken ? "/tasks" : "/";
 
   //const [appLoading, setAppLoading] = useState(false);
-  
 
   // useEffect(() => {
   //   const initializeAsync = async () => {
@@ -78,9 +77,9 @@ const App = () => {
   }
 
   return (
-    <div>
+    <Flex fontSize={["xs", "sm", "sm", "md"]} direction="column">
       <Header defaultRoute={defaultRoute} />
-      <Container>
+      <Flex w="100%">
         <Switch>
           {jwtToken ? (
             routes.map((route) => (
@@ -95,8 +94,8 @@ const App = () => {
           )}
           <Redirect to={defaultRoute} />
         </Switch>
-      </Container>
-    </div>
+      </Flex>
+    </Flex>
   );
 };
 

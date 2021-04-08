@@ -1,11 +1,11 @@
 //redux
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
+import { RootState } from "app/store";
 
 //graphql
 import { GraphQLClient } from "graphql-request";
-import { getSdk } from "../../gql/generated/gql-types";
-const GQL_ENDPOINT = "http://localhost:3000/graphql";
+import { getSdk } from "gql/generated/gql-types";
+import { GQL_ENDPOINT } from "consts"
 
 interface AuthState {
   justClickedLogin: boolean;

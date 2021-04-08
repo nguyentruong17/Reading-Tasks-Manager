@@ -1,10 +1,10 @@
 import React, { FC } from "react";
 import { useSelector } from "react-redux";
 import { selectTask } from "features/task/taskSlice";
-import { Container, Text } from "@chakra-ui/react";
+import { Box, BoxProps, Text, Textarea } from "@chakra-ui/react";
 import CustomTextareaControl from "components/common/CustomTextareaControl";
 
-export interface ITaskDescriptionProps {
+export interface ITaskDescriptionProps extends BoxProps {
   id?: string;
   editMode: boolean;
   name: string;
@@ -16,7 +16,7 @@ const TaskDescription: FC<ITaskDescriptionProps> = ({
 }) => {
   const task = useSelector(selectTask);
   return (
-    <Container>
+    <Box>
       {(!id || (id && editMode)) && (
         <>
           <CustomTextareaControl
@@ -26,13 +26,17 @@ const TaskDescription: FC<ITaskDescriptionProps> = ({
           />
         </>
       )}
-      {id && !editMode && (
+      {id && task && !editMode && (
         <>
-          <Text>Description: </Text>
-          <Container>{task?.description}</Container>
+          <Text
+            fontSize={["xs", "sm"]} fontWeight="bold"
+          >Description: </Text>
+          <Textarea
+            isReadOnly={true}
+          >{task.description}</Textarea>
         </>
       )}
-    </Container>
+    </Box>
   );
 };
 
