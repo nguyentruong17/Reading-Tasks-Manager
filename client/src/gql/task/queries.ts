@@ -10,6 +10,9 @@ export const getTaskForViewTask = gql`
   ) {
     getTask(taskId: $taskId) {
       ...ViewTask_Task_Parts_
+      attachItem {
+        ...ViewTask_AttachItem_Parts_
+      }
       history(first: $first, after: $after, last: $last, before: $before) {
         page {
           edges {

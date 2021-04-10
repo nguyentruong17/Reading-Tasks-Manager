@@ -4,9 +4,9 @@
 
 type BaseBook {
   authors: [String!]!
-  covers: [[String!]!]
+  covers: [[String]]!
   openLibraryId: String!
-  subjects: [String!]
+  subjects: [String]!
   title: String!
 }
 
@@ -19,9 +19,9 @@ type BaseBookIdentifiers {
 type BaseBookMongo {
   _id: GraphQLObjectId!
   authors: [String!]!
-  covers: [[String!]!]
+  covers: [[String]]!
   openLibraryId: String!
-  subjects: [String!]
+  subjects: [String]!
   title: String!
 }
 
@@ -45,10 +45,10 @@ type BaseBookMongoPageInfo {
 type Book {
   _id: GraphQLObjectId!
   authors: [String!]!
-  covers: [[String!]!]
+  covers: [[String]]!
   openLibraryId: String!
   owners: [ID!]!
-  subjects: [String!]
+  subjects: [String]!
   timesAdded: Int!
   title: String!
 }

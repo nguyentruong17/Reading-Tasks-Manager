@@ -50,6 +50,7 @@ const TaskDropdowns: FC<TaskDropdownsProps> = ({
             </Text>
             <Badge
               colorScheme={Priorities[task.priority].color}
+              px={[3, 3, 6]}
             >{task.priority}</Badge>
           </Container>
         </Flex>

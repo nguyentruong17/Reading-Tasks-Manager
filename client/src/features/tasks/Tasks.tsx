@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Button, Flex, Stack } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 import FetchTasksForm from "components/tasks/FetchTasksForm";
 import TasksTable from "components/tasks/TasksTable";
 

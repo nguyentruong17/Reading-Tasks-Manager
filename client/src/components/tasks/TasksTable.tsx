@@ -52,10 +52,11 @@ const TasksTable: FC<BoxProps> = (props) => {
                         // color="white"
                         borderRadius="xl"
                         py={0}
-                        px={4}
+                        px={[2, 2, 4]}
                         overflow="hidden"
                         textOverflow="ellipsis"
-                        maxW="100px"
+                        textAlign="center"
+                        maxW="110px"
                         whiteSpace="nowrap"
                       >
                         {Status[task.status].name}
@@ -65,6 +66,10 @@ const TasksTable: FC<BoxProps> = (props) => {
                       <Badge
                         variant="solid"
                         ml={1}
+                        px={[2, 2, 4]}
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        maxW="110px"
                         colorScheme={Priorities[task.priority].color}
                       >
                         {Priorities[task.priority].name}

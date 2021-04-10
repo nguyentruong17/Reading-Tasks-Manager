@@ -33,7 +33,8 @@ const TaskDescription: FC<ITaskDescriptionProps> = ({
           >Description: </Text>
           <Textarea
             isReadOnly={true}
-          >{task.description}</Textarea>
+            value={task.description}
+          />
         </>
       )}
     </Box>

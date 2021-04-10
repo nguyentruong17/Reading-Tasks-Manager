@@ -21,6 +21,7 @@ import counterReducer from '../features/counter/counterSlice';
 import authReducer from '../features/auth/authSlice';
 import tasksReducer from '../features/tasks/tasksSlice';
 import taskReducer from '../features/task/taskSlice';
+import searchReducer from '../features/search/searchSlice';
 
 import { LocationState } from 'history';
 const historyReducer = (history: History) => ({
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   tasks: tasksReducer,
   task: taskReducer,
+  search: searchReducer,
 })
 
 const persistConfig = {
@@ -66,3 +68,4 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action<string>
 >;
+export type AppDispatch = typeof store.dispatch

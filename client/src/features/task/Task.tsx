@@ -7,6 +7,7 @@ import {
   //actions
   initializeTask,
   updateTask,
+  changeAttachItem,
   //selectors
   selectTaskLoading,
   selectTask,
@@ -18,16 +19,12 @@ import TaskHead from "components/task/TaskHead";
 import TaskDropdowns from "components/task/TaskDropdowns";
 import TaskDescription from "components/task/TaskDescription";
 import TaskAttachItem from "components/task/TaskAttachItem";
-import {
-  TaskStatus,
-  TaskPriority,
-  ViewTask_Task_Parts_Fragment,
-} from "gql/generated/gql-types";
+import { UpdateTaskInput } from "gql/generated/gql-types";
 
 export interface RouteParams {
   taskId?: string;
 }
-type IFields = Omit<ViewTask_Task_Parts_Fragment, "attachItem" | '_id'> | null;
+type IFields = UpdateTaskInput;
 const ViewTask: FC = () => {
   const dispatch = useDispatch();
   const { taskId } = useParams<RouteParams>();
@@ -36,40 +33,127 @@ const ViewTask: FC = () => {
 
   const [isEditMode, setIsEditMode] = useState<boolean>(taskId ? false : true);
   const [isChangeBookMode, setIsChangeBookMode] = useState<boolean>(false);
-  const [defaultFields, setDefaultFields] = useState<IFields>(null);
+  const [defaultFields, setDefaultFields] = useState<IFields>({});
 
   useEffect(() => {
     if (taskId) {
       dispatch(initializeTask({ taskId }));
     } else {
+      setDefaultFields({});
     }
-  }, []);
+  }, [taskId]);
 
   useEffect(() => {
     //console.log(task);
     if (task) {
-      const { attachItem, _id,...rest } = task;
+      const { _id, ...rest } = task;
       setDefaultFields(rest);
     } else {
-      setDefaultFields(null);
+      setDefaultFields({});
     }
     setIsEditMode(false);
     setIsChangeBookMode(false);
   }, [task]);
 
-  useEffect(() => {
-    setDefaultFields(null);
-  }, [taskId]);
+  // useEffect(() => {
+  //   if(isChangeBookMode) {
+  //     setIsEditMode(true);
+  //   }
+  // }, [isChangeBookMode])
+
+  // const validate = (values: IFields) => {
+  //   let errors: {
+  //     [key: string]: string;
+  //   } = {};
+  //   let input: UpdateTaskInput = {};
+  //   if (taskId) {
+  //     //edit task
+  //     if (isEditMode && isChangeBookMode) {
+  //     } else {
+  //       if (isEditMode) {
+  //         input = values;
+  //         delete input.openLibraryBookId;
+  //         delete input.bookId;
+  //         Object.entries(input).forEach(([k, v]) => {
+  //           if (!!!v) {
+  //             errors.k = "Required!";
+  //           }
+  //         });
+  //       } else if (isChangeBookMode) {
+  //         input = {};
+  //         if (values.bookId) {
+  //           input = {
+  //             bookId: values.bookId,
+  //           };
+  //         }
+  //         if (values.openLibraryBookId) {
+  //           input = {
+  //             ...input,
+  //             openLibraryBookId: values.openLibraryBookId,
+  //           };
+  //         }
+  //         if (Object.keys(input).length === 0) {
+  //           const msg = "Either `openLibraryBookId` or `bookId` is required";
+  //           errors.openLibraryBookId = msg;
+  //           errors.bookId = msg;
+  //         }
+  //       }
+  //     }
+  //   } else {
+  //     //new task
+  //   }
+  //   //console.log(errors);
+  //   return errors;
+  // };
 
   const onSubmit = async (values: IFields) => {
-    console.log(values);
-    if (values){
-      dispatch(
-        updateTask({
-          taskId,
-          input: values,
-        })
-      );
+    //turn off all edit modes
+    setIsEditMode(false);
+    setIsChangeBookMode(false);
+
+    //process input
+    let input: UpdateTaskInput = {};
+    if (taskId) {
+      //edit task
+      if (isEditMode && isChangeBookMode) {
+        input = values;
+      } else {
+        if (isEditMode) {
+          input = values;
+          delete input.openLibraryBookId;
+          delete input.bookId;
+          dispatch(
+            updateTask({
+              taskId,
+              input,
+            })
+          );
+        } else if (isChangeBookMode) {
+          input = {};
+          if (values.bookId) {
+            input = {
+              bookId: values.bookId,
+            };
+          }
+          if (values.openLibraryBookId) {
+            input = {
+              ...input,
+              openLibraryBookId: values.openLibraryBookId,
+            };
+          }
+          dispatch(
+            changeAttachItem({
+              taskId,
+              input,
+            })
+          );
+        } else {
+          //none
+        }
+      }
+    } else {
+      //new task
+      input = values;
     }
   };
 
@@ -81,6 +165,7 @@ const ViewTask: FC = () => {
       >
         <Form
           //funcs
+          //validate={validate}
           onSubmit={onSubmit}
           initialValues={defaultFields}
           render={({ handleSubmit, form }) => (
@@ -117,7 +202,6 @@ const ViewTask: FC = () => {
                   <TaskAttachItem
                     id={taskId}
                     changeBookMode={isChangeBookMode}
-                    name={"attachItem"}
                     handleClickChangeBook={setIsChangeBookMode}
                   />
                 </GridItem>

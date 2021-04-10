@@ -1,4 +1,5 @@
 ////book.service
+export const MAX_SUBJECTS_PER_BOOK = 30;
 export const DEFAULT_BOOKS_PER_REQUEST = 10;
 export const MAX_BOOKS_PER_QUERY = 50;
 

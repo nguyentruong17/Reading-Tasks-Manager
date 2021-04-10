@@ -1,6 +1,10 @@
-import React, { FC } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { selectTask } from "features/task/taskSlice";
+import {
+  selectAttachItem,
+  selectAttachItemLoading,
+} from "features/task/taskSlice";
+import { selectCurrentSelectedBook } from "features/search/searchSlice";
 import {
   Box,
   BoxProps,
@@ -10,28 +14,56 @@ import {
   Image,
   AspectRatio,
   Flex,
+  Spinner,
 } from "@chakra-ui/react";
+
+import TaskChangeAttachItem from "./TaskChangeAttachItem";
+import { ViewTask_AttachItem_Parts_Fragment } from "gql/generated/gql-types";
 
 export interface ITaskAttachItemProps extends BoxProps {
   id?: string;
   changeBookMode: boolean;
-  name: string;
-  handleClickChangeBook: Function;
+  handleClickChangeBook: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const TaskAttachItem: FC<ITaskAttachItemProps> = ({
   id,
   changeBookMode,
   handleClickChangeBook,
 }) => {
-  const task = useSelector(selectTask);
+  const attachItem = useSelector(selectAttachItem);
+  const currentSelectedBook = useSelector(selectCurrentSelectedBook);
+  const loading = useSelector(selectAttachItemLoading);
+  const [item, setItem] = useState<ViewTask_AttachItem_Parts_Fragment | null>(
+    null
+  );
+  const [isChangingItem, setIsChangingItem] = useState<boolean>(false);
+
+  useEffect(() => {
+    setItem(attachItem);
+  }, [attachItem]);
+
+  useEffect(() => {
+    if (currentSelectedBook) {
+      setItem(currentSelectedBook as ViewTask_AttachItem_Parts_Fragment);
+    }
+  }, [currentSelectedBook]);
+
+  useEffect(() => {
+    if (!changeBookMode) {
+      setItem(attachItem);
+      setIsChangingItem(false);
+    }
+  }, [changeBookMode]);
+
+  if (loading) {
+    return <Spinner>Loading Attach Item...</Spinner>;
+  }
   return (
     <Box>
-      {(!id || (id && changeBookMode)) && (
-        <Box>
-          <Text>To be implemented...</Text>
-        </Box>
+      {(!id || (id && isChangingItem)) && (
+        <TaskChangeAttachItem handleClickSelect={setIsChangingItem} />
       )}
-      {id && task && !changeBookMode && (
+      {id && item && !isChangingItem && (
         <Box>
           <Text fontSize={["xs", "sm"]} fontWeight="bold">
             Attach Item:{" "}
@@ -39,8 +71,18 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({
           <Flex direction="row" flexGrow={1}>
             <AspectRatio ratio={2 / 3} minW={[120, 180, 180]} mr={[2, 4, 4]}>
               <Image
-                src={task.attachItem.covers[0][1]}
-                fallbackSrc={`https://via.placeholder.com/200x300?text=${task.attachItem.title}`}
+                src={
+                  item.covers
+                    ? item.covers.length > 0
+                      ? item.covers[0]
+                        ? item.covers[0][2]
+                          ? item.covers[0][2]
+                          : undefined
+                        : undefined
+                      : undefined
+                    : undefined
+                }
+                fallbackSrc={`https://via.placeholder.com/200x300?text=${item.title}`}
               />
             </AspectRatio>
             <Flex direction="column" flexGrow={1}>
@@ -49,17 +91,18 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({
                   <Text
                     fontSize={["md", "lg", "xl"]}
                     color="green.700"
+                    textTransform="capitalize"
                     mr={[1, 2]}
                     mb={[1, 2]}
                   >
-                    {task.attachItem.title}
+                    {item.title}
                   </Text>
                   <Text
                     fontSize={["xs", "sm", "md"]}
                     color="yellow.600"
                     mr={[1, 2]}
                   >
-                    by {task.attachItem.authors.slice(0, 2).join(', ')}
+                    by {item.authors.slice(0, 2).join(", ")}
                   </Text>
                 </Flex>
                 <Flex justifyContent="flex-end" flexGrow={1}>
@@ -68,7 +111,8 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({
                     size="sm"
                     //func
                     onClick={(e) => {
-                      handleClickChangeBook(!changeBookMode);
+                      handleClickChangeBook(true);
+                      setIsChangingItem(true);
                     }}
                   >
                     Change Book
@@ -79,16 +123,16 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({
                 justifyItems="flex-start"
                 alignItems="flex-end"
                 flexGrow={1}
-                alignSelf="flex-end"
               >
                 <Container
                   fontSize={["xs", "sm"]}
+                  display={item.subjects.length > 0 ? "initial" : "none"}
                   overflow="hidden"
                   textOverflow="ellipsis"
                   px={0}
+                  ml={0}
                 >
-                  Subjects:{" "} 
-                  {task.attachItem.subjects.slice(0, 10).join(', ')}
+                  Subjects: {item.subjects.slice(0, 10).join(", ")}
                 </Container>
               </Flex>
             </Flex>

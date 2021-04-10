@@ -16,9 +16,6 @@ export const TaskFragment = gql`
     status
     priority
     description
-    attachItem {
-      ...ViewTask_AttachItem_Parts_
-    }
   }
 `;
 

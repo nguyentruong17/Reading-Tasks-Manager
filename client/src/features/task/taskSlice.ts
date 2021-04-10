@@ -10,6 +10,7 @@ import {
   UpdateTaskMutationVariables,
   ViewTask_Task_Parts_Fragment,
   ViewTask_TaskHistory_All_Fragment,
+  ViewTask_AttachItem_Parts_Fragment,
 } from "gql/generated/gql-types";
 
 import { GQL_ENDPOINT, DEFAULT_TASK_HISTORY_PER_REQUEST } from "consts";
@@ -21,8 +22,21 @@ interface TaskState {
     message: string;
     code: string;
   };
+  attachItem: {
+    data: ViewTask_AttachItem_Parts_Fragment | null;
+    loading: boolean;
+    error: {
+      message: string;
+      code: string;
+    };
+  };
   history: {
     data: ViewTask_TaskHistory_All_Fragment[];
+    loading: boolean;
+    error: {
+      message: string;
+      code: string;
+    };
     pagination: {
       count: number;
       limit: number;
@@ -39,8 +53,21 @@ const initialState: TaskState = {
     message: "",
     code: "-1",
   },
+  attachItem: {
+    data: null,
+    loading: false,
+    error: {
+      message: "",
+      code: "-1",
+    },
+  },
   history: {
     data: [],
+    loading: false,
+    error: {
+      message: "",
+      code: "-1",
+    },
     pagination: {
       count: 0,
       limit: DEFAULT_TASK_HISTORY_PER_REQUEST,
@@ -129,8 +156,31 @@ export const updateTask = createAsyncThunk(
       },
     });
     const sdk = getSdk(client);
-    const { updateTask } = await sdk.updateTask(args)
+    const { updateTask } = await sdk.updateTask(args);
     return updateTask;
+  }
+);
+
+export const changeAttachItem = createAsyncThunk(
+  "task/changeAttachItem",
+  async (args: UpdateTaskMutationVariables, { getState }) => {
+    const { auth } = getState() as { auth: { jwtToken: string } };
+
+    const client = new GraphQLClient(GQL_ENDPOINT, {
+      headers: {
+        authorization: `Bearer ${auth.jwtToken}`,
+      },
+    });
+    const sdk = getSdk(client);
+    args = {
+      ...args,
+      input: {
+        openLibraryBookId: args.input.openLibraryBookId,
+        bookId: args.input.bookId,
+      },
+    };
+    const { updateTask: changeAttachItem } = await sdk.changeAttachItem(args);
+    return changeAttachItem;
   }
 );
 
@@ -157,12 +207,17 @@ export const taskSlice = createSlice({
       //load initial
       .addCase(initializeTask.pending, (state, action) => {
         state.loading = true;
+        state.attachItem.loading = true;
+        state.history.loading = true;
       })
       .addCase(initializeTask.fulfilled, (state, action) => {
-        const { history, ...task } = action.payload;
+        const { attachItem, history, ...task } = action.payload;
 
         //task
         state.task = task;
+
+        //attachItem
+        state.attachItem.data = attachItem;
 
         //history
         ////data
@@ -201,9 +256,13 @@ export const taskSlice = createSlice({
         }
 
         //stop loading
+        state.attachItem.loading = false;
+        state.history.loading = false;
         state.loading = false;
       })
       .addCase(initializeTask.rejected, (state, action) => {
+        state.attachItem.loading = false;
+        state.history.loading = false;
         state.loading = false;
         state.error = {
           message:
@@ -217,7 +276,7 @@ export const taskSlice = createSlice({
 
       // load next history
       .addCase(loadNextHistory.pending, (state, action) => {
-        state.loading = true;
+        state.history.loading = true;
       })
       .addCase(loadNextHistory.fulfilled, (state, action) => {
         const { history } = action.payload;
@@ -257,11 +316,11 @@ export const taskSlice = createSlice({
           };
         }
         //stop loading
-        state.loading = false;
+        state.history.loading = false;
       })
       .addCase(loadNextHistory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = {
+        state.history.loading = false;
+        state.history.error = {
           message:
             `${action.error.name || "Error: "}: ${action.error.message}` ||
             `${
@@ -293,6 +352,31 @@ export const taskSlice = createSlice({
           code: action.error.code || "500",
         };
       })
+
+      //change book
+      .addCase(changeAttachItem.pending, (state, action) => {
+        state.attachItem.loading = true;
+      })
+      .addCase(changeAttachItem.fulfilled, (state, action) => {
+        const { attachItem } = action.payload;
+
+        //attachItem
+        state.attachItem.data = attachItem;
+
+        //stop loading
+        state.attachItem.loading = false;
+      })
+      .addCase(changeAttachItem.rejected, (state, action) => {
+        state.attachItem.loading = false;
+        state.error = {
+          message:
+            `${action.error.name || "Error: "}: ${action.error.message}` ||
+            `${
+              action.error.name || "Error: "
+            }: Failed to login with graphql server`,
+          code: action.error.code || "500",
+        };
+      });
   },
 });
 
@@ -303,12 +387,26 @@ export const {
   setHistoryPaginationEndCursor,
 } = taskSlice.actions;
 
+//task selectors
 export const selectTask = (state: RootState) => state.task.task;
 export const selectTaskLoading = (state: RootState) => state.task.loading;
 export const selectTaskError = (state: RootState) => state.task.error;
-export const selectTaskHistoryData = (state: RootState) =>
-  state.task.history.data;
+
+//attachItem selectors
+export const selectAttachItem = (state: RootState) =>
+  state.task.attachItem.data;
+export const selectAttachItemLoading = (state: RootState) =>
+  state.task.attachItem.loading;
+export const selectAttachItemError = (state: RootState) =>
+  state.task.attachItem.error;
+
+//history selectors:
+export const selectTaskHistory = (state: RootState) => state.task.history.data;
+export const selectTaskHistoryLoading = (state: RootState) =>
+  state.task.history.loading;
 export const selectTaskHistoryPagination = (state: RootState) =>
   state.task.history.pagination;
+export const selectTaskHistoryError = (state: RootState) =>
+  state.task.history.error;
 
 export default taskSlice.reducer;

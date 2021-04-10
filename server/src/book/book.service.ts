@@ -26,6 +26,7 @@ import {
   MAX_ONLINE_BOOKS_PER_QUERY,
   MAX_BOOKS_PER_QUERY,
   MAX_DIFFERENT_COVERS,
+  MAX_SUBJECTS_PER_BOOK,
 } from 'src/consts/defaults';
 import {
   AUTHORS_API_URL,
@@ -38,15 +39,15 @@ import {
 
 @Injectable()
 export class BookService {
-  private _currentSearchInput: SearchBookInput;
-  private _currentSearchInputBooks: BaseBook[];
+  // private _currentSearchInput: SearchBookInput;
+  // private _currentSearchInputBooks: BaseBook[];
 
   constructor(
     @InjectModel(Book.name) private readonly _bookModel: Model<BookDocument>,
     private readonly _httpService: HttpService,
   ) {
-    this._currentSearchInput = new SearchBookInput('', '', '');
-    this._currentSearchInputBooks = [];
+    // this._currentSearchInput = new SearchBookInput('', '', '');
+    // this._currentSearchInputBooks = [];
   }
 
   private async _getOpenLibraryAuthor(
@@ -118,7 +119,7 @@ export class BookService {
           openLibraryId: b.key.split('/')[2],
           title: b.title,
           authors: b.author_name ? b.author_name : [],
-          subjects: b.subject ? b.subject : [],
+          subjects: b.subject ? b.subject.slice(0, MAX_SUBJECTS_PER_BOOK) : [],
           covers: b.cover_i
             ? [
                 COVERS_API_SIZES.map(
@@ -132,16 +133,16 @@ export class BookService {
       });
 
       //memoization for paging search
-      if (this._currentSearchInput != searchInput) {
-        this._currentSearchInput = searchInput;
-        this._currentSearchInputBooks = books;
-      } else {
-        this._currentSearchInputBooks.concat(books);
-      }
+      // if (this._currentSearchInput != searchInput) {
+      //   this._currentSearchInput = searchInput;
+      //   this._currentSearchInputBooks = books;
+      // } else {
+      //   this._currentSearchInputBooks.concat(books);
+      // }
 
-      if (this._currentSearchInputBooks.length > 50) {
-        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-      }
+      // if (this._currentSearchInputBooks.length > 50) {
+      //   throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      // }
 
       return books;
     } catch (e) {
@@ -284,7 +285,7 @@ export class BookService {
       const createdBook = new this._bookModel({
         openLibraryId: b.key.split('/')[2],
         title: b.title,
-        subjects: b.subjects ? b.subjects : [],
+        subjects: b.subjects ? b.subjects.slice(0, MAX_SUBJECTS_PER_BOOK) : [],
         covers,
         authors,
         timesAdded: 1, //initalizing

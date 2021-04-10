@@ -71,11 +71,11 @@ export class User extends BaseUserMongo {
   //   username: string;
 
   @Prop({ type: [UserTaskSchema] })
-  @Field((type) => [UserTask])
+  @Field((type) => [UserTask], {nullable: "items"})
   tasks: Array<UserTask>;
 
   @Prop({ type: [BaseBookMongoSchema] })
-  @Field((type) => [BaseBookMongo])
+  @Field((type) => [BaseBookMongo], {nullable: "items"})
   books: Array<BaseBookMongo>;
 }
 Object.defineProperty(User, 'name', {
