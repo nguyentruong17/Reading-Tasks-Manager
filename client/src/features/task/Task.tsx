@@ -254,7 +254,7 @@ const ViewTask: FC = () => {
           validate={validate}
           onSubmit={onSubmit}
           initialValues={initialFields}
-          render={({ handleSubmit, form, invalid }) => (
+          render={({ handleSubmit, form, hasValidationErrors }) => (
             <form onSubmit={handleSubmit}>
               <Grid flexGrow={1}>
                 <GridItem mb={[3, 3, 5]}>
@@ -308,6 +308,7 @@ const ViewTask: FC = () => {
                         type="submit"
                         colorScheme="green"
                         isLoading={loading}
+                        isDisabled={hasValidationErrors}
                       >
                         Submit
                       </Button>

@@ -56,7 +56,6 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
       setIsChangingItem(true);
     } else if (operation === OperationState.Update) {
       // if (!isChangingItem) {
-
       // }
       // setIsChangingItem(false);
     } else if (operation === OperationState.Read) {
@@ -88,6 +87,9 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
   }
   return (
     <Box {...rest}>
+      <Text fontSize={["xs", "sm"]} fontWeight="bold">
+        Attach Item:{" "}
+      </Text>
       {isChangingItem &&
         ((operation === OperationState.Create && !createWithAttachItem) ||
           (operation === OperationState.Update && updateHasAttachItem) ||
@@ -96,9 +98,6 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
         )}
       {!isChangingItem && item && (
         <Box>
-          <Text fontSize={["xs", "sm"]} fontWeight="bold">
-            Attach Item:{" "}
-          </Text>
           <Flex direction="row" flexGrow={1}>
             <AspectRatio ratio={2 / 3} minW={[120, 180, 180]} mr={[2, 4, 4]}>
               <Image
