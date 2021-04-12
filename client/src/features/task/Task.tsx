@@ -2,7 +2,9 @@ import React, { FC, useEffect, useState } from "react";
 import { Form } from "react-final-form";
 import { useParams } from "react-router-dom";
 import ObjectId from "bson-objectid";
+import { GraphQLClient } from "graphql-request";
 //redux
+import { AppDispatch } from "app/store";
 import { useDispatch, useSelector } from "react-redux";
 import {
   //actions
@@ -14,6 +16,7 @@ import {
   selectTaskLoading,
   selectTask,
 } from "./taskSlice";
+import { selectAuthJwtToken } from "features/auth/authSlice";
 import { selectCurrentSelectedBook } from "features/search/searchSlice";
 import {
   //
@@ -34,10 +37,15 @@ import TaskDropdowns from "components/task/TaskDropdowns";
 import TaskDescription from "components/task/TaskDescription";
 import TaskAttachItem from "components/task/TaskAttachItem";
 import {
+  getSdk,
   UpdateTaskInput,
+  CreateTaskInput,
   TaskStatus,
   TaskPriority,
+  CreateTaskMutationVariables,
 } from "gql/generated/gql-types";
+import History from "utils/history";
+import { GQL_ENDPOINT } from "consts";
 
 export interface RouteParams {
   taskId?: string;
@@ -47,7 +55,8 @@ type IFields = UpdateTaskInput & {
   openLibraryBookId?: string;
 };
 const ViewTask: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
+  const jwtToken = useSelector(selectAuthJwtToken);
   const { taskId } = useParams<RouteParams>();
 
   //crudTask
@@ -169,12 +178,22 @@ const ViewTask: FC = () => {
     return errors;
   };
 
-  const onSubmit = (values: IFields) => {
+  const createTask = async (args: CreateTaskMutationVariables) => {
+    const client = new GraphQLClient(GQL_ENDPOINT, {
+      headers: {
+        authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    const sdk = getSdk(client);
+    const { createTask } = await sdk.createTask(args);
+    return createTask;
+  };
+
+  const onSubmit = async (values: IFields) => {
     dispatch(setOperation(OperationState.Read));
     //process input
-    let input: UpdateTaskInput = {};
-    console.log(values);
     if (operation === OperationState.Update) {
+      let input: UpdateTaskInput = {};
       input = values;
       if (updateHasAttachItem) {
         dispatch(
@@ -194,6 +213,7 @@ const ViewTask: FC = () => {
         );
       }
     } else if (operation === OperationState.UpdateAttachItemOnly) {
+      let input: UpdateTaskInput = {};
       input = {};
       if (values.bookId) {
         input = {
@@ -213,6 +233,13 @@ const ViewTask: FC = () => {
         })
       );
     } else if (operation === OperationState.Create) {
+      const v = { ...values };
+      delete v.status;
+
+      //@ts-ignore: should validated with the validation
+      const input: CreateTaskInput = v;
+      const task = await createTask({ input });
+      History.push(`/tasks/${task._id}`);
     }
   };
 

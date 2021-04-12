@@ -8,6 +8,7 @@ import {
   getSdk,
   GetTaskQueryVariables,
   UpdateTaskMutationVariables,
+  CreateTaskMutationVariables,
   ViewTask_Task_Parts_Fragment,
   ViewTask_TaskHistory_All_Fragment,
   ViewTask_AttachItem_Parts_Fragment,
@@ -423,7 +424,7 @@ export const taskSlice = createSlice({
             }: Failed to login with graphql server`,
           code: action.error.code || "500",
         };
-      });
+      })
   },
 });
 

@@ -49,8 +49,20 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
   const [item, setItem] = useState<ViewTask_AttachItem_Parts_Fragment | null>(
     null
   );
-  //current selected book
   const [isChangingItem, setIsChangingItem] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (operation === OperationState.Create) {
+      setIsChangingItem(true);
+    } else if (operation === OperationState.Update) {
+      // if (!isChangingItem) {
+
+      // }
+      // setIsChangingItem(false);
+    } else if (operation === OperationState.Read) {
+      setIsChangingItem(false);
+    }
+  }, [operation]);
 
   useEffect(() => {
     setItem(attachItem);
@@ -63,9 +75,11 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
   }, [currentSelectedBook]);
 
   useEffect(() => {
-    if (!updateHasAttachItem) {
-      setItem(attachItem);
-      setIsChangingItem(false);
+    if (operation === OperationState.Update) {
+      if (!updateHasAttachItem) {
+        setItem(attachItem);
+        setIsChangingItem(false);
+      }
     }
   }, [updateHasAttachItem]);
 
@@ -80,89 +94,84 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
           operation === OperationState.UpdateAttachItemOnly) && (
           <TaskChangeAttachItem handleClickSelect={setIsChangingItem} />
         )}
-      {!isChangingItem &&
-        item &&
-        (operation === OperationState.Read ||
-          (operation === OperationState.Create && createWithAttachItem) ||
-          (operation === OperationState.Update) ||
-          operation === OperationState.UpdateAttachItemOnly) && (
-          <Box>
-            <Text fontSize={["xs", "sm"]} fontWeight="bold">
-              Attach Item:{" "}
-            </Text>
-            <Flex direction="row" flexGrow={1}>
-              <AspectRatio ratio={2 / 3} minW={[120, 180, 180]} mr={[2, 4, 4]}>
-                <Image
-                  src={
-                    item.covers
-                      ? item.covers.length > 0
-                        ? item.covers[0]
+      {!isChangingItem && item && (
+        <Box>
+          <Text fontSize={["xs", "sm"]} fontWeight="bold">
+            Attach Item:{" "}
+          </Text>
+          <Flex direction="row" flexGrow={1}>
+            <AspectRatio ratio={2 / 3} minW={[120, 180, 180]} mr={[2, 4, 4]}>
+              <Image
+                src={
+                  item.covers
+                    ? item.covers.length > 0
+                      ? item.covers[0]
+                        ? item.covers[0][2]
                           ? item.covers[0][2]
-                            ? item.covers[0][2]
-                            : undefined
                           : undefined
                         : undefined
                       : undefined
-                  }
-                  fallbackSrc={`https://via.placeholder.com/200x300?text=${item.title}`}
-                />
-              </AspectRatio>
-              <Flex direction="column" flexGrow={1}>
-                <Flex direction="row" flexGrow={3}>
-                  <Flex direction="column" flexGrow={1}>
-                    <Text
-                      fontSize={["md", "lg", "xl"]}
-                      color="green.700"
-                      textTransform="capitalize"
-                      mr={[1, 2]}
-                      mb={[1, 2]}
-                    >
-                      {item.title}
-                    </Text>
-                    <Text
-                      fontSize={["xs", "sm", "md"]}
-                      color="yellow.600"
-                      mr={[1, 2]}
-                    >
-                      by {item.authors.slice(0, 2).join(", ")}
-                    </Text>
-                  </Flex>
-                  <Flex justifyContent="flex-end" flexGrow={1}>
-                    <Button
-                      //styling
-                      size="sm"
-                      //func
-                      onClick={(e) => {
-                        setIsChangingItem(true);
-                        dispatch(
-                          setOperation(OperationState.UpdateAttachItemOnly)
-                        );
-                      }}
-                    >
-                      Change Book
-                    </Button>
-                  </Flex>
-                </Flex>
-                <Flex
-                  justifyItems="flex-start"
-                  alignItems="flex-end"
-                  flexGrow={1}
-                >
-                  <Container
-                    fontSize={["xs", "sm"]}
-                    display={item.subjects.length > 0 ? "initial" : "none"}
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                    px={0}
-                    ml={0}
+                    : undefined
+                }
+                fallbackSrc={`https://via.placeholder.com/200x300?text=${item.title}`}
+              />
+            </AspectRatio>
+            <Flex direction="column" flexGrow={1}>
+              <Flex direction="row" flexGrow={3}>
+                <Flex direction="column" flexGrow={1}>
+                  <Text
+                    fontSize={["md", "lg", "xl"]}
+                    color="green.700"
+                    textTransform="capitalize"
+                    mr={[1, 2]}
+                    mb={[1, 2]}
                   >
-                    Subjects: {item.subjects.slice(0, 10).join(", ")}
-                  </Container>
+                    {item.title}
+                  </Text>
+                  <Text
+                    fontSize={["xs", "sm", "md"]}
+                    color="yellow.600"
+                    mr={[1, 2]}
+                  >
+                    by {item.authors.slice(0, 2).join(", ")}
+                  </Text>
+                </Flex>
+                <Flex justifyContent="flex-end" flexGrow={1}>
+                  <Button
+                    //styling
+                    size="sm"
+                    //func
+                    onClick={(e) => {
+                      setIsChangingItem(true);
+                      dispatch(
+                        setOperation(OperationState.UpdateAttachItemOnly)
+                      );
+                    }}
+                  >
+                    Change Book
+                  </Button>
                 </Flex>
               </Flex>
+              <Flex
+                justifyItems="flex-start"
+                alignItems="flex-end"
+                flexGrow={1}
+              >
+                <Container
+                  fontSize={["xs", "sm"]}
+                  display={item.subjects.length > 0 ? "initial" : "none"}
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  px={0}
+                  ml={0}
+                >
+                  Subjects: {item.subjects.slice(0, 10).join(", ")}
+                </Container>
+              </Flex>
             </Flex>
-          </Box>
-        )}
+          </Flex>
+        </Box>
+      )}
     </Box>
   );
 };

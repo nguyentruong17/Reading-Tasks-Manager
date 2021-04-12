@@ -34,3 +34,41 @@ export const updateTaskAndChangeAttachItem = gql`
     }
   }
 `;
+
+export const createTask = gql`
+  mutation createTask(
+    $input: CreateTaskInput!
+    $first: Int
+    $after: String
+    $last: Int
+    $before: String
+  ) {
+    createTask(input: $input) {
+      ...ViewTask_Task_Parts_
+      attachItem {
+        ...ViewTask_AttachItem_Parts_
+      }
+      history(first: $first, after: $after, last: $last, before: $before) {
+        page {
+          edges {
+            cursor
+            node {
+              ...ViewTask_TaskHistory_All_
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+          }
+        }
+        pageData {
+          count
+          limit
+          offset
+        }
+      }
+    }
+  }
+`;

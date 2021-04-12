@@ -466,6 +466,46 @@ export type UpdateTaskAndChangeAttachItemMutation = (
   ) }
 );
 
+export type CreateTaskMutationVariables = Exact<{
+  input: CreateTaskInput;
+  first?: Maybe<Scalars['Int']>;
+  after?: Maybe<Scalars['String']>;
+  last?: Maybe<Scalars['Int']>;
+  before?: Maybe<Scalars['String']>;
+}>;
+
+
+export type CreateTaskMutation = (
+  { __typename?: 'Mutation' }
+  & { createTask: (
+    { __typename?: 'Task' }
+    & { attachItem: (
+      { __typename?: 'BaseBookMongo' }
+      & ViewTask_AttachItem_Parts_Fragment
+    ), history: (
+      { __typename?: 'TaskHistoryResponse' }
+      & { page: (
+        { __typename?: 'TaskHistoryConnection' }
+        & { edges?: Maybe<Array<(
+          { __typename?: 'TaskHistoryEdge' }
+          & Pick<TaskHistoryEdge, 'cursor'>
+          & { node?: Maybe<(
+            { __typename?: 'TaskHistory' }
+            & ViewTask_TaskHistory_All_Fragment
+          )> }
+        )>>, pageInfo?: Maybe<(
+          { __typename?: 'TaskHistoryPageInfo' }
+          & Pick<TaskHistoryPageInfo, 'endCursor' | 'hasNextPage' | 'hasPreviousPage' | 'startCursor'>
+        )> }
+      ), pageData?: Maybe<(
+        { __typename?: 'PageData' }
+        & Pick<PageData, 'count' | 'limit' | 'offset'>
+      )> }
+    ) }
+    & ViewTask_Task_Parts_Fragment
+  ) }
+);
+
 export type GetTaskQueryVariables = Exact<{
   taskId: Scalars['GraphQLObjectId'];
   first?: Maybe<Scalars['Int']>;
@@ -681,6 +721,39 @@ export const UpdateTaskAndChangeAttachItemDocument = gql`
 }
     ${ViewTask_Task_Parts_FragmentDoc}
 ${ViewTask_AttachItem_Parts_FragmentDoc}`;
+export const CreateTaskDocument = gql`
+    mutation createTask($input: CreateTaskInput!, $first: Int, $after: String, $last: Int, $before: String) {
+  createTask(input: $input) {
+    ...ViewTask_Task_Parts_
+    attachItem {
+      ...ViewTask_AttachItem_Parts_
+    }
+    history(first: $first, after: $after, last: $last, before: $before) {
+      page {
+        edges {
+          cursor
+          node {
+            ...ViewTask_TaskHistory_All_
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+        }
+      }
+      pageData {
+        count
+        limit
+        offset
+      }
+    }
+  }
+}
+    ${ViewTask_Task_Parts_FragmentDoc}
+${ViewTask_AttachItem_Parts_FragmentDoc}
+${ViewTask_TaskHistory_All_FragmentDoc}`;
 export const GetTaskDocument = gql`
     query getTask($taskId: GraphQLObjectId!, $first: Int, $after: String, $last: Int, $before: String) {
   getTask(taskId: $taskId) {
@@ -793,6 +866,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     updateTaskAndChangeAttachItem(variables: UpdateTaskAndChangeAttachItemMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateTaskAndChangeAttachItemMutation> {
       return withWrapper(() => client.request<UpdateTaskAndChangeAttachItemMutation>(UpdateTaskAndChangeAttachItemDocument, variables, requestHeaders));
+    },
+    createTask(variables: CreateTaskMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateTaskMutation> {
+      return withWrapper(() => client.request<CreateTaskMutation>(CreateTaskDocument, variables, requestHeaders));
     },
     getTask(variables: GetTaskQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTaskQuery> {
       return withWrapper(() => client.request<GetTaskQuery>(GetTaskDocument, variables, requestHeaders));
