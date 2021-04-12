@@ -17,7 +17,9 @@ const CustomInputControl: FC<ICustomInputControl> = ({
   children,
   ...rest
 }) => {
-  const { input, meta } = useField(name);
+  const { input, meta } = useField(name, 
+    //{ parse: x => x }
+  );
   return (
     <CustomFormControl name={name}>
       <FormLabel htmlFor={name}>{label}</FormLabel>

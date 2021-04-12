@@ -1,7 +1,14 @@
 import React, { FC } from "react";
-import { useSelector } from "react-redux";
-
+//redux
+import { useSelector, useDispatch } from "react-redux";
 import { selectTasksLoading, selectTasks } from "features/tasks/tasksSlice";
+import {
+  //
+  OperationState,
+  //actions
+  setOperation,
+} from "features/task/crudTaskSlice";
+//uis
 import {
   Box,
   BoxProps,
@@ -16,9 +23,10 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { Status, Priorities } from "consts";
-import History from 'utils/history';
+import History from "utils/history";
 
 const TasksTable: FC<BoxProps> = (props) => {
+  const dispatch = useDispatch();
   const isLoading = useSelector(selectTasksLoading);
   const tasks = useSelector(selectTasks);
   //const dispatch = useDispatch();
@@ -77,10 +85,12 @@ const TasksTable: FC<BoxProps> = (props) => {
                     </Td>
                     <Td
                       style={{ cursor: "pointer" }}
-                      onClick={e => {
-                        History.push(`/tasks/${task._id}`)
+                      onClick={(e) => {
+                        History.push(`/tasks/${task._id}`);
                       }}
-                    >{task.title}</Td>
+                    >
+                      {task.title}
+                    </Td>
                     <Td display={{ base: "none", md: "block" }}>
                       {task.description}
                     </Td>

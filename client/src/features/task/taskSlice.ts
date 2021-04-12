@@ -184,6 +184,23 @@ export const changeAttachItem = createAsyncThunk(
   }
 );
 
+export const updateTaskAndChangeAttachItem = createAsyncThunk(
+  "task/updateTaskAndChangeAttachItem",
+  async (args: UpdateTaskMutationVariables, { getState }) => {
+    const { auth } = getState() as { auth: { jwtToken: string } };
+    const client = new GraphQLClient(GQL_ENDPOINT, {
+      headers: {
+        authorization: `Bearer ${auth.jwtToken}`,
+      },
+    });
+    const sdk = getSdk(client);
+    const {
+      updateTask: updateTaskAndChangeItem,
+    } = await sdk.updateTaskAndChangeAttachItem(args);
+    return updateTaskAndChangeItem;
+  }
+);
+
 export const taskSlice = createSlice({
   name: "task",
   initialState,
@@ -367,6 +384,36 @@ export const taskSlice = createSlice({
         state.attachItem.loading = false;
       })
       .addCase(changeAttachItem.rejected, (state, action) => {
+        state.attachItem.loading = false;
+        state.error = {
+          message:
+            `${action.error.name || "Error: "}: ${action.error.message}` ||
+            `${
+              action.error.name || "Error: "
+            }: Failed to login with graphql server`,
+          code: action.error.code || "500",
+        };
+      })
+
+      //update task && change book
+      .addCase(updateTaskAndChangeAttachItem.pending, (state, action) => {
+        state.loading = true;
+        state.attachItem.loading = true;
+      })
+      .addCase(updateTaskAndChangeAttachItem.fulfilled, (state, action) => {
+        const { attachItem, ...task } = action.payload;
+        //task
+        state.task = task;
+
+        //attachItem
+        state.attachItem.data = attachItem;
+
+        //stop loading
+        state.loading = false;
+        state.attachItem.loading = false;
+      })
+      .addCase(updateTaskAndChangeAttachItem.rejected, (state, action) => {
+        state.loading = false;
         state.attachItem.loading = false;
         state.error = {
           message:

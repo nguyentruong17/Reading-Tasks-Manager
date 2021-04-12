@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import { Form } from "react-final-form";
 import { useParams } from "react-router-dom";
+import ObjectId from "bson-objectid";
 //redux
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -8,152 +9,210 @@ import {
   initializeTask,
   updateTask,
   changeAttachItem,
+  updateTaskAndChangeAttachItem,
   //selectors
   selectTaskLoading,
   selectTask,
 } from "./taskSlice";
+import { selectCurrentSelectedBook } from "features/search/searchSlice";
+import {
+  //
+  OperationState,
+  //actions
+  setOperation,
+  setCurrentTaskId,
+  //selectors
+  selectOperation,
+  selectCreateWithSelectedBook,
+  selectUpdateHasAttachItem,
+} from "features/task/crudTaskSlice";
 //uis
 
-import { Container, Button, Box, Flex, Grid, GridItem } from "@chakra-ui/react";
+import { Button, Box, Flex, Grid, GridItem } from "@chakra-ui/react";
 import TaskHead from "components/task/TaskHead";
 import TaskDropdowns from "components/task/TaskDropdowns";
 import TaskDescription from "components/task/TaskDescription";
 import TaskAttachItem from "components/task/TaskAttachItem";
-import { UpdateTaskInput } from "gql/generated/gql-types";
+import {
+  UpdateTaskInput,
+  TaskStatus,
+  TaskPriority,
+} from "gql/generated/gql-types";
 
 export interface RouteParams {
   taskId?: string;
 }
-type IFields = UpdateTaskInput;
+type IFields = UpdateTaskInput & {
+  bookId?: ObjectId;
+  openLibraryBookId?: string;
+};
 const ViewTask: FC = () => {
   const dispatch = useDispatch();
   const { taskId } = useParams<RouteParams>();
+
+  //crudTask
+  const operation = useSelector(selectOperation);
+  const createWithAttachItem = useSelector(selectCreateWithSelectedBook);
+  const updateHasAttachItem = useSelector(selectUpdateHasAttachItem);
+
+  //task
   const task = useSelector(selectTask);
   const loading = useSelector(selectTaskLoading);
 
-  const [isEditMode, setIsEditMode] = useState<boolean>(taskId ? false : true);
-  const [isChangeBookMode, setIsChangeBookMode] = useState<boolean>(false);
-  const [defaultFields, setDefaultFields] = useState<IFields>({});
+  //selected book
+  const currentSelectedBook = useSelector(selectCurrentSelectedBook);
+
+  const defaulFields: IFields = {
+    title: "My New Reading Task",
+    description: "Describes my task...",
+    status: TaskStatus.New,
+    priority: TaskPriority.None,
+  };
+  const [initialFields, setInitialFields] = useState<IFields>(defaulFields);
 
   useEffect(() => {
     if (taskId) {
-      dispatch(initializeTask({ taskId }));
+      const isValidObjectId = ObjectId.isValid(taskId);
+      if (isValidObjectId) {
+        dispatch(setCurrentTaskId(taskId));
+        dispatch(setOperation(OperationState.Read));
+        dispatch(initializeTask({ taskId }));
+      } else {
+        //raise some error
+      }
     } else {
-      setDefaultFields({});
+      dispatch(setOperation(OperationState.Create));
+      setInitialFields(defaulFields);
     }
   }, [taskId]);
 
   useEffect(() => {
-    //console.log(task);
-    if (task) {
-      const { _id, ...rest } = task;
-      setDefaultFields(rest);
-    } else {
-      setDefaultFields({});
-    }
-    setIsEditMode(false);
-    setIsChangeBookMode(false);
-  }, [task]);
+    initializeFields();
+  }, [operation]);
 
-  // useEffect(() => {
-  //   if(isChangeBookMode) {
-  //     setIsEditMode(true);
-  //   }
-  // }, [isChangeBookMode])
-
-  // const validate = (values: IFields) => {
-  //   let errors: {
-  //     [key: string]: string;
-  //   } = {};
-  //   let input: UpdateTaskInput = {};
-  //   if (taskId) {
-  //     //edit task
-  //     if (isEditMode && isChangeBookMode) {
-  //     } else {
-  //       if (isEditMode) {
-  //         input = values;
-  //         delete input.openLibraryBookId;
-  //         delete input.bookId;
-  //         Object.entries(input).forEach(([k, v]) => {
-  //           if (!!!v) {
-  //             errors.k = "Required!";
-  //           }
-  //         });
-  //       } else if (isChangeBookMode) {
-  //         input = {};
-  //         if (values.bookId) {
-  //           input = {
-  //             bookId: values.bookId,
-  //           };
-  //         }
-  //         if (values.openLibraryBookId) {
-  //           input = {
-  //             ...input,
-  //             openLibraryBookId: values.openLibraryBookId,
-  //           };
-  //         }
-  //         if (Object.keys(input).length === 0) {
-  //           const msg = "Either `openLibraryBookId` or `bookId` is required";
-  //           errors.openLibraryBookId = msg;
-  //           errors.bookId = msg;
-  //         }
-  //       }
-  //     }
-  //   } else {
-  //     //new task
-  //   }
-  //   //console.log(errors);
-  //   return errors;
-  // };
-
-  const onSubmit = async (values: IFields) => {
-    //turn off all edit modes
-    setIsEditMode(false);
-    setIsChangeBookMode(false);
-
-    //process input
-    let input: UpdateTaskInput = {};
-    if (taskId) {
-      //edit task
-      if (isEditMode && isChangeBookMode) {
-        input = values;
+  const initializeFields = () => {
+    if (operation === OperationState.Create) {
+      if (createWithAttachItem) {
+        let fields: IFields = {};
+        if (currentSelectedBook) {
+          if (currentSelectedBook.bookId) {
+            fields = {
+              ...initialFields,
+              bookId: currentSelectedBook.bookId,
+            };
+          } else {
+            fields = {
+              ...initialFields,
+              openLibraryBookId: currentSelectedBook.openLibraryId,
+            };
+          }
+        }
+        setInitialFields(fields);
       } else {
-        if (isEditMode) {
-          input = values;
-          delete input.openLibraryBookId;
-          delete input.bookId;
-          dispatch(
-            updateTask({
-              taskId,
-              input,
-            })
-          );
-        } else if (isChangeBookMode) {
-          input = {};
-          if (values.bookId) {
-            input = {
-              bookId: values.bookId,
-            };
-          }
-          if (values.openLibraryBookId) {
-            input = {
-              ...input,
-              openLibraryBookId: values.openLibraryBookId,
-            };
-          }
-          dispatch(
-            changeAttachItem({
-              taskId,
-              input,
-            })
-          );
-        } else {
-          //none
+        setInitialFields(defaulFields);
+      }
+    } else if (operation === OperationState.Read) {
+      if (task) {
+        const { _id, ...rest } = task;
+        setInitialFields(rest);
+      }
+    } else if (operation === OperationState.Update) {
+      if (task) {
+        const { _id, ...rest } = task;
+        setInitialFields(rest);
+      }
+    }
+  };
+
+  const validate = (values: IFields) => {
+    const errors: {
+      [key: string]: string;
+    } = {};
+    const commomFieldsToValidate = ["title", "description"];
+    const attachItemFields = ["bookId", "openLibraryBookId"];
+
+    const validateCommonFields = () => {
+      // const commonFieldsErrors: {
+      //   [key: string]: string;
+      // } = {};
+      commomFieldsToValidate.forEach((f) => {
+        if (!(f in values)) {
+          errors[f] = "Required!";
+        }
+      });
+    };
+
+    const validateAttachItemFields = () => {
+      let hasAttachItem = false;
+      for (const f of attachItemFields) {
+        if (f in values) {
+          hasAttachItem = true;
+          break;
         }
       }
-    } else {
-      //new task
+      if (!hasAttachItem) {
+        errors["attachItem"] = "Required!";
+      }
+    };
+
+    if (operation === OperationState.Update) {
+      validateCommonFields();
+      if (updateHasAttachItem) {
+        validateAttachItemFields();
+      }
+    } else if (operation === OperationState.UpdateAttachItemOnly) {
+      validateCommonFields();
+    } else if (operation === OperationState.Create) {
+      validateCommonFields();
+      validateAttachItemFields();
+    }
+    return errors;
+  };
+
+  const onSubmit = (values: IFields) => {
+    dispatch(setOperation(OperationState.Read));
+    //process input
+    let input: UpdateTaskInput = {};
+    console.log(values);
+    if (operation === OperationState.Update) {
       input = values;
+      if (updateHasAttachItem) {
+        dispatch(
+          updateTaskAndChangeAttachItem({
+            taskId,
+            input,
+          })
+        );
+      } else {
+        delete input.openLibraryBookId;
+        delete input.bookId;
+        dispatch(
+          updateTask({
+            taskId,
+            input,
+          })
+        );
+      }
+    } else if (operation === OperationState.UpdateAttachItemOnly) {
+      input = {};
+      if (values.bookId) {
+        input = {
+          bookId: values.bookId,
+        };
+      }
+      if (values.openLibraryBookId) {
+        input = {
+          ...input,
+          openLibraryBookId: values.openLibraryBookId,
+        };
+      }
+      dispatch(
+        changeAttachItem({
+          taskId,
+          input,
+        })
+      );
+    } else if (operation === OperationState.Create) {
     }
   };
 
@@ -165,74 +224,68 @@ const ViewTask: FC = () => {
       >
         <Form
           //funcs
-          //validate={validate}
+          validate={validate}
           onSubmit={onSubmit}
-          initialValues={defaultFields}
-          render={({ handleSubmit, form }) => (
+          initialValues={initialFields}
+          render={({ handleSubmit, form, invalid }) => (
             <form onSubmit={handleSubmit}>
               <Grid flexGrow={1}>
                 <GridItem mb={[3, 3, 5]}>
                   <TaskHead
                     //stylings
                     //funcs
-                    id={taskId}
-                    editMode={isEditMode}
                     name={"title"}
-                    handleClickEditMode={setIsEditMode}
                   />
                 </GridItem>
                 <GridItem mb={[3, 3, 5]}>
                   <TaskDropdowns
                     //stylings
                     //funcs
-                    id={taskId}
-                    editMode={isEditMode}
                     statusSelectName={"status"}
                     prioritySelectName={"priority"}
                   />
                 </GridItem>
                 <GridItem mb={[3, 3, 5]} w="80%">
-                  <TaskDescription
-                    id={taskId}
-                    editMode={isEditMode}
-                    name={"description"}
-                  />
+                  <TaskDescription name={"description"} />
                 </GridItem>
                 <GridItem mb={[3, 3, 5]} w="80%">
-                  <TaskAttachItem
-                    id={taskId}
-                    changeBookMode={isChangeBookMode}
-                    handleClickChangeBook={setIsChangeBookMode}
-                  />
+                  <TaskAttachItem />
                 </GridItem>
                 <GridItem>
-                  <Container>
-                    {(isEditMode || isChangeBookMode) && (
+                  <Flex alignItems="center" justifyContent="flex-end">
+                    {(operation === OperationState.Create ||
+                      operation === OperationState.Update ||
+                      operation === OperationState.UpdateAttachItemOnly) && (
                       <Button
                         type="button"
                         // sets to the first page to trigger fetchIncidents effect
-                        color="primary"
+                        variant="ghost"
+                        colorScheme="green"
                         isLoading={loading}
                         onClick={() => {
-                          setIsEditMode(false);
-                          setIsChangeBookMode(false);
+                          //reset initial fields
+                          initializeFields();
+
+                          if (operation !== OperationState.Create) {
+                            dispatch(setOperation(OperationState.Read));
+                          }
                         }}
                       >
                         Cancel
                       </Button>
                     )}
-                    {(isEditMode || isChangeBookMode) && (
+                    {(operation === OperationState.Create ||
+                      operation === OperationState.Update ||
+                      operation === OperationState.UpdateAttachItemOnly) && (
                       <Button
                         type="submit"
-                        // sets to the first page to trigger fetchIncidents effect
-                        color="primary"
-                        isActive={isEditMode}
+                        colorScheme="green"
                         isLoading={loading}
                       >
                         Submit
                       </Button>
                     )}
-                  </Container>
+                  </Flex>
                 </GridItem>
               </Grid>
             </form>
@@ -247,7 +300,7 @@ const ViewTask: FC = () => {
           onSubmit={() => {
             console.log("hello");
           }}
-          //initialValues={defaultFields}
+          //initialValues={initialFields}
           render={() => (
             <form>
               <Flex>Hello, World!</Flex>

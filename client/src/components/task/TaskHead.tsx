@@ -1,29 +1,39 @@
 import React, { FC } from "react";
-import ObjectID from "bson-objectid";
+import ObjectId from "bson-objectid";
 //redux
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectTask } from "features/task/taskSlice";
+import {
+  //
+  OperationState,
+  //actions
+  setOperation,
+  //selectors
+  selectOperation,
+  selectCurrentTaskId,
+} from "features/task/crudTaskSlice";
 //uis
 import { Box, BoxProps, Text, Badge, Flex, Heading } from "@chakra-ui/react";
 import { IoMdCreate } from "react-icons/io";
 import CustomInputControl from "components/common/CustomInputControl";
 
 export interface TaskHeadProps extends BoxProps {
-  id?: string;
-  editMode: boolean;
   name: string;
-  handleClickEditMode: Function;
 }
-const TaskHead: FC<TaskHeadProps> = ({
-  id,
-  editMode,
-  name,
-  handleClickEditMode,
-}) => {
+const TaskHead: FC<TaskHeadProps> = ({ name, ...rest }) => {
+  const dispatch = useDispatch();
+
+  //crudTask
+  const operation = useSelector(selectOperation);
+  const taskId = useSelector(selectCurrentTaskId);
+
+  //task
   const task = useSelector(selectTask);
+
   return (
-    <Box>
-      {(!id || (id && editMode)) && (
+    <Box {...rest}>
+      {(operation === OperationState.Create ||
+        operation === OperationState.Update) && (
         <>
           <CustomInputControl
             name={name}
@@ -32,45 +42,52 @@ const TaskHead: FC<TaskHeadProps> = ({
           />
         </>
       )}
-      {id && task && !editMode && (
-        <>
-          <Flex
-            direction="row"
-            alignItems="center"
-            mb={[0.5, 0.5, 1]}
-          >
-            <Text mr={[2, 2, 4]} fontSize={["xs", "xs", "sm"]} color="gray.500">
-              ID #{task._id}
-            </Text>
-            <IoMdCreate
-              style={{
-                cursor: "pointer",
-                fontSize: "111%",
-                alignSelf: "flex-start",
-              }}
-              onClick={(e) => {
-                handleClickEditMode(!editMode);
-              }}
-            />
-          </Flex>
+      {operation !== OperationState.Create &&
+        operation !== OperationState.Update &&
+        task &&
+        taskId && (
+          <>
+            <Flex direction="row" alignItems="center" mb={[0.5, 0.5, 1]}>
+              <Text
+                mr={[2, 2, 4]}
+                fontSize={["xs", "xs", "sm"]}
+                color="gray.500"
+              >
+                ID #{task._id}
+              </Text>
+              <IoMdCreate
+                style={{
+                  cursor: "pointer",
+                  fontSize: "111%",
+                  alignSelf: "flex-start",
+                }}
+                onClick={(e) => {
+                  dispatch(setOperation(OperationState.Update));
+                }}
+              />
+            </Flex>
 
-          <Heading size="md" mb={[1, 1, 2]}>
-            {task.title}
-          </Heading>
-          <Badge fontSize={["xs", "xs", "sm"]} color="gray.500" textTransform="initial">
-            Created on{" "}
-            {new Date(new ObjectID(id).getTimestamp()).toLocaleDateString(
-              "en-US",
-              {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }
-            )}
-          </Badge>
-        </>
-      )}
+            <Heading size="md" mb={[1, 1, 2]}>
+              {task.title}
+            </Heading>
+            <Badge
+              fontSize={["xs", "xs", "sm"]}
+              color="gray.500"
+              textTransform="initial"
+            >
+              Created on{" "}
+              {new Date(new ObjectId(taskId).getTimestamp()).toLocaleDateString(
+                "en-US",
+                {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }
+              )}
+            </Badge>
+          </>
+        )}
     </Box>
   );
 };

@@ -17,10 +17,10 @@ import { History } from 'history'
 import history from '../utils/history';
 
 //reducers
-import counterReducer from '../features/counter/counterSlice';
 import authReducer from '../features/auth/authSlice';
 import tasksReducer from '../features/tasks/tasksSlice';
 import taskReducer from '../features/task/taskSlice';
+import crudTaskReducer from '../features/task/crudTaskSlice';
 import searchReducer from '../features/search/searchSlice';
 
 import { LocationState } from 'history';
@@ -30,10 +30,10 @@ const historyReducer = (history: History) => ({
 
 const rootReducer = combineReducers({
   ...historyReducer(history),
-  counter: counterReducer,
   auth: authReducer,
   tasks: tasksReducer,
   task: taskReducer,
+  crudTask: crudTaskReducer,
   search: searchReducer,
 })
 
