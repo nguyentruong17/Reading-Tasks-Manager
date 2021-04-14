@@ -90,6 +90,7 @@ const ViewTask: FC = () => {
         //raise some error
       }
     } else {
+      dispatch(setOperation(OperationState.Create));
       setInitialFields(defaulFields);
     }
   }, [taskId]);

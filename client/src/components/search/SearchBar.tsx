@@ -33,6 +33,13 @@ const SearchBar: FC<ISearchBarProps> = ({ ...rest }) => {
     }
   }, [tabIndex]);
 
+  useEffect(() => {
+    return function cleanup() {
+      dispatch(setCurrentOpenLibrarySearch(""));
+      dispatch(setCurrentUsersAddedSearch(""));
+    };
+  })
+
   const [openLibrarySearch, setOpenLibrarySearch] = useState<string>("");
   const [usersAddedSearch, setUsersAddedSearch] = useState<string>("");
   const onSearchOpenLibrary = () => {

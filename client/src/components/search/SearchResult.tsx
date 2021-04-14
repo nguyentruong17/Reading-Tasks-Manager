@@ -221,7 +221,6 @@ const SearchResult: FC<ISearchResultProps> = () => {
                   colorScheme="green"
                   //func
                   onClick={(e) => {
-                    console.log("want to read");
                     dispatch(setCurrentSelectedBook(book as ISelectedBook));
                     dispatch(setCreateWithSelectedBook(true));
                     dispatch(setOperation(OperationState.Create));
