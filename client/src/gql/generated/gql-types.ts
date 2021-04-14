@@ -177,27 +177,18 @@ export type PageData = {
 
 export type Query = {
   __typename?: 'Query';
-  getAllBooks: BookResponse;
   getBooks: UserBooksResponse;
   getTask: Task;
   getTasks: UserTasksResponse;
+  searchAddedBooks: BookResponse;
   searchOnlineBooks: Array<BaseBook>;
-};
-
-
-export type QueryGetAllBooksArgs = {
-  after?: Maybe<Scalars['String']>;
-  before?: Maybe<Scalars['String']>;
-  filter?: Maybe<BookFilter>;
-  first?: Maybe<Scalars['Int']>;
-  last?: Maybe<Scalars['Int']>;
 };
 
 
 export type QueryGetBooksArgs = {
   after?: Maybe<Scalars['String']>;
   before?: Maybe<Scalars['String']>;
-  filter?: Maybe<UserTaskFilter>;
+  filter?: Maybe<UserBookFilter>;
   first?: Maybe<Scalars['Int']>;
   last?: Maybe<Scalars['Int']>;
 };
@@ -212,6 +203,15 @@ export type QueryGetTasksArgs = {
   after?: Maybe<Scalars['String']>;
   before?: Maybe<Scalars['String']>;
   filter?: Maybe<UserTaskFilter>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
+};
+
+
+export type QuerySearchAddedBooksArgs = {
+  after?: Maybe<Scalars['String']>;
+  before?: Maybe<Scalars['String']>;
+  filter?: Maybe<BookFilter>;
   first?: Maybe<Scalars['Int']>;
   last?: Maybe<Scalars['Int']>;
 };
@@ -316,6 +316,11 @@ export type UpdateTaskInput = {
   title?: Maybe<Scalars['String']>;
 };
 
+export type UserBookFilter = {
+  author?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+};
+
 export type UserBooksResponse = {
   __typename?: 'UserBooksResponse';
   page: BaseBookMongoConnection;
@@ -387,6 +392,11 @@ export type Search_BaseBook_All_Fragment = (
   & Pick<BaseBook, 'openLibraryId' | 'title' | 'authors' | 'covers' | 'subjects'>
 );
 
+export type Search_Book_Parts_Fragment = (
+  { __typename?: 'Book' }
+  & Pick<Book, 'openLibraryId' | 'title' | 'authors' | 'covers' | 'subjects' | '_id' | 'timesAdded'>
+);
+
 export type SearchOnlineBooksQueryVariables = Exact<{
   input: SearchBookInput;
   limit?: Maybe<Scalars['Float']>;
@@ -400,6 +410,39 @@ export type SearchOnlineBooksQuery = (
     { __typename?: 'BaseBook' }
     & Search_BaseBook_All_Fragment
   )> }
+);
+
+export type SearchAddedBooksQueryVariables = Exact<{
+  filter?: Maybe<BookFilter>;
+  first?: Maybe<Scalars['Int']>;
+  after?: Maybe<Scalars['String']>;
+  last?: Maybe<Scalars['Int']>;
+  before?: Maybe<Scalars['String']>;
+}>;
+
+
+export type SearchAddedBooksQuery = (
+  { __typename?: 'Query' }
+  & { searchAddedBooks: (
+    { __typename?: 'BookResponse' }
+    & { page: (
+      { __typename?: 'BookConnection' }
+      & { edges?: Maybe<Array<(
+        { __typename?: 'BookEdge' }
+        & Pick<BookEdge, 'cursor'>
+        & { node?: Maybe<(
+          { __typename?: 'Book' }
+          & Search_Book_Parts_Fragment
+        )> }
+      )>>, pageInfo?: Maybe<(
+        { __typename?: 'BookPageInfo' }
+        & Pick<BookPageInfo, 'endCursor' | 'hasNextPage' | 'hasPreviousPage' | 'startCursor'>
+      )> }
+    ), pageData?: Maybe<(
+      { __typename?: 'PageData' }
+      & Pick<PageData, 'count' | 'limit' | 'offset'>
+    )> }
+  ) }
 );
 
 export type ViewTask_AttachItem_Parts_Fragment = (
@@ -638,6 +681,17 @@ export const Search_BaseBook_All_FragmentDoc = gql`
   subjects
 }
     `;
+export const Search_Book_Parts_FragmentDoc = gql`
+    fragment Search_Book_Parts_ on Book {
+  openLibraryId
+  title
+  authors
+  covers
+  subjects
+  _id
+  timesAdded
+}
+    `;
 export const ViewTask_AttachItem_Parts_FragmentDoc = gql`
     fragment ViewTask_AttachItem_Parts_ on BaseBookMongo {
   title
@@ -694,6 +748,37 @@ export const SearchOnlineBooksDocument = gql`
   }
 }
     ${Search_BaseBook_All_FragmentDoc}`;
+export const SearchAddedBooksDocument = gql`
+    query searchAddedBooks($filter: BookFilter, $first: Int, $after: String, $last: Int, $before: String) {
+  searchAddedBooks(
+    first: $first
+    after: $after
+    last: $last
+    before: $before
+    filter: $filter
+  ) {
+    page {
+      edges {
+        cursor
+        node {
+          ...Search_Book_Parts_
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+    }
+    pageData {
+      count
+      limit
+      offset
+    }
+  }
+}
+    ${Search_Book_Parts_FragmentDoc}`;
 export const UpdateTaskDocument = gql`
     mutation updateTask($input: UpdateTaskInput!, $taskId: GraphQLObjectId!) {
   updateTask(input: $input, taskId: $taskId) {
@@ -857,6 +942,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     searchOnlineBooks(variables: SearchOnlineBooksQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SearchOnlineBooksQuery> {
       return withWrapper(() => client.request<SearchOnlineBooksQuery>(SearchOnlineBooksDocument, variables, requestHeaders));
+    },
+    searchAddedBooks(variables?: SearchAddedBooksQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SearchAddedBooksQuery> {
+      return withWrapper(() => client.request<SearchAddedBooksQuery>(SearchAddedBooksDocument, variables, requestHeaders));
     },
     updateTask(variables: UpdateTaskMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateTaskMutation> {
       return withWrapper(() => client.request<UpdateTaskMutation>(UpdateTaskDocument, variables, requestHeaders));

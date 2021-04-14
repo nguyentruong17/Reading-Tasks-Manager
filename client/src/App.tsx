@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Route, Redirect, Switch } from "react-router-dom";
 
 //redux
@@ -15,6 +15,7 @@ import Header from "components/common/Header";
 import { Auth } from "features/auth/Auth";
 import ViewTasks from "features/tasks/Tasks";
 import ViewTask from "features/task/Task";
+import SearchBooks from "features/search/Search";
 
 const routes = [
   {
@@ -28,6 +29,10 @@ const routes = [
   {
     component: ViewTask,
     path: "/newTask",
+  },
+  {
+    component: SearchBooks,
+    path: "/search",
   },
   // {
   //   component: null,

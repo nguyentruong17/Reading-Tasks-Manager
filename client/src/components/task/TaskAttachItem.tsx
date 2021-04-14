@@ -53,11 +53,19 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
 
   useEffect(() => {
     if (operation === OperationState.Create) {
-      setIsChangingItem(true);
+      if (createWithAttachItem) {
+        setIsChangingItem(false);
+      } else {
+        setIsChangingItem(true);
+      }
     } else if (operation === OperationState.Update) {
-      // if (!isChangingItem) {
-      // }
-      // setIsChangingItem(false);
+      if (updateHasAttachItem) {
+        setIsChangingItem(true);
+      } else {
+        setIsChangingItem(false);
+      }
+    } else if (operation === OperationState.UpdateAttachItemOnly) {
+      setIsChangingItem(true);
     } else if (operation === OperationState.Read) {
       setIsChangingItem(false);
     }
@@ -90,34 +98,43 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
       <Text fontSize={["xs", "sm"]} fontWeight="bold">
         Attach Item:{" "}
       </Text>
-      {isChangingItem &&
-        ((operation === OperationState.Create && !createWithAttachItem) ||
-          (operation === OperationState.Update && updateHasAttachItem) ||
-          operation === OperationState.UpdateAttachItemOnly) && (
-          <TaskChangeAttachItem handleClickSelect={setIsChangingItem} />
-        )}
+      {isChangingItem && (
+        <TaskChangeAttachItem handleClickSelect={setIsChangingItem} />
+      )}
       {!isChangingItem && item && (
         <Box>
-          <Flex direction="row" flexGrow={1}>
-            <AspectRatio ratio={2 / 3} minW={[120, 180, 180]} mr={[2, 4, 4]}>
-              <Image
-                src={
-                  item.covers
-                    ? item.covers.length > 0
-                      ? item.covers[0]
-                        ? item.covers[0][2]
+          <Flex direction={["column", "row"]} flexGrow={1}>
+            <Flex justifyContent={"center"}>
+              <AspectRatio ratio={2 / 3} minW={[100, 120, 180]} mr={[2, 4, 4]}>
+                <Image
+                  borderRadius="sm"
+                  src={
+                    item.covers
+                      ? item.covers.length > 0
+                        ? item.covers[0]
                           ? item.covers[0][2]
+                            ? item.covers[0][2]
+                            : undefined
                           : undefined
                         : undefined
                       : undefined
-                    : undefined
-                }
-                fallbackSrc={`https://via.placeholder.com/200x300?text=${item.title}`}
-              />
-            </AspectRatio>
+                  }
+                  fallbackSrc={`https://via.placeholder.com/200x300?text=${item.title}`}
+                />
+              </AspectRatio>
+            </Flex>
+
             <Flex direction="column" flexGrow={1}>
-              <Flex direction="row" flexGrow={3}>
-                <Flex direction="column" flexGrow={1}>
+              <Flex
+                direction={["column-reverse", "row"]}
+                my={[1, 2]}
+                flexGrow={3}
+              >
+                <Flex
+                  direction="column"
+                  alignItems={["center", "flex-start"]}
+                  flexGrow={1}
+                >
                   <Text
                     fontSize={["md", "lg", "xl"]}
                     color="green.700"
@@ -135,10 +152,17 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                     by {item.authors.slice(0, 2).join(", ")}
                   </Text>
                 </Flex>
-                <Flex justifyContent="flex-end" flexGrow={1}>
+                <Flex
+                  justifyContent={["center", "flex-end"]}
+                  alignItems="center"
+                  flexGrow={1}
+                >
                   <Button
                     //styling
-                    size="sm"
+                    size="xs"
+                    fontSize="xs"
+                    fontWeight="thin"
+                    colorScheme="linkedin"
                     //func
                     onClick={(e) => {
                       setIsChangingItem(true);
@@ -147,7 +171,7 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                       );
                     }}
                   >
-                    Change Book
+                    Change
                   </Button>
                 </Flex>
               </Flex>

@@ -28,7 +28,7 @@ export class UserTasksArgs
 export class UserBooksArgs
   extends ConnectionArgs
   implements FilterableConnection<UserBookFilter> {
-  @Field((types) => UserTaskFilter, {
+  @Field((types) => UserBookFilter, {
     nullable: true,
     description: "Filter a user's books",
   })

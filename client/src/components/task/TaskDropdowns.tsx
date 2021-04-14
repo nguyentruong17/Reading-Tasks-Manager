@@ -7,7 +7,6 @@ import {
   OperationState,
   //selectors
   selectOperation,
-  selectCurrentTaskId,
 } from "features/task/crudTaskSlice";
 //uis
 import { Container, Box, BoxProps, Text, Badge, Flex } from "@chakra-ui/react";

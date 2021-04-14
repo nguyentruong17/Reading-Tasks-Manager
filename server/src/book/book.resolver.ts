@@ -40,7 +40,7 @@ export class BookResolver {
 
   @Query((returns) => BookResponse)
   @UseGuards(GqlAuthGuard)
-  async getAllBooks(@Args() args: BookArgs): Promise<BookResponse> {
+  async searchAddedBooks(@Args() args: BookArgs): Promise<BookResponse> {
     const { limit, offset, filter } = args.pagingParams();
 
     const [books, count] = await this._bookService.getBooksRelay(

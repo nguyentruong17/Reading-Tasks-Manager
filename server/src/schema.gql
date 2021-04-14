@@ -119,22 +119,6 @@ type PageData {
 }
 
 type Query {
-  getAllBooks(
-    """Paginate after opaque cursor"""
-    after: String
-
-    """Paginate before opaque cursor"""
-    before: String
-
-    """Filter books stored in the system"""
-    filter: BookFilter
-
-    """Paginate first"""
-    first: Int
-
-    """Paginate last"""
-    last: Int
-  ): BookResponse!
   getBooks(
     """Paginate after opaque cursor"""
     after: String
@@ -143,7 +127,7 @@ type Query {
     before: String
 
     """Filter a user's books"""
-    filter: UserTaskFilter
+    filter: UserBookFilter
 
     """Paginate first"""
     first: Int
@@ -168,6 +152,22 @@ type Query {
     """Paginate last"""
     last: Int
   ): UserTasksResponse!
+  searchAddedBooks(
+    """Paginate after opaque cursor"""
+    after: String
+
+    """Paginate before opaque cursor"""
+    before: String
+
+    """Filter books stored in the system"""
+    filter: BookFilter
+
+    """Paginate first"""
+    first: Int
+
+    """Paginate last"""
+    last: Int
+  ): BookResponse!
   searchOnlineBooks(input: SearchBookInput!, limit: Float = 5, offset: Float = 0): [BaseBook!]!
 }
 
@@ -261,6 +261,11 @@ input UpdateTaskInput {
   openLibraryBookId: String
   priority: TaskPriority
   status: TaskStatus
+  title: String
+}
+
+input UserBookFilter {
+  author: String
   title: String
 }
 

@@ -86,6 +86,7 @@ const TasksTable: FC<BoxProps> = (props) => {
                     <Td
                       style={{ cursor: "pointer" }}
                       onClick={(e) => {
+                        dispatch(setOperation(OperationState.Read));
                         History.push(`/tasks/${task._id}`);
                       }}
                     >

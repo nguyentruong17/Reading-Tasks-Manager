@@ -90,7 +90,6 @@ const ViewTask: FC = () => {
         //raise some error
       }
     } else {
-      dispatch(setOperation(OperationState.Create));
       setInitialFields(defaulFields);
     }
   }, [taskId]);
@@ -331,7 +330,7 @@ const ViewTask: FC = () => {
           //initialValues={initialFields}
           render={() => (
             <form>
-              <Flex>Hello, World!</Flex>
+              <Flex display={operation === OperationState.Create ? "none" : "flex"}>Hello, World!</Flex>
             </form>
           )}
         />

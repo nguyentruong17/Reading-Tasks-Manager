@@ -9,12 +9,17 @@ import {
   //selectors
   selectAuthJwtToken,
 } from "features/auth/authSlice";
+import {
+  setOperation,
+  setCreateWithSelectedBook,
+  OperationState,
+} from "features/task/crudTaskSlice";
 //history
 import history from "utils/history";
 
 //uis
 import { Box, Text, Button, Flex, Stack, BoxProps } from "@chakra-ui/react";
-import { IoMdAdd, IoMdPower, IoMdClose, IoMdMenu } from "react-icons/io";
+import { IoMdAdd, IoMdPower, IoMdClose, IoMdMenu, IoMdSearch } from "react-icons/io";
 
 //the FC Logo, MenuToggle, NavbarContainer are used from this tutorial:
 //https://raptis.wtf/blog/create-a-navbar-with-chakra-ui-react/
@@ -93,7 +98,13 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
 
   const toggle = () => setIsOpen(!isOpen);
 
-  const pushToNewTask = () => history.push("/newTask");
+  const pushToNewTask = () => {
+    dispatch(setCreateWithSelectedBook(false));
+    dispatch(setOperation(OperationState.Create))
+    history.push("/newTask")
+  };
+
+  const pushToSearch = () => history.push("/search");
 
   //const pushToSettings = () => history.push("/settings");
 
@@ -119,6 +130,9 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
             direction={["column", "row", "row", "row"]}
             pt={[4, 4, 0, 0]}
           >
+            <MenuItem onClickHandler={pushToSearch}>
+              <IoMdSearch /> Search Book
+            </MenuItem>
             <MenuItem onClickHandler={pushToNewTask}>
               <IoMdAdd /> New Task
             </MenuItem>

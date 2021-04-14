@@ -8,7 +8,6 @@ import {
   getSdk,
   GetTaskQueryVariables,
   UpdateTaskMutationVariables,
-  CreateTaskMutationVariables,
   ViewTask_Task_Parts_Fragment,
   ViewTask_TaskHistory_All_Fragment,
   ViewTask_AttachItem_Parts_Fragment,

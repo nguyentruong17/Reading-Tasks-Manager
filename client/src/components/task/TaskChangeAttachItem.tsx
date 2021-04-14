@@ -14,14 +14,9 @@ import {
   AspectRatio,
   Flex,
   Spinner,
-  InputGroup,
-  InputLeftElement,
-  Input,
   useBreakpointValue,
-  InputRightElement,
 } from "@chakra-ui/react";
 import {
-  IoMdSearch,
   IoMdArrowDropleftCircle,
   IoMdArrowDroprightCircle,
 } from "react-icons/io";
@@ -30,6 +25,7 @@ import {
   SearchBookInput,
   Search_BaseBook_All_Fragment,
 } from "gql/generated/gql-types";
+import SearchInput from "components/common/SearchBookInput";
 import { GraphQLClient } from "graphql-request";
 import {
   DEFAULT_ONLINE_BOOKS_PER_QUERY,
@@ -48,13 +44,11 @@ const TaskChangeAttachItem: FC<ITaskChangeAttachItemProps> = ({
   const jwtToken = useSelector(selectAuthJwtToken);
 
   const form = useForm();
-  
+
   const displayingFactor =
     useBreakpointValue({ base: 1 / 3, md: 1 / 2, lg: 1 }) || 1;
 
   const [searchValue, setSearchValue] = useState("");
-  const [prevSearchInput, setPrevSearchInput] = useState<null | string>(null);
-  const handleChange = (event: any) => setSearchValue(event.target.value);
 
   const [searchedBooks, setSearchedBooks] = useState<
     Search_BaseBook_All_Fragment[]
@@ -68,7 +62,6 @@ const TaskChangeAttachItem: FC<ITaskChangeAttachItemProps> = ({
   );
   const searchLimit: Readonly<number> =
     DEFAULT_ONLINE_BOOKS_PER_QUERY * displayingFactor;
-  //console.log("Search Limit: ", searchLimit);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [isSearchError, setIsSearcError] = useState<boolean>(false);
 
@@ -109,9 +102,6 @@ const TaskChangeAttachItem: FC<ITaskChangeAttachItemProps> = ({
         limit: searchLimit,
       });
 
-      //set prevSearchInput as value
-      setPrevSearchInput(searchValue);
-
       //set books
       setDisplayingBooks(books.slice(0, searchLimit));
       setSearchedBooks(books);
@@ -119,6 +109,8 @@ const TaskChangeAttachItem: FC<ITaskChangeAttachItemProps> = ({
       //set max page available
       if (books.length < searchLimit) {
         setSearchMaxPage(searchPage);
+      } else {
+        setSearchMaxPage(MAX_TIME_TO_SEARCH_BOOKS);
       }
     } catch (e) {
       console.log(e);
@@ -144,7 +136,7 @@ const TaskChangeAttachItem: FC<ITaskChangeAttachItemProps> = ({
       );
     } else {
       //process prev search inpiut
-      const parts = prevSearchInput ? prevSearchInput.split("/") : [];
+      const parts = searchValue ? searchValue.split("/") : [];
       let input: SearchBookInput = {};
       if (parts[0]) {
         input.title = parts[0];
@@ -161,9 +153,6 @@ const TaskChangeAttachItem: FC<ITaskChangeAttachItemProps> = ({
           offset: searchedBooks.length,
           limit: searchLimit,
         });
-
-        //set prevSearchInput as value
-        setPrevSearchInput(searchValue);
 
         //set books
         setDisplayingBooks(books);
@@ -206,37 +195,12 @@ const TaskChangeAttachItem: FC<ITaskChangeAttachItemProps> = ({
     <Box {...rest}>
       <Flex direction="column" flexGrow={1} justifyContent="space-between">
         <Flex flexGrow={1} mb={[1, 1, 2]}>
-          <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<IoMdSearch color="gray.300" />}
-            />
-            <Input
-              placeholder="Becoming/Michelle Obama"
-              value={searchValue}
-              onChange={handleChange}
-              isInvalid={searchValue.length === 0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                }
-              }}
-            />
-            <InputRightElement width="4.5rem" mr="0.5">
-              <Button
-                //styling
-                h="1.75rem"
-                size="sm"
-                fontSize={["xs", "sm"]}
-                colorScheme="linkedin"
-                //funcs
-                isDisabled={searchValue.length === 0 || searchValue === prevSearchInput}
-                onClick={handleClick}
-              >
-                Search
-              </Button>
-            </InputRightElement>
-          </InputGroup>
+          <SearchInput
+            handleChangeValue={setSearchValue}
+            handleClickSearch={handleClick}
+            isSearching={isSearching}
+            placeholder="Becoming/Michelle Obama"
+          />
         </Flex>
         <Flex
           flexGrow={5}
