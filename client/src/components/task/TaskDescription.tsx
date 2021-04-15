@@ -40,7 +40,7 @@ const TaskDescription: FC<ITaskDescriptionProps> = ({ name }) => {
             <Text fontSize={["xs", "sm"]} fontWeight="bold">
               Description:{" "}
             </Text>
-            <Textarea isReadOnly={true} value={task.description} />
+            <Textarea fontSize={["xs", "sm", "lg"]} isReadOnly={true} value={task.description} />
           </>
         )}
     </Box>

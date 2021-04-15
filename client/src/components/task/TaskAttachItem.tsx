@@ -95,7 +95,7 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
   }
   return (
     <Box {...rest}>
-      <Text fontSize={["xs", "sm"]} fontWeight="bold">
+      <Text fontSize={["xs", "sm"]} fontWeight="bold" mb={[2, 1]}>
         Attach Item:{" "}
       </Text>
       {isChangingItem && (
@@ -136,20 +136,23 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                   flexGrow={1}
                 >
                   <Text
-                    fontSize={["md", "lg", "xl"]}
+                    fontSize={["sm", "md", "lg"]}
                     color="green.700"
+                    fontWeight="bold"
                     textTransform="capitalize"
+                    noOfLines={[2, 3]}
                     mr={[1, 2]}
-                    mb={[1, 2]}
+                    my={1}
                   >
                     {item.title}
                   </Text>
                   <Text
                     fontSize={["xs", "sm", "md"]}
                     color="yellow.600"
+                    noOfLines={2}
                     mr={[1, 2]}
                   >
-                    by {item.authors.slice(0, 2).join(", ")}
+                    by {item.authors.join(", ")}
                   </Text>
                 </Flex>
                 <Flex
@@ -163,6 +166,7 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                     fontSize="xs"
                     fontWeight="thin"
                     colorScheme="linkedin"
+                    mt={2}
                     //func
                     onClick={(e) => {
                       setIsChangingItem(true);
@@ -183,12 +187,11 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                 <Container
                   fontSize={["xs", "sm"]}
                   display={item.subjects.length > 0 ? "initial" : "none"}
-                  overflow="hidden"
-                  textOverflow="ellipsis"
+                  noOfLines={[2, 3]}
                   px={0}
                   ml={0}
                 >
-                  Subjects: {item.subjects.slice(0, 10).join(", ")}
+                  Subjects: {item.subjects.join(", ")}
                 </Container>
               </Flex>
             </Flex>

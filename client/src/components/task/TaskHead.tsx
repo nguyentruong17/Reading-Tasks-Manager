@@ -67,7 +67,7 @@ const TaskHead: FC<TaskHeadProps> = ({ name, ...rest }) => {
               />
             </Flex>
 
-            <Heading size="md" mb={[1, 1, 2]}>
+            <Heading fontSize={["md", "lg", "xl"]} mb={[1, 1, 2]}>
               {task.title}
             </Heading>
             <Badge

@@ -321,7 +321,7 @@ const ViewTask: FC = () => {
         />
       </Box>
       <Box flexGrow={[0, 0, 1]}>
-        <Form
+        {/* <Form
           //stylings
           flexGrow={1}
           //funcs
@@ -334,7 +334,7 @@ const ViewTask: FC = () => {
               <Flex display={operation === OperationState.Create ? "none" : "flex"}>Hello, World!</Flex>
             </form>
           )}
-        />
+        /> */}
       </Box>
     </Flex>
   );

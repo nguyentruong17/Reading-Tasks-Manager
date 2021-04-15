@@ -195,6 +195,7 @@ const SearchResult: FC<ISearchResultProps> = () => {
                   fontSize={["sm", "md", "lg"]}
                   fontWeight="bold"
                   textTransform="capitalize"
+                  noOfLines={[2, 3]}
                   mr={[1, 2]}
                   my={[1, 2]}
                 >
@@ -202,10 +203,11 @@ const SearchResult: FC<ISearchResultProps> = () => {
                 </Text>
                 <Text
                   fontSize={["xs", "sm", "md"]}
+                  noOfLines={2}
                   mr={[1, 2]}
                   display={book.authors.length > 0 ? "block" : "none"}
                 >
-                  by {book.authors.slice(0, 2).join(", ")}
+                  by {book.authors.join(", ")}
                 </Text>
               </Flex>
               <Flex
