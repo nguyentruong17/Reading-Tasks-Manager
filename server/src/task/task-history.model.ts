@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { Field, ObjectType } from '@nestjs/graphql';
 
@@ -12,10 +12,6 @@ export const TASK_HISTORY_MODEL_NAME = 'TaskHistory';
 @Schema({ discriminatorKey: 'title', _id: false })
 @ObjectType()
 export class BaseTaskHistory {
-  @Prop({ required: true, type: () => String })
-  @Field()
-  title: string;
-
   @Prop({ required: true, type: () => String })
   @Field()
   description: string;

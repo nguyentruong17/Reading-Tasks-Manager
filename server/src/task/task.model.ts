@@ -61,7 +61,7 @@ export class Task extends BaseTaskMongo {
   @Field()
   owner: ObjectId;
 
-  @Prop({ type: BaseBookMongoSchema })
+  @Prop({ type: BaseBookMongoSchema, excludeIndexes: true })
   @Field((type) => BaseBookMongo)
   attachItem: BaseBookMongo;
 }

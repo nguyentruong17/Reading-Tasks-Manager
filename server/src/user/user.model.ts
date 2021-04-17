@@ -55,7 +55,7 @@ export const BaseUserMongoSchema = SchemaFactory.createForClass(BaseUserMongo);
 @Schema()
 @ObjectType()
 export class UserTask extends BaseTaskMongo {
-  @Prop({ type: BaseBookIdentifiersSchema })
+  @Prop({ type: BaseBookIdentifiersSchema, excludeIndexes: true })
   @Field((type) => BaseBookIdentifiers)
   attachItem: BaseBookIdentifiers;
 }

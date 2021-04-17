@@ -22,7 +22,10 @@ import {
 import { Task } from 'src/task/task.model';
 import { UserBookFilter, UserTaskFilter } from './user.filter';
 import { PageDataConfig } from 'src/graphql/relay/page-data';
-import { MAX_USER_BOOKS_PER_QUERY, MAX_USER_TASKS_PER_QUERY } from 'src/consts/defaults';
+import {
+  MAX_USER_BOOKS_PER_QUERY,
+  MAX_USER_TASKS_PER_QUERY,
+} from 'src/consts/defaults';
 
 //services
 import { TaskService } from 'src/task/task.service';
@@ -87,7 +90,7 @@ export class UserService {
         input,
       );
 
-      const found = await this._userModel.findByIdAndUpdate(
+      let found = await this._userModel.findByIdAndUpdate(
         currentUser._id,
         {
           $push: {
@@ -96,20 +99,36 @@ export class UserService {
               $position: 0,
             },
           },
-
-          // 'books.openLibraryBookId': {
-          //   $ne: `${createdTask.attachItem.openLibraryId}`,
+          // $addToSet: {
+          //   books: createdTask.attachItem,
           // },
-          $addToSet: {
-            books: createdTask.attachItem,
-          },
         },
         {
           new: true,
         },
       );
-
-      if (found) {
+      if (!!found) {
+        const bIdx = found.books.findIndex(
+          (b) => b.openLibraryId === createdTask.attachItem.openLibraryId,
+        );
+        if (
+          bIdx === -1 //not found
+        ) {
+          await this._userModel.findByIdAndUpdate(
+            currentUser._id,
+            {
+              $push: {
+                books: {
+                  $each: [createdTask.attachItem],
+                  $position: 0,
+                },
+              },
+            },
+            {
+              new: true,
+            },
+          );
+        }
         return createdTask;
       } else {
         //shouldnt happen, becauser the currentUser is retrieved from the db at authentication
@@ -121,10 +140,7 @@ export class UserService {
     }
   }
 
-  async getTask(
-    currentUser: BaseUserMongo,
-    taskId: ObjectId,
-  ): Promise<Task> {
+  async getTask(currentUser: BaseUserMongo, taskId: ObjectId): Promise<Task> {
     const userId = currentUser._id;
     try {
       return await this._taskService.getTask(currentUser, taskId);

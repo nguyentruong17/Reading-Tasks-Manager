@@ -21,6 +21,7 @@ import {
   Thead,
   Tr,
   Spinner,
+  Text,
 } from "@chakra-ui/react";
 import { Status, Priorities } from "consts";
 import History from "utils/history";
@@ -90,12 +91,14 @@ const TasksTable: FC<BoxProps> = (props) => {
                         History.push(`/tasks/${task._id}`);
                       }}
                     >
-                      {task.title}
+                      <Text noOfLines={2}>{task.title}</Text>
                     </Td>
                     <Td display={{ base: "none", md: "block" }}>
-                      {task.description}
+                      <Text noOfLines={2}>{task.description}</Text>
                     </Td>
-                    <Td>{task.attachItem.title}</Td>
+                    <Td>
+                      <Text noOfLines={2}>{task.attachItem.title}</Text>
+                    </Td>
                   </Tr>
                 );
               })}

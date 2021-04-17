@@ -84,7 +84,6 @@ type BookResponse {
 
 input CreateTaskHistoryInput {
   description: String!
-  title: String!
 }
 
 input CreateTaskInput {
@@ -206,7 +205,6 @@ type TaskHistory {
   description: String!
   taskId: GraphQLObjectId!
   taskStatus: TaskStatus!
-  title: String!
 }
 
 type TaskHistoryConnection {
@@ -252,7 +250,6 @@ enum TaskStatus {
 
 input UpdateTaskHistoryInput {
   description: String
-  title: String
 }
 
 input UpdateTaskInput {
