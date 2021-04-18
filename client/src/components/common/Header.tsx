@@ -18,8 +18,23 @@ import {
 import history from "utils/history";
 
 //uis
-import { Box, Text, Button, Flex, Stack, BoxProps } from "@chakra-ui/react";
-import { IoMdAdd, IoMdPower, IoMdClose, IoMdMenu, IoMdSearch } from "react-icons/io";
+import {
+  Box,
+  Text,
+  Button,
+  Flex,
+  Stack,
+  BoxProps,
+  Image,
+} from "@chakra-ui/react";
+import {
+  IoMdAdd,
+  IoMdPower,
+  IoMdClose,
+  IoMdMenu,
+  IoMdSearch,
+} from "react-icons/io";
+import logo from "logo.png";
 
 //the FC Logo, MenuToggle, NavbarContainer are used from this tutorial:
 //https://raptis.wtf/blog/create-a-navbar-with-chakra-ui-react/
@@ -31,11 +46,18 @@ const Logo: FC<ILogoProps & BoxProps> = ({
   ...props
 }): JSX.Element => {
   return (
-    <Box {...props} onClick={onClickHandler}>
-      <Text fontSize={["md", "lg"]} fontWeight="semibold" color="teal.600">
+    <Flex
+      {...props}
+      onClick={onClickHandler}
+      direction="row"
+      alignItems="center"
+    >
+      <Image src={logo} maxW={30} mr={[1, 2, 3]}/>
+
+      <Text fontSize={["md", "lg"]} fontWeight="semibold" color="green.700">
         Reading Task Manager
       </Text>
-    </Box>
+    </Flex>
   );
 };
 
@@ -100,8 +122,8 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
 
   const pushToNewTask = () => {
     dispatch(setCreateWithSelectedBook(false));
-    dispatch(setOperation(OperationState.Create))
-    history.push("/newTask")
+    dispatch(setOperation(OperationState.Create));
+    history.push("/newTask");
   };
 
   const pushToSearch = () => history.push("/search");
@@ -112,10 +134,7 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
 
   return (
     <NavBarContainer {...props}>
-      <Logo
-        style={{ cursor: "pointer" }}
-        onClickHandler={pushToDefaultRoute}
-      />
+      <Logo style={{ cursor: "pointer" }} onClickHandler={pushToDefaultRoute} />
       <MenuToggle toggle={toggle} isOpen={isOpen} />
 
       {jwtToken && (

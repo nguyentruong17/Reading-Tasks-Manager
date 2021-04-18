@@ -57,7 +57,7 @@ export const SearchInput: FC<ISearchInputProps> = ({
           h="1.75rem"
           size="sm"
           fontSize={["xs", "sm"]}
-          colorScheme="linkedin"
+          colorScheme="green"
           //funcs
           isDisabled={
             (searchValue.length === 0 || searchValue === prevSearchInput)

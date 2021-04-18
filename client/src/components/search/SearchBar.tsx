@@ -53,8 +53,9 @@ const SearchBar: FC<ISearchBarProps> = ({ ...rest }) => {
     <Box {...rest}>
       <Tabs
         //stylings
-        variant="enclosed-colored"
+        variant="soft-rounded"
         outline="none"
+        colorScheme="green"
         //funcs
         index={tabIndex}
         onChange={handleTabsChange}
