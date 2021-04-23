@@ -28,11 +28,13 @@ const ViewTasks: FC = () => {
       justifyContent="flex-start"
       alignItems="center"
     >
-      <FetchTasksForm width="50%" alignSelf="flex-start"/>
+      <FetchTasksForm w={["100%", "100%", "80%"]} alignSelf="flex-start"/>
       <TasksTable/>
       <Button
         //stylings
         mx="35% 35%"
+        fontSize={["xs", "sm", "md"]}
+        fontWeight="normal"
         //funcs
         isLoading={loading}
         isDisabled={numTasksLeft === 0}
@@ -41,7 +43,7 @@ const ViewTasks: FC = () => {
           dispatch(loadNextTasks({}));
         }}
       >
-        Load more ({numTasksLeft})
+        Fetch ({numTasksLeft} left)
       </Button>
     </Flex>
   );

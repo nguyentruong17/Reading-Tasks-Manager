@@ -82,7 +82,7 @@ const FetchTasksForm: FC<BoxProps> = (props) => {
     TITLE = "Title",
     STATUS = "Status",
     PRIORITY = "Priority",
-    ATTACH_ITEM_TITLE = "Attach Item's Title",
+    ATTACH_ITEM_TITLE = "Attach Item",
   }
 
   const checkboxButtons: Array<{
@@ -207,10 +207,13 @@ const FetchTasksForm: FC<BoxProps> = (props) => {
                       <Button
                         //stylings
                         my={[1, 1, 2]}
-                        // boxSize={{ base: "sm", md: "sm", lg: "sm" }}
+                        w={[100, 150]}
+                        fontSize={["xs", "sm"]}
+                        fontWeight="normal"
+                        colorScheme="blue"
+                        variant="outline"
                         //funcs
                         key={checkbox.name}
-                        color="primary"
                         onClick={setSelected(checkbox.name)}
                         isActive={checkboxSelected.includes(checkbox.name)}
                       >
@@ -220,9 +223,12 @@ const FetchTasksForm: FC<BoxProps> = (props) => {
                     ))}
                     <Button
                       //stylings
+                      w={[100, 150]}
                       my={[1, 1, 2]}
+                      fontSize={["xs", "sm"]}
+                      colorScheme="blue"
+                      variant="ghost"
                       //funcs
-                      color="primary"
                       isLoading={loading}
                       onClick={() => {
                         form.reset(defaultFields);
@@ -230,7 +236,7 @@ const FetchTasksForm: FC<BoxProps> = (props) => {
                       }}
                     >
                       <IoMdClose style={{ marginRight: 5 }} />
-                      Clear All
+                      Reset
                     </Button>
                   </ButtonGroup>
                 </FormControl>
@@ -302,11 +308,13 @@ const FetchTasksForm: FC<BoxProps> = (props) => {
               <GridItem>
                 <Button
                   //stylings
+                  w={[100, 150]}
                   my={[1, 1, 2]}
+                  fontSize={["xs", "sm"]}
+                  colorScheme="teal"
                   //funcs
                   type="submit"
                   // sets to the first page to trigger fetchIncidents effect
-                  color="primary"
                   isActive={Object.keys(inputError).length !== 0}
                   isLoading={loading}
                 >

@@ -72,3 +72,9 @@ export const createTask = gql`
     }
   }
 `;
+
+export const deleteTask = gql`
+  mutation deleteTask($taskId: GraphQLObjectId!) {
+    deleteTask(taskId: $taskId)
+  }
+`;

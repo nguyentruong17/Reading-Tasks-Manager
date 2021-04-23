@@ -21,7 +21,6 @@ import {
   Box,
   BoxProps,
   Button,
-  Container,
   Text,
   Image,
   AspectRatio,
@@ -151,6 +150,7 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                     color="yellow.600"
                     noOfLines={2}
                     mr={[1, 2]}
+                    visibility={item.subjects.length > 0 ? "visible": "hidden"}
                   >
                     by {item.authors.join(", ")}
                   </Text>
@@ -184,15 +184,15 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                 alignItems="flex-end"
                 flexGrow={1}
               >
-                <Container
+                <Text
                   fontSize={["xs", "sm"]}
-                  display={item.subjects.length > 0 ? "initial" : "none"}
                   noOfLines={[2, 3]}
                   px={0}
                   ml={0}
+                  visibility={item.subjects.length > 0 ? "visible": "hidden"}
                 >
                   Subjects: {item.subjects.join(", ")}
-                </Container>
+                </Text>
               </Flex>
             </Flex>
           </Flex>

@@ -271,7 +271,7 @@ export class BookService {
         );
       }
       if (authors.length === 0) {
-        authors.push('Anonymous');
+        authors.push('Unknown');
       }
       let covers = [];
       if (b.covers) {

@@ -27,7 +27,7 @@ export const SearchInput: FC<ISearchInputProps> = ({
   ...rest
 }) => {
   const [searchValue, setSearchValue] = useState<string>("");
-  const [prevSearchInput, setPrevSearchInput] = useState<null | string>(null);
+  //const [prevSearchInput, setPrevSearchInput] = useState<null | string>(null);
   const handleChange = (event: any) => {
     setSearchValue(event.target.value);
     handleChangeValue(event.target.value);
@@ -60,11 +60,13 @@ export const SearchInput: FC<ISearchInputProps> = ({
           colorScheme="green"
           //funcs
           isDisabled={
-            (searchValue.length === 0 || searchValue === prevSearchInput)
+            (searchValue.length === 0 
+              //|| searchValue === prevSearchInput
+            )
           }
           isLoading={isSearching === undefined ? false : isSearching}
           onClick={() => {
-            setPrevSearchInput(searchValue);
+            //setPrevSearchInput(searchValue);
             if (handleClickSearch) {
               handleClickSearch();
             }

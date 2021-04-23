@@ -22,6 +22,7 @@ import tasksReducer from '../features/tasks/tasksSlice';
 import taskReducer from '../features/task/taskSlice';
 import crudTaskReducer from '../features/task/crudTaskSlice';
 import searchReducer from '../features/search/searchSlice';
+import booksReducer from "../features/books/booksSlice";
 
 import { LocationState } from 'history';
 const historyReducer = (history: History) => ({
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
   task: taskReducer,
   crudTask: crudTaskReducer,
   search: searchReducer,
+  books: booksReducer, 
 })
 
 const persistConfig = {

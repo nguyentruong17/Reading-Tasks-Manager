@@ -6,15 +6,15 @@ import { RootState } from "app/store";
 import { GraphQLClient } from "graphql-request";
 import {
   getSdk,
-  GetTasksQueryVariables,
-  UserTaskFilter,
-  ViewTasks_UserTask_All_Fragment,
+  GetBooksQueryVariables,
+  BookFilter,
+  ViewBooks_BaseBookMongo_Parts_Fragment,
 } from "gql/generated/gql-types";
 
-import { GQL_ENDPOINT, DEFAULT_USER_TASKS_PER_QUERY } from "consts";
+import { GQL_ENDPOINT, DEFAULT_BOOKS_PER_REQUEST } from "consts";
 
 interface TasksState {
-  tasks: ViewTasks_UserTask_All_Fragment[];
+  books: ViewBooks_BaseBookMongo_Parts_Fragment[];
   loading: boolean;
   error: {
     message: string;
@@ -25,12 +25,12 @@ interface TasksState {
     limit: number;
     startCursor: string;
     endCursor: string;
-    filter: UserTaskFilter;
+    filter: BookFilter;
   };
 }
 
 const initialState: TasksState = {
-  tasks: [],
+  books: [],
   loading: false,
   error: {
     message: "",
@@ -38,50 +38,51 @@ const initialState: TasksState = {
   },
   pagination: {
     count: 0,
-    limit: DEFAULT_USER_TASKS_PER_QUERY,
+    limit: DEFAULT_BOOKS_PER_REQUEST,
     startCursor: "",
     endCursor: "",
     filter: {}
   },
 };
 
-const fetchTasks = async (args: GetTasksQueryVariables, jwtToken: string) => {
+const fetchBooks = async (args: GetBooksQueryVariables, jwtToken: string) => {
   const client = new GraphQLClient(GQL_ENDPOINT, {
     headers: {
       authorization: `Bearer ${jwtToken}`,
     },
   });
   const sdk = getSdk(client);
-  let { first, last, ...rest } = args;
-  if (!first && !last) {
-    first = DEFAULT_USER_TASKS_PER_QUERY;
-  }
-  const { getTasks } = await sdk.getTasks({
-    first,
-    ...rest,
-  });
-  return getTasks;
+    let { first, after, filter } = args;
+    if (!first) {
+      first = DEFAULT_BOOKS_PER_REQUEST;
+    }
+    const { getBooks } = await sdk.getBooks({
+      first,
+      after,
+      filter,
+    });
+    return getBooks;
 };
 
 
-let TEMP_FILTER: UserTaskFilter = { }
-export const initializeTasks = createAsyncThunk(
-  "tasks/initializeTasks",
-  async (args: GetTasksQueryVariables, { getState }) => {
+let TEMP_FILTER: BookFilter = { }
+export const initializeBooks = createAsyncThunk(
+  "books/initializeBooks",
+  async (args: GetBooksQueryVariables, { getState }) => {
     const { auth } = getState() as { auth: { jwtToken: string } };
     if(args.filter) {
       TEMP_FILTER = args.filter;
     }
-    return await fetchTasks(args, auth.jwtToken)
+    return await fetchBooks(args, auth.jwtToken)
   }
 );
 
-export const loadNextTasks = createAsyncThunk(
-  "tasks/loadMoreTasks",
-  async (args: Omit<GetTasksQueryVariables, 'after' |'last' | 'before'>, { getState }) => {
+export const loadNextBooks = createAsyncThunk(
+  "books/loadMoreBooks",
+  async (args: Omit<GetBooksQueryVariables, 'after' |'last' | 'before'>, { getState }) => {
     const { auth } = getState() as { auth: { jwtToken: string } };
-    const { tasks } = getState() as { tasks: { pagination : { endCursor: string, filter: UserTaskFilter }} };
-    return await fetchTasks({
+    const { tasks } = getState() as { tasks: { pagination : { endCursor: string, filter: BookFilter }} };
+    return await fetchBooks({
       ...args,
       after: tasks.pagination.endCursor,
       filter: tasks.pagination.filter
@@ -89,23 +90,8 @@ export const loadNextTasks = createAsyncThunk(
   }
 );
 
-export const deleteTask = createAsyncThunk(
-  "tasks/deleteTask",
-  async (args: {taskId: string, index: number}, { getState }) => {
-    const { auth } = getState() as { auth: { jwtToken: string } };
-    const client = new GraphQLClient(GQL_ENDPOINT, {
-      headers: {
-        authorization: `Bearer ${auth.jwtToken}`,
-      },
-    });
-    const sdk = getSdk(client);
-    const { deleteTask } = await sdk.deleteTask({taskId: args.taskId});
-    return [deleteTask, args.index]
-  }
-);
-
-export const tasksSlice = createSlice({
-  name: "tasks",
+export const booksSlice = createSlice({
+  name: "books",
   initialState,
   reducers: {
     setPaginationCount: (state, action: PayloadAction<number>) => {
@@ -120,7 +106,7 @@ export const tasksSlice = createSlice({
     setPaginationEndCursor: (state, action: PayloadAction<string>) => {
       state.pagination.endCursor = action.payload;
     },
-    setPaginationFilter: (state, action: PayloadAction<UserTaskFilter>) => {
+    setPaginationFilter: (state, action: PayloadAction<BookFilter>) => {
       state.pagination.filter = action.payload;
     },
   },
@@ -128,25 +114,25 @@ export const tasksSlice = createSlice({
     builder
 
       //load initial
-      .addCase(initializeTasks.pending, (state, action) => {
+      .addCase(initializeBooks.pending, (state, action) => {
         state.loading = true;
         state.pagination = {
           ...state.pagination,
           filter: TEMP_FILTER
         }
       })
-      .addCase(initializeTasks.fulfilled, (state, action) => {
-        const tasks: ViewTasks_UserTask_All_Fragment[] = [];
+      .addCase(initializeBooks.fulfilled, (state, action) => {
+        const books: ViewBooks_BaseBookMongo_Parts_Fragment[] = [];
         if (action.payload.page.edges) {
           action.payload.page.edges.forEach((e) => {
             if (e && e.node) {
-              tasks.push(e.node);
+              books.push(e.node);
             }
           });
         }
 
         //tasks
-        state.tasks = tasks;
+        state.books = books;
         
         //pagination
         if (action.payload.page.pageInfo) {
@@ -178,7 +164,7 @@ export const tasksSlice = createSlice({
         state.loading = false;
 
       })
-      .addCase(initializeTasks.rejected, (state, action) => {
+      .addCase(initializeBooks.rejected, (state, action) => {
         state.loading = false;
         state.error = {
           message:
@@ -191,21 +177,21 @@ export const tasksSlice = createSlice({
       })
 
       // load next 
-      .addCase(loadNextTasks.pending, (state, action) => {
+      .addCase(loadNextBooks.pending, (state, action) => {
         state.loading = true;
       })
-      .addCase(loadNextTasks.fulfilled, (state, action) => {
-        const tasks: ViewTasks_UserTask_All_Fragment[] = [...state.tasks];
+      .addCase(loadNextBooks.fulfilled, (state, action) => {
+        const books: ViewBooks_BaseBookMongo_Parts_Fragment[] = [...state.books];
         if (action.payload.page.edges) {
           action.payload.page.edges.forEach((e) => {
             if (e && e.node) {
-              tasks.push(e.node);
+              books.push(e.node);
             }
           });
         }
 
         //tasks
-        state.tasks = tasks;
+        state.books = books;
 
         //pagination
         if (action.payload.page.pageInfo) {
@@ -227,7 +213,7 @@ export const tasksSlice = createSlice({
         //stop loading
         state.loading = false;
       })
-      .addCase(loadNextTasks.rejected, (state, action) => {
+      .addCase(loadNextBooks.rejected, (state, action) => {
         state.loading = false;
         state.error = {
           message:
@@ -237,20 +223,7 @@ export const tasksSlice = createSlice({
             }: Failed to login with graphql server`,
           code: action.error.code || "500",
         };
-      })
-
-      //
-      .addCase(deleteTask.pending, (state, action) => {
-
-      })
-      .addCase(deleteTask.fulfilled, (state, action) => {
-        const [taskId, taskIndex] = action.payload;
-        state.tasks.splice(taskIndex, 1);
-        state.pagination.count -= 1;
-      })
-      .addCase(deleteTask.rejected, (state, action) => {
-
-      })
+      });
   },
 });
 
@@ -260,12 +233,12 @@ export const {
   setPaginationStartCursor,
   setPaginationEndCursor,
   setPaginationFilter,
-} = tasksSlice.actions;
+} = booksSlice.actions;
 
-export const selectTasks = (state: RootState) => state.tasks.tasks;
-export const selectTasksLoading = (state: RootState) => state.tasks.loading;
-export const selectTasksError = (state: RootState) => state.tasks.error;
-export const selectTasksPagination = (state: RootState) =>
-  state.tasks.pagination;
+export const selectBooks = (state: RootState) => state.books.books;
+export const selectBooksLoading = (state: RootState) => state.books.loading;
+export const selectBooksError = (state: RootState) => state.books.error;
+export const selectBooksPagination = (state: RootState) =>
+  state.books.pagination;
 
-export default tasksSlice.reducer;
+export default booksSlice.reducer;

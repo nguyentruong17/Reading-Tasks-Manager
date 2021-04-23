@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, useState, FC } from "react";
-//import styled, { StyledFunction } from "styled-components";
+import jwt_decode, { JwtPayload } from "jwt-decode";
 
 //redux
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +26,10 @@ import {
   Stack,
   BoxProps,
   Image,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import {
   IoMdAdd,
@@ -33,6 +37,9 @@ import {
   IoMdClose,
   IoMdMenu,
   IoMdSearch,
+  IoMdArrowDropdown,
+  IoMdBook,
+  IoMdList,
 } from "react-icons/io";
 import logo from "logo.png";
 
@@ -52,7 +59,7 @@ const Logo: FC<ILogoProps & BoxProps> = ({
       direction="row"
       alignItems="center"
     >
-      <Image src={logo} maxW={30} mr={[1, 2, 3]}/>
+      <Image src={logo} maxW={35} mr={[1, 2, 3]} />
 
       <Text fontSize={["md", "lg"]} fontWeight="semibold" color="green.700">
         Reading Task Manager
@@ -77,7 +84,7 @@ interface IMenuItemProps {
   //itemName: string;
   onClickHandler: MouseEventHandler<HTMLButtonElement>;
 }
-const MenuItem: FC<IMenuItemProps> = ({ children, onClickHandler }) => {
+const CustomMenuItem: FC<IMenuItemProps> = ({ children, onClickHandler }) => {
   return (
     <Button colorScheme="teal" variant="outline" onClick={onClickHandler}>
       {children}
@@ -108,6 +115,16 @@ const NavBarContainer: FC<INavBarContainerProps> = ({ children, ...props }) => {
   );
 };
 
+export interface IJwtPayload extends JwtPayload {
+  user: {
+    _id: string;
+    gmail: string;
+    googleId: string;
+    firstName: string;
+    lastName: string;
+  };
+}
+
 interface IHeaderProps {
   defaultRoute: string;
 }
@@ -132,6 +149,10 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
 
   const pushToDefaultRoute = () => history.push(defaultRoute);
 
+  const pushToTasks = () => history.push("/tasks");
+
+  const pushToBooks = () => history.push("/books");
+
   return (
     <NavBarContainer {...props}>
       <Logo style={{ cursor: "pointer" }} onClickHandler={pushToDefaultRoute} />
@@ -149,15 +170,44 @@ const Header: FC<IHeaderProps> = (props: IHeaderProps) => {
             direction={["column", "row", "row", "row"]}
             pt={[4, 4, 0, 0]}
           >
-            <MenuItem onClickHandler={pushToSearch}>
-              <IoMdSearch /> Search Book
-            </MenuItem>
-            <MenuItem onClickHandler={pushToNewTask}>
-              <IoMdAdd /> New Task
-            </MenuItem>
-            <MenuItem onClickHandler={() => dispatch(logOut())}>
-              <IoMdPower /> Log Out
-            </MenuItem>
+            <CustomMenuItem onClickHandler={pushToSearch}>
+              <IoMdSearch />
+              <Text ml={2} fontSize={["xs", "sm"]}>
+                Search Book
+              </Text>
+            </CustomMenuItem>
+            <CustomMenuItem onClickHandler={pushToNewTask}>
+              <IoMdAdd />
+              <Text ml={2} fontSize={["xs", "sm"]}>
+                New Task
+              </Text>
+            </CustomMenuItem>
+            <Menu>
+              <MenuButton
+                colorScheme="teal"
+                as={Button}
+                rightIcon={<IoMdArrowDropdown />}
+                //variant="outline"
+              >
+                <Text ml={2} fontSize={["xs", "sm"]}>
+                  {jwt_decode<IJwtPayload>(jwtToken)["user"]["firstName"] || "Actions"}
+                </Text>
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={pushToTasks}>
+                  <IoMdList />
+                  <Text ml={2}>My tasks</Text>
+                </MenuItem>
+                <MenuItem onClick={pushToBooks}>
+                  <IoMdBook />
+                  <Text ml={2}>My books</Text>
+                </MenuItem>
+                <MenuItem onClick={() => dispatch(logOut())}>
+                  <IoMdPower />
+                  <Text ml={2}>Log out</Text>
+                </MenuItem>
+              </MenuList>
+            </Menu>
           </Stack>
         </Box>
       )}

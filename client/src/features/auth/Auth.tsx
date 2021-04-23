@@ -92,7 +92,7 @@ export function Auth() {
             </Container>
           )}
         </Flex>
-        <Flex direction="column" position="absolute" bottom={0}>
+        <Flex direction="column" position="absolute" bottom={2}>
           <Flex direction="row">
             <Text mr={1} fontSize="xs">Created from OlinLab, Augustana College with</Text>
             <IoMdHeart color="red" />            

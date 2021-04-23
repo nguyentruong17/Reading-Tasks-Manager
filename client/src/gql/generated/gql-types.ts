@@ -384,6 +384,44 @@ export type LoginMutation = (
   & Pick<Mutation, 'login'>
 );
 
+export type ViewBooks_BaseBookMongo_Parts_Fragment = (
+  { __typename?: 'BaseBookMongo' }
+  & Pick<BaseBookMongo, 'openLibraryId' | 'title' | 'authors' | 'covers' | 'subjects' | '_id'>
+);
+
+export type GetBooksQueryVariables = Exact<{
+  first?: Maybe<Scalars['Int']>;
+  after?: Maybe<Scalars['String']>;
+  last?: Maybe<Scalars['Int']>;
+  before?: Maybe<Scalars['String']>;
+  filter?: Maybe<UserBookFilter>;
+}>;
+
+
+export type GetBooksQuery = (
+  { __typename?: 'Query' }
+  & { getBooks: (
+    { __typename?: 'UserBooksResponse' }
+    & { page: (
+      { __typename?: 'BaseBookMongoConnection' }
+      & { edges?: Maybe<Array<(
+        { __typename?: 'BaseBookMongoEdge' }
+        & Pick<BaseBookMongoEdge, 'cursor'>
+        & { node?: Maybe<(
+          { __typename?: 'BaseBookMongo' }
+          & ViewBooks_BaseBookMongo_Parts_Fragment
+        )> }
+      )>>, pageInfo?: Maybe<(
+        { __typename?: 'BaseBookMongoPageInfo' }
+        & Pick<BaseBookMongoPageInfo, 'endCursor' | 'hasNextPage' | 'hasPreviousPage' | 'startCursor'>
+      )> }
+    ), pageData?: Maybe<(
+      { __typename?: 'PageData' }
+      & Pick<PageData, 'count' | 'limit' | 'offset'>
+    )> }
+  ) }
+);
+
 export type Search_BaseBook_All_Fragment = (
   { __typename?: 'BaseBook' }
   & Pick<BaseBook, 'openLibraryId' | 'title' | 'authors' | 'covers' | 'subjects'>
@@ -546,6 +584,16 @@ export type CreateTaskMutation = (
   ) }
 );
 
+export type DeleteTaskMutationVariables = Exact<{
+  taskId: Scalars['GraphQLObjectId'];
+}>;
+
+
+export type DeleteTaskMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteTask'>
+);
+
 export type GetTaskQueryVariables = Exact<{
   taskId: Scalars['GraphQLObjectId'];
   first?: Maybe<Scalars['Int']>;
@@ -669,6 +717,16 @@ export type GetTasksQuery = (
   ) }
 );
 
+export const ViewBooks_BaseBookMongo_Parts_FragmentDoc = gql`
+    fragment ViewBooks_BaseBookMongo_Parts_ on BaseBookMongo {
+  openLibraryId
+  title
+  authors
+  covers
+  subjects
+  _id
+}
+    `;
 export const Search_BaseBook_All_FragmentDoc = gql`
     fragment Search_BaseBook_All_ on BaseBook {
   openLibraryId
@@ -737,6 +795,37 @@ export const LoginDocument = gql`
   login(idToken: $idToken)
 }
     `;
+export const GetBooksDocument = gql`
+    query getBooks($first: Int, $after: String, $last: Int, $before: String, $filter: UserBookFilter) {
+  getBooks(
+    first: $first
+    after: $after
+    last: $last
+    before: $before
+    filter: $filter
+  ) {
+    page {
+      edges {
+        cursor
+        node {
+          ...ViewBooks_BaseBookMongo_Parts_
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+    }
+    pageData {
+      count
+      limit
+      offset
+    }
+  }
+}
+    ${ViewBooks_BaseBookMongo_Parts_FragmentDoc}`;
 export const SearchOnlineBooksDocument = gql`
     query searchOnlineBooks($input: SearchBookInput!, $limit: Float, $offset: Float) {
   searchOnlineBooks(input: $input, limit: $limit, offset: $offset) {
@@ -835,6 +924,11 @@ export const CreateTaskDocument = gql`
     ${ViewTask_Task_Parts_FragmentDoc}
 ${ViewTask_AttachItem_Parts_FragmentDoc}
 ${ViewTask_TaskHistory_All_FragmentDoc}`;
+export const DeleteTaskDocument = gql`
+    mutation deleteTask($taskId: GraphQLObjectId!) {
+  deleteTask(taskId: $taskId)
+}
+    `;
 export const GetTaskDocument = gql`
     query getTask($taskId: GraphQLObjectId!, $first: Int, $after: String, $last: Int, $before: String) {
   getTask(taskId: $taskId) {
@@ -936,6 +1030,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     login(variables: LoginMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<LoginMutation> {
       return withWrapper(() => client.request<LoginMutation>(LoginDocument, variables, requestHeaders));
     },
+    getBooks(variables?: GetBooksQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetBooksQuery> {
+      return withWrapper(() => client.request<GetBooksQuery>(GetBooksDocument, variables, requestHeaders));
+    },
     searchOnlineBooks(variables: SearchOnlineBooksQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SearchOnlineBooksQuery> {
       return withWrapper(() => client.request<SearchOnlineBooksQuery>(SearchOnlineBooksDocument, variables, requestHeaders));
     },
@@ -953,6 +1050,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     createTask(variables: CreateTaskMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateTaskMutation> {
       return withWrapper(() => client.request<CreateTaskMutation>(CreateTaskDocument, variables, requestHeaders));
+    },
+    deleteTask(variables: DeleteTaskMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteTaskMutation> {
+      return withWrapper(() => client.request<DeleteTaskMutation>(DeleteTaskDocument, variables, requestHeaders));
     },
     getTask(variables: GetTaskQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTaskQuery> {
       return withWrapper(() => client.request<GetTaskQuery>(GetTaskDocument, variables, requestHeaders));

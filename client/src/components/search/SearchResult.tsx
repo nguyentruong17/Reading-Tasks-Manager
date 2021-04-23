@@ -205,7 +205,7 @@ const SearchResult: FC<ISearchResultProps> = () => {
                   fontSize={["xs", "sm", "md"]}
                   noOfLines={2}
                   mr={[1, 2]}
-                  display={book.authors.length > 0 ? "block" : "none"}
+                  visibility={book.authors.length > 0 ? "visible": "hidden"}
                 >
                   by {book.authors.join(", ")}
                 </Text>

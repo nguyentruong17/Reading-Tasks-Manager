@@ -16,6 +16,7 @@ import { Auth } from "features/auth/Auth";
 import ViewTasks from "features/tasks/Tasks";
 import ViewTask from "features/task/Task";
 import SearchBooks from "features/search/Search";
+import Books from "features/books/Books";
 
 const routes = [
   {
@@ -34,10 +35,10 @@ const routes = [
     component: SearchBooks,
     path: "/search",
   },
-  // {
-  //   component: null,
-  //   path: '/books',
-  // },
+  {
+    component: Books,
+    path: "/books",
+  },
   // {
   //   component: null,
   //   path: '/books:bookId',

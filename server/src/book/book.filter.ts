@@ -35,7 +35,7 @@ export class BookFilter implements FilterableMongo<BookDocument> {
       queries = {
         ...queries,
         authors: {
-          $elemMatch: {
+          $elemMatch: { //causes some filtering problems --> find a change
             $regex: this.author,
             $options: 'i',
           },
