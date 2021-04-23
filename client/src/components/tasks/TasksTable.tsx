@@ -2,7 +2,6 @@ import React, { FC, useRef, useCallback, useState } from "react";
 //redux
 import { AppDispatch } from "app/store";
 import { useSelector, useDispatch } from "react-redux";
-import { selectAuthJwtToken } from "features/auth/authSlice";
 import {
   //actions
   deleteTask,
@@ -44,11 +43,9 @@ import { IoMdTrash } from "react-icons/io";
 import { Status, Priorities } from "consts";
 import History from "utils/history";
 //graphql
-import { ViewTasks_UserTask_All_Fragment } from "gql/generated/gql-types";
 
 const TasksTable: FC<BoxProps> = (props) => {
   const dispatch: AppDispatch = useDispatch();
-  const jwtToken = useSelector(selectAuthJwtToken);
 
   const isLoading = useSelector(selectTasksLoading);
   const tasks = useSelector(selectTasks);
