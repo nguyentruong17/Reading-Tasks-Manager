@@ -150,7 +150,7 @@ const TaskAttachItem: FC<ITaskAttachItemProps> = ({ ...rest }) => {
                     color="yellow.600"
                     noOfLines={2}
                     mr={[1, 2]}
-                    visibility={item.subjects.length > 0 ? "visible": "hidden"}
+                    visibility={item.authors.length > 0 ? "visible": "hidden"}
                   >
                     by {item.authors.join(", ")}
                   </Text>

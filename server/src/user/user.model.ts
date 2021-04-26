@@ -74,7 +74,7 @@ export class User extends BaseUserMongo {
   @Field((type) => [UserTask], {nullable: "items"})
   tasks: Array<UserTask>;
 
-  @Prop({ type: [BaseBookMongoSchema] })
+  @Prop({ type: [BaseBookMongoSchema], excludeIndexes: true })
   @Field((type) => [BaseBookMongo], {nullable: "items"})
   books: Array<BaseBookMongo>;
 }
