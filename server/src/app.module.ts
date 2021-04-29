@@ -19,11 +19,10 @@ import { TaskModule } from './task/task.module';
     }),
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
-        const uri = `mongodb://${configService.get(
-          'MONGO_DB_DEV_USER',
-        )}:${configService.get('MONGO_DB_DEV_PWD')}@${configService.get(
-          'MONGO_NAME',
-        )}/${configService.get('MONGO_DB_DEV_NAME')}`;
+        const user = configService.get('MONGO_DB_DEV_USER');
+        const pwd = configService.get('MONGO_DB_DEV_PWD');
+        const db = configService.get('MONGO_DB_DEV_NAME');
+        const uri = `mongodb+srv://${user}:${pwd}@cluster0.w1eae.mongodb.net/${db}?retryWrites=true&w=majority`
         return {
           uri,
           useNewUrlParser: true,
