@@ -54,10 +54,10 @@ services:
     restart: always
     build:
       context: server
-      target: development
+      target: production
     volumes:
-      - ./server:/usr/src/reading-task-manger-backend
-      - /usr/src/reading-task-manger-backend/node_modules #docker-compose up --build -V to rebuid if install any packages
+      - ./server:/usr/src/reading-tasks-manager-backend
+      - /usr/src/reading-tasks-manager-backend/node_modules #docker-compose up --build -V to rebuid if install any packages
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
       #- 3000:3000
@@ -77,10 +77,10 @@ services:
     restart: always
     build:
       context: client
-      target: development
+      target: production
     volumes:
-      - ./client:/usr/src/reading-task-manger-frontend
-      - /usr/src/reading-task-manger-frontend/node_modules #docker-compose up --build -V to rebuid if install any packages
+      - ./client:/usr/src/reading-tasks-manager-frontend
+      - /usr/src/reading-tasks-manager-frontend/node_modules #docker-compose up --build -V to rebuid if install any packages
     ports:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
       #- 4200:4200
