@@ -3,7 +3,7 @@
 #development build
 FROM node:14.16.0-alpine AS development
 
-WORKDIR /usr/src/reading-task-manger-frontend
+WORKDIR /usr/src/reading-tasks-manager-frontend
 
 #RUN npm install -g yarn
 
@@ -18,7 +18,7 @@ RUN yarn run build
 #production build
 FROM node:14.16.0-alpine AS production
 
-WORKDIR /usr/src/reading-task-manger-frontend
+WORKDIR /usr/src/reading-tasks-manager-frontend
 
 #RUN npm install -g yarn
 
@@ -28,6 +28,8 @@ RUN yarn install --only=production
 
 COPY . .
 
-COPY --from=development /usr/src/reading-task-manger-frontend/dist ./dist
+COPY --from=development /usr/src/reading-tasks-manager-frontend/dist ./dist
 
-CMD ["node", "dist/main"]
+RUN yarn add global serve
+
+CMD ["serve", "-s", "build"]

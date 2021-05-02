@@ -1,63 +1,15 @@
 version: '3.7'
 services:
-  mongo:
-    image: mongo
-    container_name: mongodb
-    restart: always
-    volumes:
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-      - ./server/mongodb/database:/data/db
-    ports:
-      - ${MONGO_PORT}:${MONGO_PORT}
-      #- "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: root-db
-      MONGO_DB_DEV_NAME: ${MONGO_DB_DEV_NAME}
-      MONGO_DB_DEV_USER: ${MONGO_DB_DEV_USER}
-      MONGO_DB_DEV_PWD: ${MONGO_DB_DEV_PWD}
-      MONGO_DB_PROD_NAME: ${MONGO_DB_PROD_NAME}
-      MONGO_DB_PROD_USER: ${MONGO_DB_PROD_USER}
-      MONGO_DB_PROD_PWD: ${MONGO_DB_PROD_PWD}
-    env_file:
-      - .env
-    networks:
-      nest-mongo-network:
-          aliases:
-            - mongo
-
-  mongo-express:
-    image: mongo-express
-    container_name: mongodb-ui
-    restart: always
-    ports:
-      - ${MONGO_EXPRESS_PORT}:${MONGO_EXPRESS_PORT}
-      #- 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD} 
-    env_file: 
-      - .env
-    networks:
-      nest-mongo-network:
-          aliases:
-            - mongo-ui
-    depends_on:
-      - mongo
 
   backend:
     container_name: backend
     restart: always
     build:
       context: server
-      target: development
+      target: production
     volumes:
-      - ./server:/usr/src/reading-task-manger-backend
-      - /usr/src/reading-task-manger-backend/node_modules #docker-compose up --build -V to rebuid if install any packages
+      - ./server:/usr/src/reading-tasks-manager-backend
+      - /usr/src/reading-tasks-manager-backend/node_modules #docker-compose up --build -V to rebuid if install any packages
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
       #- 3000:3000
@@ -69,18 +21,16 @@ services:
       nest-mongo-network:
           aliases:
             - nest
-    depends_on:
-      - mongo
   
   frontend:
     container_name: frontend
     restart: always
     build:
       context: client
-      target: development
+      target: production
     volumes:
-      - ./client:/usr/src/reading-task-manger-frontend
-      - /usr/src/reading-task-manger-frontend/node_modules #docker-compose up --build -V to rebuid if install any packages
+      - ./client:/usr/src/reading-tasks-manager-frontend
+      - /usr/src/reading-tasks-manager-frontend/node_modules #docker-compose up --build -V to rebuid if install any packages
     ports:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
       #- 4200:4200
