@@ -39,7 +39,7 @@ import { TaskModule } from './task/task.module';
       playground: true,
       debug: false,
       cors: {
-        origin: 'http://localhost:4200',
+        origin: ['http://localhost:4200', 'https://reading-tasks-manager.herokuapp.com'],
         credentials: true,
       },
     }),
