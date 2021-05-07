@@ -10,7 +10,8 @@ async function bootstrap() {
       enableImplicitConversion: true
     },
   }))
-  await app.listen(3000);
-  console.log('Backend listening on :', 3000)
+  const port = process.env.PORT || 3000
+  await app.listen(port);
+  console.log('Backend listening on :', port)
 }
 bootstrap();
