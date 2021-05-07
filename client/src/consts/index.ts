@@ -1,7 +1,8 @@
 import { TaskPriority, TaskStatus } from "gql/generated/gql-types";
 
 ///graphql
-export const GQL_ENDPOINT = "http://localhost:3000/graphql";
+export const GQL_ENDPOINT = "https://reading-tasks-manager-server.herokuapp.com/graphql";
+//https://reading-tasks-manager-server.herokuapp.com/graphql
 
 ////book.service
 export const DEFAULT_BOOKS_PER_REQUEST = 10;

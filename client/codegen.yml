@@ -1,5 +1,5 @@
 overwrite: true
-schema: "http://localhost:3000/graphql"
+schema: "https://reading-tasks-manager-server.herokuapp.com/graphql"
 documents: 
   - "src/gql/**/*.ts"
   - "!(src/gql/generated/*.ts)"
