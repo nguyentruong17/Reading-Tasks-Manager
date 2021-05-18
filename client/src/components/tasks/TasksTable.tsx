@@ -197,7 +197,7 @@ const TasksTable: FC<BoxProps> = (props) => {
                         alignItems="center"
                         onClick={() => onClickDelete(index)}
                       >
-                        <IoMdTrash color="red" />
+                        <IoMdTrash color="red" style={{ cursor: "pointer" }} />
                       </Container>
                     </Td>
                   </Tr>

@@ -13,7 +13,15 @@ import {
   selectCurrentTaskId,
 } from "features/task/crudTaskSlice";
 //uis
-import { Box, BoxProps, Text, Badge, Flex, Heading } from "@chakra-ui/react";
+import {
+  Box,
+  BoxProps,
+  Text,
+  Badge,
+  Flex,
+  Heading,
+  Button,
+} from "@chakra-ui/react";
 import { IoMdCreate } from "react-icons/io";
 import CustomInputControl from "components/common/CustomInputControl";
 
@@ -55,16 +63,32 @@ const TaskHead: FC<TaskHeadProps> = ({ name, ...rest }) => {
               >
                 ID #{task._id}
               </Text>
-              <IoMdCreate
-                style={{
-                  cursor: "pointer",
-                  fontSize: "111%",
-                  alignSelf: "flex-start",
-                }}
+              <Button
+                //stylings
+                //my={[1, 1, 2]}
+                w={[90]}
+                h={[30]}
+                fontSize="xs"
+                fontWeight="thin"
+                colorScheme="linkedin"
+
+                //funcs
                 onClick={(e) => {
                   dispatch(setOperation(OperationState.Update));
                 }}
-              />
+              >
+                {"Edit"}
+                <IoMdCreate
+                  style={{
+                    //cursor: "pointer",
+                    //fontSize: "111%",
+                    //alignSelf: "flex-start",
+                    //marginTop: -1,
+                    marginLeft: 8,
+                    marginBottom: 4,
+                  }}
+                />
+              </Button>
             </Flex>
 
             <Heading fontSize={["md", "lg", "xl"]} mb={[1, 1, 2]}>

@@ -78,6 +78,7 @@ export function Auth() {
               clientId="496969872954-9si2o01oedof7tngpijp7947ujlnp17s.apps.googleusercontent.com"
               buttonText="Login"
               uxMode="redirect"
+              //redirectUri="http://localhost:4200"
               redirectUri="https://reading-tasks-manager.herokuapp.com"
               isSignedIn
               onSuccess={handleSuccess}

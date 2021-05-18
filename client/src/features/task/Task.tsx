@@ -295,6 +295,8 @@ const ViewTask: FC = () => {
 
                           if (operation !== OperationState.Create) {
                             dispatch(setOperation(OperationState.Read));
+                          } else { //operation is Create
+                            History.push(`/tasks`);
                           }
                         }}
                       >
@@ -310,7 +312,7 @@ const ViewTask: FC = () => {
                         isLoading={loading}
                         isDisabled={hasValidationErrors}
                       >
-                        Submit
+                        {operation === OperationState.Create ? "Create" : "Update"}
                       </Button>
                     )}
                   </Flex>

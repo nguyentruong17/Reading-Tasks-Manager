@@ -62,7 +62,7 @@ const Logo: FC<ILogoProps & BoxProps> = ({
       <Image src={logo} maxW={35} mr={[1, 2, 3]} />
 
       <Text fontSize={["md", "lg"]} fontWeight="semibold" color="green.700">
-        Reading Task Manager
+        Reading Tasks Manager
       </Text>
     </Flex>
   );
