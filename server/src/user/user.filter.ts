@@ -37,14 +37,14 @@ export class UserTaskFilter implements Filterable<UserTask> {
   isMatch(userTask: UserTask): boolean {
     let match = true;
     if (this.from) {
-      match = new ObjectId(userTask._id).getTimestamp().getDate() >= this.from.getDate();
+      match = new ObjectId(userTask._id).getTimestamp().getTime() >= this.from.getTime();
       if (!match) {
         return false;
       }
     }
 
     if (this.to) {
-      match = this.to.getDate() >= new ObjectId(userTask._id).getTimestamp().getDate();
+      match = this.to.getTime() >= new ObjectId(userTask._id).getTimestamp().getTime();
       if (!match) {
         return false;
       }
