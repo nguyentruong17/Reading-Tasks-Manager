@@ -37,6 +37,7 @@ import { TaskModule } from './task/task.module';
       context: ({ req, res }) => ({ req, res }),
       sortSchema: true,
       playground: true,
+      introspection: true,
       debug: false,
       cors: {
         origin: ['http://localhost:4200', 'https://reading-tasks-manager.herokuapp.com'],
